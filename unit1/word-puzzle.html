@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Word Puzzle | Vocabulary Manager</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+    />
+    <style>
+      /* SỬA ĐỔI: Đồng bộ hóa toàn bộ giao diện */
+      :root {
+        --bg: #ffffff;
+        --bg-soft: #f4f7fc;
+        --text: #334155;
+        --text-muted: #64748b;
+        --border: #e2e8f0;
+        --radius: 14px;
+        --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1),
+          0 2px 4px -2px rgb(0 0 0 / 0.1);
+        --accent: #3b82f6;
+        --accent-dark: #2563eb;
+        --success: #16a34a;
+        --error: #dc2626;
+        --warning: #f59e0b;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Inter", sans-serif;
+      }
+
+      body {
+        background: var(--bg-soft);
+        min-height: 100vh;
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        overflow-x: hidden;
+      }
+
+      .top-controls {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1.5rem;
+        width: 100%;
+        max-width: 900px;
+      }
+
+      .icon-btn {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        background: var(--bg);
+        color: var(--text-muted);
+        text-decoration: none;
+        font-size: 1.1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: var(--shadow);
+        transition: all 0.3s ease;
+        border: 1px solid var(--border);
+        cursor: pointer;
+      }
+
+      .icon-btn:hover {
+        background: var(--accent);
+        color: var(--bg);
+        transform: scale(1.05);
+      }
+
+      .container {
+        width: 100%;
+        max-width: 900px;
+        background: var(--bg);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        border: 1px solid var(--border);
+        padding: 2rem;
+        text-align: center;
+        position: relative;
+      }
+
+      .header {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1.5rem;
+        text-align: center;
+      }
+
+      .title-icon {
+        font-size: 2.2em;
+        margin-right: 15px;
+        color: var(--accent);
+      }
+
+      .puzzle-title {
+        font-size: 2em;
+        font-weight: 700;
+        color: var(--text);
+        margin: 0;
+      }
+
+      .puzzle-meaning {
+        font-size: 1.2rem;
+        color: var(--text-muted);
+        margin: 1.5rem 0;
+        padding: 0.75rem 1.5rem;
+        background: var(--bg-soft);
+        border-radius: 10px;
+        display: inline-block;
+        border: 1px solid var(--border);
+      }
+
+      .hint-btn {
+        position: absolute;
+        top: 1.5rem;
+        right: 1.5rem;
+        background: var(--accent);
+        color: var(--bg);
+        padding: 10px 16px;
+        border-radius: 8px;
+        border: none;
+        cursor: pointer;
+        transition: background 0.2s;
+        font-size: 0.9em;
+        font-weight: 600;
+      }
+
+      .hint-btn:hover {
+        background: var(--accent-dark);
+      }
+
+      .puzzle-area {
+        margin-bottom: 2rem;
+      }
+
+      .word-input {
+        padding: 0.75rem;
+        font-size: 1.5rem;
+        font-family: "Inter", sans-serif;
+        font-weight: 600;
+        border: 2px solid var(--border);
+        border-radius: 10px;
+        width: 100%;
+        max-width: 400px;
+        text-align: center;
+        outline: none;
+        transition: border-color 0.2s;
+        color: var(--text);
+      }
+
+      .word-input:focus {
+        border-color: var(--accent);
+      }
+
+      .puzzle-controls {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+
+      .btn {
+        padding: 12px 24px;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        font-size: 1em;
+        text-decoration: none;
+      }
+
+      .btn-primary {
+        background: var(--accent);
+        color: var(--bg);
+        border-color: var(--accent);
+      }
+      .btn-primary:hover {
+        background: var(--accent-dark);
+        transform: translateY(-2px);
+      }
+      .btn-secondary {
+        background: var(--bg);
+        color: var(--text);
+      }
+      .btn-secondary:hover {
+        background: var(--bg-soft);
+        border-color: #ddd;
+        transform: translateY(-2px);
+      }
+      .btn-warning {
+        background: var(--warning);
+        color: #fff;
+        border-color: var(--warning);
+      }
+      .btn-warning:hover {
+        opacity: 0.8;
+        transform: translateY(-2px);
+      }
+
+      .result-message {
+        font-size: 1.25rem;
+        margin-top: 1.5rem;
+        display: none;
+        font-weight: 600;
+      }
+      .result-message.success {
+        color: var(--success);
+        display: block;
+      }
+      .result-message.error {
+        color: var(--error);
+        display: block;
+      }
+
+      .result-details {
+        margin-top: 1rem;
+        font-size: 1rem;
+        color: var(--text-muted);
+        display: none;
+        background: var(--bg-soft);
+        padding: 1rem;
+        border-radius: 10px;
+      }
+
+      .incorrect-letter {
+        color: var(--error);
+        font-weight: bold;
+      }
+
+      .notification {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        padding: 1rem 1.5rem;
+        border-radius: 8px;
+        color: var(--bg);
+        transform: translateY(120px);
+        opacity: 0;
+        transition: all 0.4s ease;
+        box-shadow: var(--shadow);
+        font-weight: 500;
+      }
+      .notification.show {
+        transform: translateY(0);
+        opacity: 1;
+      }
+
+      .modal {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: var(--bg);
+        padding: 2rem;
+        border-radius: var(--radius);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        max-width: 500px;
+        width: 90%;
+        z-index: 1000;
+        animation: slideIn 0.3s ease;
+      }
+      .modal.show {
+        display: block;
+      }
+      @keyframes slideIn {
+        from {
+          opacity: 0;
+          transform: translate(-50%, -60%);
+        }
+        to {
+          opacity: 1;
+          transform: translate(-50%, -50%);
+        }
+      }
+
+      .modal-title {
+        font-size: 1.8rem;
+        font-weight: 600;
+        color: var(--success);
+        margin-bottom: 1.5rem;
+      }
+
+      .modal-stats {
+        margin-bottom: 1.5rem;
+        text-align: left;
+      }
+      .modal-stats p {
+        font-size: 1.1rem;
+        margin: 0.5rem 0;
+        color: var(--text);
+      }
+      .modal-stats strong {
+        color: var(--accent);
+      }
+
+      .retried-list {
+        max-height: 150px;
+        overflow-y: auto;
+        margin-bottom: 1.5rem;
+        text-align: left;
+      }
+      .retried-list h3 {
+        font-size: 1.2rem;
+        color: var(--text);
+        margin-bottom: 0.5rem;
+      }
+      .retried-list ul {
+        list-style: none;
+        padding: 0;
+      }
+      .retried-list li {
+        padding: 0.5rem;
+        background: var(--bg-soft);
+        margin-bottom: 0.5rem;
+        border-radius: 8px;
+        display: flex;
+        justify-content: space-between;
+      }
+
+      .modal-buttons {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+      }
+
+      canvas#fireworks {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 999;
+      }
+
+      @media (max-width: 768px) {
+        body {
+          padding: 1rem;
+        }
+        .container {
+          padding: 1.5rem;
+        }
+        .puzzle-title {
+          font-size: 1.5rem;
+        }
+        .word-input {
+          font-size: 1.2rem;
+        }
+        .btn {
+          padding: 10px 18px;
+          font-size: 0.9rem;
+        }
+        .modal {
+          padding: 1.5rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="top-controls">
+      <a href="study-options.html" class="icon-btn" id="backButton">
+        <i class="fas fa-arrow-left"></i>
+      </a>
+      <span style="visibility: hidden"></span>
+    </div>
+
+    <div class="container">
+      <div class="header">
+        <i class="fa-solid fa-brain title-icon"></i>
+        <h1 class="puzzle-title">Đoán từ</h1>
+      </div>
+
+      <div class="puzzle-meaning" id="puzzleMeaning">Loading...</div>
+      <button class="hint-btn" onclick="showHint()">
+        <i class="fa-solid fa-lightbulb"></i> Gợi ý
+      </button>
+
+      <div class="puzzle-area">
+        <input
+          type="text"
+          class="word-input"
+          id="wordInput"
+          placeholder="Nhập từ của bạn"
+          autocomplete="off"
+        />
+      </div>
+      <div class="result-message" id="resultMessage"></div>
+      <div class="result-details" id="resultDetails"></div>
+      <div class="puzzle-controls">
+        <button class="btn btn-secondary" onclick="clearInput()">
+          <i class="fas fa-eraser"></i> Xóa
+        </button>
+        <button class="btn btn-primary" onclick="checkAnswer()">
+          <i class="fas fa-check"></i> Kiểm tra
+        </button>
+        <button class="btn btn-primary" onclick="nextPuzzle()">
+          <i class="fas fa-arrow-right"></i> Tiếp theo
+        </button>
+        <button class="btn btn-warning" onclick="revealAnswer()">
+          <i class="fas fa-eye"></i> Hiển thị đáp án
+        </button>
+      </div>
+    </div>
+
+    <div class="modal" id="resultsModal">
+      <h2 class="modal-title">Chúc mừng! 🎉</h2>
+      <div class="modal-stats">
+        <p><strong>Điểm số:</strong> <span id="finalScore"></span></p>
+        <p>
+          <strong>Thời gian trung bình:</strong>
+          <span id="averageTime"></span> giây/từ
+        </p>
+        <p><strong>Số từ làm lại:</strong> <span id="retriedCount"></span></p>
+      </div>
+      <div class="retried-list">
+        <h3>Các từ làm sai lần đầu:</h3>
+        <ul id="retriedWordsList"></ul>
+      </div>
+      <div class="modal-buttons">
+        <button class="btn btn-primary" onclick="restartGame()">
+          <i class="fas fa-redo"></i> Làm lại
+        </button>
+        <a href="study-options.html" class="btn btn-secondary" id="backToStudy">
+          <i class="fas fa-arrow-left"></i> Quay lại
+        </a>
+      </div>
+    </div>
+
+    <canvas id="fireworks"></canvas>
+    <div id="notification" class="notification"></div>
+
+    <audio
+      id="correctSound"
+      src="./Am_thanh_lua_chon_Dung-www_tiengdong_com.mp3"
+    ></audio>
+    <audio
+      id="incorrectSound"
+      src="./Am_thanh_khi_chon_nham-www_tiengdong_com.mp3"
+    ></audio>
+    <audio
+      id="fireworksSound"
+      src="./Am_thanh_khi_chon_nham-www_tiengdong_com.mp3"
+    ></audio>
+
+    <script>
+      // Nội dung JavaScript giữ nguyên
+      let allWords = [
+        { word: "hello", meaning: "xin chào" },
+        { word: "apple", meaning: "quả táo" },
+        { word: "computer", meaning: "máy tính" },
+        { word: "book", meaning: "sách" },
+        { word: "house", meaning: "ngôi nhà" },
+        { word: "run", meaning: "chạy" },
+        { word: "eat", meaning: "ăn" },
+        { word: "sleep", meaning: "ngủ" },
+        { word: "drink", meaning: "uống" },
+        { word: "play", meaning: "chơi" },
+      ]; // Vocabulary hardcoded here
+
+      let remainingWords = [];
+      let currentPuzzle = null;
+      let correctWord = "";
+      let score = 0;
+      let hintUsed = false;
+      let isAnswerChecked = false;
+      let isAnswerCorrect = false;
+      let startTime = null;
+      let totalTime = 0;
+      let completedWords = 0;
+      let retriedWords = [];
+      let firstAttemptCorrect = true;
+
+      window.addEventListener("load", () => {
+        document.getElementById("backButton").href = "study-options.html";
+        document.getElementById("backToStudy").href = "study-options.html";
+
+        if (allWords.length === 0) {
+          showNotification("Không có từ vựng nào để chơi!", "error");
+          return;
+        }
+        remainingWords = [...allWords];
+        loadScore();
+        startTime = Date.now();
+        generatePuzzle();
+      });
+
+      function loadScore() {
+        score = parseInt(localStorage.getItem("puzzleScore")) || 0;
+      }
+
+      function saveScore() {
+        localStorage.setItem("puzzleScore", score);
+      }
+
+      function generatePuzzle() {
+        if (remainingWords.length === 0) {
+          showResults();
+          return;
+        }
+
+        const randomIndex = Math.floor(Math.random() * remainingWords.length);
+        currentPuzzle = remainingWords[randomIndex];
+        correctWord = currentPuzzle.word.toLowerCase();
+        hintUsed = false;
+        isAnswerChecked = false;
+        isAnswerCorrect = false;
+        firstAttemptCorrect = true;
+
+        document.getElementById("puzzleMeaning").textContent =
+          currentPuzzle.meaning;
+        document.getElementById("wordInput").value = "";
+        document.getElementById("resultMessage").style.display = "none";
+        document.getElementById("resultDetails").style.display = "none";
+      }
+
+      function highlightIncorrectLetters(userWord, correctWord) {
+        let result = "";
+        const maxLength = Math.max(userWord.length, correctWord.length);
+
+        for (let i = 0; i < maxLength; i++) {
+          const userChar = userWord[i] || "";
+          const correctChar = correctWord[i] || "";
+
+          if (userChar !== correctChar) {
+            result += `<span class="incorrect-letter">${
+              correctChar || ""
+            }</span>`;
+          } else {
+            result += correctChar;
+          }
+        }
+        return result;
+      }
+
+      function checkAnswer() {
+        const userWord = document
+          .getElementById("wordInput")
+          .value.trim()
+          .toLowerCase();
+        const resultMessage = document.getElementById("resultMessage");
+        const resultDetails = document.getElementById("resultDetails");
+        const correctSound = document.getElementById("correctSound");
+        const incorrectSound = document.getElementById("incorrectSound");
+
+        if (!userWord) {
+          resultMessage.textContent = "Vui lòng nhập từ!";
+          resultMessage.className = "result-message error";
+          resultMessage.style.display = "block";
+          incorrectSound.play();
+          return;
+        }
+
+        if (userWord === correctWord) {
+          resultMessage.textContent = "Chính xác! 🎉";
+          resultMessage.className = "result-message success";
+          resultDetails.textContent = "Bạn đã đoán đúng từ!";
+          score += hintUsed ? 5 : 10;
+          saveScore();
+          correctSound.play();
+          isAnswerCorrect = true;
+        } else {
+          resultMessage.textContent = "Sai rồi!";
+          resultMessage.className = "result-message error";
+          const highlightedWord = highlightIncorrectLetters(
+            userWord,
+            correctWord
+          );
+          resultDetails.innerHTML = `Từ đúng là: <strong>${highlightedWord}</strong>. Hãy thử lại!`;
+          incorrectSound.play();
+          isAnswerCorrect = false;
+          if (!isAnswerChecked && firstAttemptCorrect) {
+            retriedWords.push({
+              word: correctWord,
+              meaning: currentPuzzle.meaning,
+            });
+            firstAttemptCorrect = false;
+          }
+        }
+
+        resultMessage.style.display = "block";
+        resultDetails.style.display = "block";
+        isAnswerChecked = true;
+      }
+
+      function revealAnswer() {
+        const resultMessage = document.getElementById("resultMessage");
+        const resultDetails = document.getElementById("resultDetails");
+        const incorrectSound = document.getElementById("incorrectSound");
+
+        document.getElementById("wordInput").value = correctWord;
+        resultMessage.textContent = "Đáp án đã được hiển thị!";
+        resultMessage.className = "result-message warning";
+        resultMessage.style.display = "block";
+        resultDetails.style.display = "none";
+        if (!hintUsed) score = Math.max(0, score - 5);
+        saveScore();
+        incorrectSound.play();
+        isAnswerChecked = true;
+        isAnswerCorrect = true;
+        if (!isAnswerChecked && firstAttemptCorrect) {
+          retriedWords.push({
+            word: correctWord,
+            meaning: currentPuzzle.meaning,
+          });
+          firstAttemptCorrect = false;
+        }
+      }
+
+      function clearInput() {
+        document.getElementById("wordInput").value = "";
+        document.getElementById("resultMessage").style.display = "none";
+        document.getElementById("resultDetails").style.display = "none";
+        isAnswerChecked = false;
+        isAnswerCorrect = false;
+      }
+
+      function showHint() {
+        const input = document.getElementById("wordInput");
+        const currentValue = input.value.toLowerCase();
+        if (currentValue.length < correctWord.length) {
+          input.value = correctWord.slice(0, currentValue.length + 1);
+          hintUsed = true;
+          showNotification("Đã thêm một chữ cái gợi ý!", "warning");
+        } else {
+          showNotification("Không thể gợi ý thêm!", "error");
+        }
+      }
+
+      function nextPuzzle() {
+        if (isAnswerCorrect) {
+          const timeTaken = (Date.now() - startTime) / 1000;
+          totalTime += timeTaken;
+          completedWords++;
+          remainingWords = remainingWords.filter(
+            (word) => word.word.toLowerCase() !== correctWord
+          );
+          startTime = Date.now();
+        }
+        generatePuzzle();
+      }
+
+      function showResults() {
+        const averageTime = totalTime / completedWords || 0;
+        const retriedList = retriedWords
+          .map(
+            (item) =>
+              `<li><span>${item.word}</span><span>${item.meaning}</span></li>`
+          )
+          .join("");
+
+        document.getElementById("finalScore").textContent = score;
+        document.getElementById("averageTime").textContent =
+          averageTime.toFixed(2);
+        document.getElementById("retriedCount").textContent =
+          retriedWords.length;
+        document.getElementById("retriedWordsList").innerHTML =
+          retriedList || "<li>Không có</li>";
+
+        const modal = document.getElementById("resultsModal");
+        modal.classList.add("show");
+
+        launchFireworks();
+        document.getElementById("fireworksSound").play();
+      }
+
+      function restartGame() {
+        remainingWords = [...allWords];
+        score = 0;
+        totalTime = 0;
+        completedWords = 0;
+        retriedWords = [];
+        saveScore();
+        startTime = Date.now();
+        document.getElementById("resultsModal").classList.remove("show");
+        document.getElementById("fireworks").style.display = "none";
+        generatePuzzle();
+      }
+
+      function showNotification(message, type = "info") {
+        const notification = document.getElementById("notification");
+        notification.textContent = message;
+        notification.style.backgroundColor =
+          type === "success"
+            ? "var(--success)"
+            : type === "error"
+            ? "var(--error)"
+            : "var(--warning)";
+        notification.classList.add("show");
+        setTimeout(() => notification.classList.remove("show"), 3000);
+      }
+      function launchFireworks() {
+        const canvas = document.getElementById("fireworks");
+        const ctx = canvas.getContext("2d");
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        canvas.style.display = "block";
+
+        const fireworks = [];
+        const particles = [];
+
+        function random(min, max) {
+          return Math.random() * (max - min) + min;
+        }
+
+        function Firework() {
+          this.x = random(canvas.width * 0.2, canvas.width * 0.8);
+          this.y = canvas.height;
+          this.targetY = random(canvas.height * 0.1, canvas.height * 0.4);
+          this.vx = random(-1, 1);
+          this.vy = random(-10, -5);
+          this.radius = 2;
+          this.color = `hsl(${random(0, 360)}, 100%, 50%)`;
+          this.exploded = false;
+        }
+
+        Firework.prototype.update = function () {
+          this.x += this.vx;
+          this.y += this.vy;
+          this.vy += 0.1;
+
+          if (this.y <= this.targetY && !this.exploded) {
+            this.explode();
+            this.exploded = true;
+          }
+
+          return !this.exploded || this.y < canvas.height;
+        };
+
+        Firework.prototype.explode = function () {
+          for (let i = 0; i < 50; i++) {
+            particles.push(new Particle(this.x, this.y, this.color));
+          }
+        };
+
+        Firework.prototype.draw = function () {
+          ctx.beginPath();
+          ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+          ctx.fillStyle = this.color;
+          ctx.fill();
+        };
+
+        function Particle(x, y, color) {
+          this.x = x;
+          this.y = y;
+          this.vx = random(-2, 2);
+          this.vy = random(-2, 2);
+          this.radius = random(1, 3);
+          this.color = color;
+          this.life = 0;
+          this.maxLife = random(30, 50);
+        }
+
+        Particle.prototype.update = function () {
+          this.x += this.vx;
+          this.y += this.vy;
+          this.vy += 0.1;
+          this.life++;
+          this.radius *= 0.95;
+          return this.life < this.maxLife;
+        };
+
+        Particle.prototype.draw = function () {
+          ctx.beginPath();
+          ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+          ctx.fillStyle = this.color;
+          ctx.fill();
+        };
+
+        function animate() {
+          ctx.fillStyle = "rgba(0, 0, 0, 0.1)";
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+          if (Math.random() < 0.2 && fireworks.length < 5) {
+            fireworks.push(new Firework());
+          }
+
+          fireworks.forEach((firework, index) => {
+            if (!firework.update()) fireworks.splice(index, 1);
+            firework.draw();
+          });
+
+          particles.forEach((particle, index) => {
+            if (!particle.update()) particles.splice(index, 1);
+            particle.draw();
+          });
+
+          if (fireworks.length || particles.length) {
+            requestAnimationFrame(animate);
+          } else {
+            canvas.style.display = "none";
+          }
+        }
+        animate();
+      }
+
+      document.addEventListener("keydown", (e) => {
+        const wordInput = document.getElementById("wordInput");
+
+        if (e.key === "Enter") {
+          e.preventDefault();
+          if (document.activeElement === wordInput && !isAnswerChecked) {
+            checkAnswer();
+          } else if (isAnswerChecked && !isAnswerCorrect) {
+            clearInput();
+          } else if (isAnswerChecked && isAnswerCorrect) {
+            nextPuzzle();
+          }
+        }
+
+        if (document.activeElement !== wordInput) {
+          if (e.key === " ") nextPuzzle();
+          if (e.key === "r") clearInput();
+          if (e.key === "h") showHint();
+          if (e.key === "v") revealAnswer();
+        }
+      });
+    </script>
+  </body>
+</html>

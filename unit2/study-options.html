@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lộ Trình Học Tập Tương Tác</title>
+
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Quicksand:wght@500;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      /* --- Cài đặt biến màu và các thiết lập chung --- */
+      :root {
+        --light-blue-bg: #f0f8ff; /* AliceBlue */
+        --header-bg: #ffffff;
+        --card-bg: #ffffff;
+        --primary-accent: #00b4d8;
+        --secondary-accent: #90e0ef;
+        --text-dark: #023047;
+        --text-light: #457b9d;
+        --shadow-color: rgba(0, 180, 216, 0.2);
+        --arrow-color: #0096c7;
+      }
+
+      /* --- Reset và cài đặt cơ bản cho trang --- */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Quicksand", sans-serif;
+        background-color: var(--light-blue-bg);
+        color: var(--text-dark);
+        padding-top: 90px;
+        overflow-x: hidden;
+      }
+
+      /* --- Header cố định --- */
+      .fixed-header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        background-color: var(--header-bg);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        z-index: 1000;
+        padding: 15px 5%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .back-button {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        text-decoration: none;
+        color: var(--text-dark);
+        font-size: 1.1rem;
+        font-weight: 700;
+        padding: 10px 20px;
+        border-radius: 50px;
+        transition: all 0.3s ease;
+      }
+
+      .back-button i {
+        transition: transform 0.3s ease;
+      }
+
+      .back-button:hover {
+        background-color: var(--primary-accent);
+        color: white;
+        box-shadow: 0 5px 15px var(--shadow-color);
+      }
+
+      .back-button:hover i {
+        transform: translateX(-5px);
+      }
+
+      .header-title {
+        font-family: "Montserrat", sans-serif;
+        font-size: 1.8rem;
+        font-weight: 700;
+        background: linear-gradient(
+          45deg,
+          var(--primary-accent),
+          var(--text-dark)
+        );
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+
+      /* --- Phần giới thiệu --- */
+      .intro-section {
+        text-align: center;
+        padding: 60px 20px 40px;
+        max-width: 800px;
+        margin: 0 auto;
+        opacity: 0;
+        transform: translateY(20px);
+        animation: fadeInIntro 0.8s ease-out forwards;
+      }
+
+      @keyframes fadeInIntro {
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .intro-section h2 {
+        font-family: "Montserrat", sans-serif;
+        font-size: 2.5rem;
+        margin-bottom: 15px;
+        color: var(--text-dark);
+      }
+
+      .intro-section p {
+        font-size: 1.1rem;
+        color: var(--text-light);
+        line-height: 1.6;
+      }
+
+      /* --- Nội dung chính và lộ trình học tập --- */
+      .learning-path-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 20px 20px 80px;
+        flex-wrap: wrap;
+        gap: 15px;
+      }
+
+      /* Bọc thẻ a bên ngoài div để toàn bộ thẻ có thể click */
+      .learning-link {
+        text-decoration: none;
+        color: inherit;
+      }
+
+      /* --- Thẻ tùy chọn học tập --- */
+      .learning-option {
+        background: var(--card-bg);
+        border-radius: 20px;
+        padding: 25px;
+        text-align: center;
+        width: 220px;
+        height: 280px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.07);
+        position: relative;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: center;
+        opacity: 0;
+        transform: translateY(30px);
+        animation: fadeInUp 0.5s ease-out forwards;
+      }
+
+      /* --- Delay animation cho từng mục --- */
+      .learning-link:nth-of-type(1) .learning-option {
+        animation-delay: 0.2s;
+      }
+      .learning-link:nth-of-type(2) .learning-option {
+        animation-delay: 0.4s;
+      }
+      .learning-link:nth-of-type(3) .learning-option {
+        animation-delay: 0.6s;
+      }
+      .learning-link:nth-of-type(4) .learning-option {
+        animation-delay: 0.8s;
+      }
+      .learning-link:nth-of-type(5) .learning-option {
+        animation-delay: 1s;
+      }
+      .learning-link:nth-of-type(6) .learning-option {
+        animation-delay: 1.2s;
+      }
+
+      @keyframes fadeInUp {
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .learning-link:hover .learning-option {
+        transform: translateY(-15px) scale(1.05);
+        box-shadow: 0 20px 40px var(--shadow-color);
+      }
+
+      .icon-wrapper {
+        font-size: 3.5rem;
+        margin-bottom: 20px;
+        background: linear-gradient(
+          45deg,
+          var(--primary-accent),
+          var(--secondary-accent)
+        );
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+
+      .learning-option h3 {
+        font-family: "Montserrat", sans-serif;
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 10px;
+        color: var(--text-dark);
+      }
+
+      .learning-option .caption {
+        font-size: 0.95rem;
+        color: var(--text-light);
+        font-weight: 500;
+        line-height: 1.5;
+        padding: 0 10px;
+      }
+
+      /* --- Mũi tên --- */
+      .arrow {
+        font-size: 3.5rem;
+        color: var(--arrow-color);
+        margin: 0 20px;
+        opacity: 0;
+        animation: fadeInArrow 0.5s ease-out forwards;
+        align-self: center;
+      }
+
+      .arrow-1 {
+        animation-delay: 1.4s;
+      }
+      .arrow-2 {
+        animation-delay: 1.5s;
+      }
+      .arrow-3 {
+        animation-delay: 1.6s;
+      }
+      .arrow-4 {
+        animation-delay: 1.7s;
+      }
+      .arrow-5 {
+        animation-delay: 1.8s;
+      }
+
+      @keyframes fadeInArrow {
+        to {
+          opacity: 0.7;
+        }
+      }
+
+      /* --- Responsive --- */
+      @media (max-width: 1600px) {
+        .learning-path-container {
+          flex-direction: column;
+        }
+        .arrow {
+          transform: rotate(90deg);
+          margin: 25px 0;
+        }
+      }
+
+      @media (max-width: 600px) {
+        .fixed-header {
+          flex-direction: column;
+          gap: 10px;
+          padding: 10px 20px;
+          position: static;
+        }
+        body {
+          padding-top: 0;
+        }
+        .intro-section h2 {
+          font-size: 2rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="fixed-header">
+      <a href="../tuhoc.html" class="back-button">
+        <i class="fas fa-arrow-left"></i>
+        <span>Back</span>
+      </a>
+      <h1 class="header-title">Khám Phá Lộ Trình Học</h1>
+    </header>
+
+    <main>
+      <section class="intro-section">
+        <h2>Chào Mừng Bạn Đến Với Hành Trình Tri Thức!</h2>
+        <p>
+          Hãy bắt đầu cuộc phiêu lưu của bạn bằng cách đi theo lộ trình được gợi
+          ý dưới đây. Mỗi bước là một viên gạch vững chắc giúp bạn chinh phục
+          mục tiêu học tập của mình. Cùng khám phá nhé!
+        </p>
+      </section>
+
+      <div class="learning-path-container">
+        <a href="unit2..html" class="learning-link">
+          <div class="learning-option">
+            <div class="icon-wrapper">
+              <i class="fas fa-comments"></i>
+            </div>
+            <h3>Conversation</h3>
+            <p class="caption">
+              Luyện tập hội thoại thực tế để cải thiện kỹ năng giao tiếp và phản
+              xạ.
+            </p>
+          </div>
+        </a>
+
+        <div class="arrow arrow-1">
+          <i class="fas fa-long-arrow-alt-right"></i>
+        </div>
+
+        <a href="grammar.html" class="learning-link">
+          <div class="learning-option">
+            <div class="icon-wrapper">
+              <i class="fas fa-book-open-reader"></i>
+            </div>
+            <h3>Grammar</h3>
+            <p class="caption">
+              Nắm vững các quy tắc ngữ pháp cốt lõi. Đây là chìa khóa để bạn
+              hiểu sâu hơn.
+            </p>
+          </div>
+        </a>
+
+        <div class="arrow arrow-2">
+          <i class="fas fa-long-arrow-alt-right"></i>
+        </div>
+
+        <a href="flashcard.html" class="learning-link">
+          <div class="learning-option">
+            <div class="icon-wrapper">
+              <i class="fas fa-clone"></i>
+            </div>
+            <h3>Flashcard</h3>
+            <p class="caption">
+              Tăng tốc ghi nhớ từ vựng mới một cách trực quan và hiệu quả.
+            </p>
+          </div>
+        </a>
+
+        <div class="arrow arrow-3">
+          <i class="fas fa-long-arrow-alt-right"></i>
+        </div>
+
+        <a href="word-puzzle.html" class="learning-link">
+          <div class="learning-option">
+            <div class="icon-wrapper">
+              <i class="fas fa-lightbulb"></i>
+            </div>
+            <h3>Đoán Từ</h3>
+            <p class="caption">
+              Trò chơi đoán từ sẽ giúp bạn củng cố lại những gì đã học một cách
+              thú vị.
+            </p>
+          </div>
+        </a>
+
+        <div class="arrow arrow-4">
+          <i class="fas fa-long-arrow-alt-right"></i>
+        </div>
+
+        <a href="practice.html" class="learning-link">
+          <div class="learning-option">
+            <div class="icon-wrapper">
+              <i class="fas fa-tasks"></i>
+            </div>
+            <h3>Quiz</h3>
+            <p class="caption">
+              Thực hiện các bài trắc nghiệm nhanh để đánh giá toàn diện kiến
+              thức.
+            </p>
+          </div>
+        </a>
+
+        <div class="arrow arrow-5">
+          <i class="fas fa-long-arrow-alt-right"></i>
+        </div>
+
+        <a href="matching.html" class="learning-link">
+          <div class="learning-option">
+            <div class="icon-wrapper">
+              <i class="fas fa-headset"></i>
+            </div>
+            <h3>Matching</h3>
+            <p class="caption">
+              Áp dụng tất cả kiến thức vào các bài tập tình huống, nghe và nói
+              thực tế.
+            </p>
+          </div>
+        </a>
+      </div>
+    </main>
+  </body>
+</html>

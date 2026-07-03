@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Luyện Hội Thoại | Unit 2</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+    <style>
+        :root {
+            --bg: #ffffff;
+            --bg-soft: #f0f8ff;
+            --text: #343a40;
+            --text-muted: #6c757d;
+            --border: #e9ecef;
+            --radius: 14px;
+            --shadow: 0 8px 24px rgba(16, 16, 16, 0.05);
+            --accent: #007bff;
+            --accent-dark: #0056b3;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: "Inter", sans-serif; }
+        body {
+            background: var(--bg-soft); min-height: 100vh; padding: 1.5rem;
+            display: flex; justify-content: center; font-size: 16px;
+        }
+        .container { width: 100%; max-width: 800px; display: flex; flex-direction: column; }
+        .header h1 { font-size: 1.5rem; color: var(--text); text-align: center; margin-bottom: 1.5rem;}
+        .conversation-container {
+            flex-grow: 1; background: var(--bg); border-radius: var(--radius);
+            box-shadow: var(--shadow); border: 1px solid var(--border);
+            padding: 1.5rem; display: flex; flex-direction: column;
+            gap: 1.25rem; overflow-y: auto;
+        }
+        .message-row {
+            display: flex; align-items: flex-end; gap: 0.75rem;
+            max-width: 85%; transition: transform 0.3s ease, box-shadow 0.3s ease;
+            padding: 0.5rem; border-radius: var(--radius); border: 2px solid transparent;
+        }
+        .message-row.playing {
+            border-color: var(--accent); transform: scale(1.02);
+            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.1);
+        }
+        .message-row.speaker-a { align-self: flex-start; }
+        .message-row.speaker-b { align-self: flex-end; flex-direction: row-reverse; }
+        .avatar {
+            width: 40px; height: 40px; border-radius: 50%; background: var(--border);
+            display: flex; align-items: center; justify-content: center;
+            color: var(--text-muted); font-weight: 600; flex-shrink: 0;
+        }
+        .message-bubble { padding: 1rem; border-radius: var(--radius); line-height: 1.6; }
+        .speaker-a .message-bubble {
+            background: var(--bg-soft); border: 1px solid var(--border);
+            border-bottom-left-radius: 4px; color: var(--text);
+        }
+        .speaker-b .message-bubble { background: var(--accent); color: white; border-bottom-right-radius: 4px; }
+        .main-controls { margin-top: 1.5rem; display: flex; justify-content: center; }
+        .btn {
+            display: inline-flex; align-items: center; justify-content: center;
+            gap: 8px; padding: 12px 24px; border-radius: 12px;
+            font-weight: 600; font-size: 16px; border: 1px solid var(--border);
+            cursor: pointer; transition: all 0.2s ease; min-width: 280px;
+        }
+        .btn:disabled { background-color: var(--text-muted); border-color: var(--text-muted); cursor: not-allowed; }
+        .btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+        .btn-primary:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); background: var(--accent-dark); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header"><h1>Unit 2: Feeling Sick</h1></header>
+        <main class="conversation-container" id="conversationContainer"></main>
+        <div class="main-controls">
+            <button class="btn btn-primary" id="playAllBtn" disabled>
+                <i class="fas fa-spinner fa-spin"></i>
+                <span style="margin-left: 8px;">Đang tải âm thanh...</span>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const conversationData = [
+            { speaker: "A", text: "How do you feel today?", start: 0.3, end: 1.6 },
+            { speaker: "B", text: "I feel sick.", start: 2.4, end: 4.0 },
+            { speaker: "A", text: "What's the matter?", start: 4.5, end: 5.5 },
+            { speaker: "B", text: "I have a headache.", start: 5.8, end: 7.2 },
+            { speaker: "A", text: "Do you want to see a doctor?", start: 7.5, end: 9.5 },
+            { speaker: "B", text: "Yes, please.", start: 9.8, end: 11.0 }
+        ];
+
+        let isPlaying = false;
+        let audio;
+
+        const playAllBtn = document.getElementById('playAllBtn');
+        const container = document.getElementById('conversationContainer');
+
+        function setupAudio() {
+            audio = new Audio('Unit 2.mp3');
+            audio.addEventListener('canplaythrough', () => {
+                playAllBtn.disabled = false;
+                playAllBtn.innerHTML = `<i class="fas fa-play"></i><span style="margin-left: 4px;">Phát toàn bộ hội thoại</span>`;
+            });
+            audio.addEventListener('error', () => {
+                playAllBtn.innerHTML = `<span>Lỗi tải âm thanh</span>`;
+                alert("Không thể tải được tệp Unit 2.mp3. Vui lòng kiểm tra lại tệp.");
+            });
+        }
+
+        function playSegment(index) {
+            if (index >= conversationData.length) {
+                stopConversation();
+                return;
+            }
+            const track = conversationData[index];
+            highlightCurrentTrack(index);
+            
+            audio.currentTime = track.start;
+            audio.play();
+
+            const checkTime = setInterval(() => {
+                if (audio.currentTime >= track.end) {
+                    clearInterval(checkTime);
+                    if(isPlaying) {
+                        playSegment(index + 1);
+                    }
+                }
+            }, 100);
+        }
+
+        function toggleConversationPlayback() {
+            isPlaying = !isPlaying;
+            if (isPlaying) {
+                playAllBtn.innerHTML = `<i class="fas fa-stop"></i><span style="margin-left: 4px;">Dừng</span>`;
+                playSegment(0);
+            } else {
+                stopConversation();
+            }
+        }
+        
+        function stopConversation() {
+            isPlaying = false;
+            audio.pause();
+            playAllBtn.innerHTML = `<i class="fas fa-play"></i><span style="margin-left: 4px;">Phát lại từ đầu</span>`;
+            removeHighlight();
+        }
+
+        function highlightCurrentTrack(index) {
+            removeHighlight();
+            const allRows = document.querySelectorAll('.message-row');
+            if (allRows[index]) {
+                allRows[index].classList.add('playing');
+            }
+        }
+        
+        function removeHighlight() {
+            document.querySelectorAll('.message-row.playing').forEach(el => el.classList.remove('playing'));
+        }
+
+        function renderConversation() {
+            conversationData.forEach(msg => {
+                container.innerHTML += `
+                    <div class="message-row speaker-${msg.speaker.toLowerCase()}">
+                        <div class="avatar">${msg.speaker}</div>
+                        <div class="message-bubble">${msg.text}</div>
+                    </div>`;
+            });
+        }
+
+        playAllBtn.addEventListener('click', toggleConversationPlayback);
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderConversation();
+            setupAudio();
+        });
+    </script>
+</body>
+</html>

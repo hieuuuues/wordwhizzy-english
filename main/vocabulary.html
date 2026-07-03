@@ -1,0 +1,4425 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>Vocabulary Manager - WordWhizzy</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+      rel="stylesheet"
+    />
+
+    <script src="https://cdn.jsdelivr.net/npm/browser-image-compression@2.0.1/dist/browser-image-compression.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+
+    <style>
+      /* ===================================================================
+         WORDWHIZZY — DESIGN SYSTEM
+         A premium, glass-forward EdTech token system. Indigo→violet brand
+         gradient, warm gold for gamification/XP, calm neutral surfaces.
+         =================================================================== */
+      :root {
+        color-scheme: light;
+        --bg: #f7f9fc;
+        --bg-elevated: #ffffff;
+        --surface: #ffffff;
+        --surface-2: #f0f4fb;
+        --surface-glass: rgba(255, 255, 255, 0.72);
+        --header-glass: rgba(255, 255, 255, 0.78);
+        --border: #e3e8f2;
+        --border-strong: #cbd5e8;
+        --text: #11182c;
+        --text-muted: #66718c;
+        --text-faint: #97a1b8;
+
+        --accent: #4f5bff;
+        --accent-2: #8b5cf6;
+        --accent-soft: #eef0ff;
+        --accent-contrast: #ffffff;
+        --gradient-brand: linear-gradient(135deg, #4f5bff 0%, #8b5cf6 100%);
+        --gradient-brand-soft: linear-gradient(135deg, rgba(79, 91, 255, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+
+        --gold: #f5a524;
+        --gold-2: #f76b1c;
+        --gold-soft: #fff4e0;
+        --gradient-gold: linear-gradient(135deg, #f5a524 0%, #f76b1c 100%);
+
+        --success: #18a058;
+        --success-soft: #e7f8ef;
+        --warning: #f0a202;
+        --warning-soft: #fff6e5;
+        --error: #e5484d;
+        --error-soft: #fce9e9;
+
+        --radius-sm: 8px;
+        --radius: 16px;
+        --radius-lg: 22px;
+        --radius-pill: 999px;
+
+        --shadow-sm: 0 1px 2px rgba(17, 24, 44, 0.05);
+        --shadow: 0 8px 24px rgba(17, 24, 44, 0.07);
+        --shadow-lg: 0 24px 60px rgba(17, 24, 44, 0.14);
+        --shadow-glow: 0 0 0 1px rgba(79, 91, 255, 0.08), 0 8px 30px rgba(79, 91, 255, 0.18);
+
+        --font-display: "Plus Jakarta Sans", "Inter", sans-serif;
+        --font-body: "Inter", sans-serif;
+
+        --ease: cubic-bezier(0.22, 1, 0.36, 1);
+        --ease-snap: cubic-bezier(0.16, 1, 0.3, 1);
+
+        font-synthesis: none;
+      }
+
+      [data-theme="dark"] {
+        color-scheme: dark;
+        --bg: #090b13;
+        --bg-elevated: #11141f;
+        --surface: #141826;
+        --surface-2: #1b2032;
+        --surface-glass: rgba(20, 24, 38, 0.66);
+        --header-glass: rgba(13, 16, 26, 0.72);
+        --border: #262c42;
+        --border-strong: #333b58;
+        --text: #eef1fa;
+        --text-muted: #9aa3c0;
+        --text-faint: #6b7494;
+
+        --accent: #7c87ff;
+        --accent-2: #a78bfa;
+        --accent-soft: rgba(124, 135, 255, 0.14);
+        --accent-contrast: #0a0c14;
+        --gradient-brand: linear-gradient(135deg, #7c87ff 0%, #a78bfa 100%);
+        --gradient-brand-soft: linear-gradient(135deg, rgba(124, 135, 255, 0.16) 0%, rgba(167, 139, 250, 0.16) 100%);
+
+        --gold: #ffb938;
+        --gold-2: #ff8a3d;
+        --gold-soft: rgba(255, 185, 56, 0.13);
+        --gradient-gold: linear-gradient(135deg, #ffb938 0%, #ff8a3d 100%);
+
+        --success: #3dd68c;
+        --success-soft: rgba(61, 214, 140, 0.13);
+        --warning: #ffc857;
+        --warning-soft: rgba(255, 200, 87, 0.13);
+        --error: #ff6b6e;
+        --error-soft: rgba(255, 107, 110, 0.13);
+
+        --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.35);
+        --shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+        --shadow-lg: 0 24px 60px rgba(0, 0, 0, 0.55);
+        --shadow-glow: 0 0 0 1px rgba(124, 135, 255, 0.2), 0 8px 30px rgba(124, 135, 255, 0.28);
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      html,
+      body {
+        height: 100%;
+        background: var(--bg);
+        color: var(--text);
+        font-family: var(--font-body);
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        transition: background 0.35s var(--ease), color 0.35s var(--ease);
+      }
+      body {
+        font-feature-settings: "tnum" 1;
+      }
+      a {
+        text-decoration: none;
+        color: inherit;
+      }
+      ::selection {
+        background: var(--accent);
+        color: #fff;
+      }
+      ::-webkit-scrollbar {
+        width: 10px;
+        height: 10px;
+      }
+      ::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: var(--border-strong);
+        border-radius: 99px;
+        border: 2px solid var(--bg);
+      }
+      :focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 2px;
+        border-radius: 6px;
+      }
+      h1, h2, h3, h4 {
+        font-family: var(--font-display);
+        letter-spacing: -0.02em;
+      }
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after {
+          animation-duration: 0.001ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.001ms !important;
+          scroll-behavior: auto !important;
+        }
+      }
+
+      /* ===== keyframes ===== */
+      @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+      @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
+      @keyframes riseIn {
+        from { opacity: 0; transform: translateY(14px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      @keyframes scaleIn {
+        from { opacity: 0; transform: scale(0.94) translateY(8px); }
+        to { opacity: 1; transform: scale(1) translateY(0); }
+      }
+      @keyframes slideUpBar {
+        from { opacity: 0; transform: translate(-50%, 24px); }
+        to { opacity: 1; transform: translate(-50%, 0); }
+      }
+      @keyframes shimmer {
+        0% { background-position: -400px 0; }
+        100% { background-position: 400px 0; }
+      }
+      @keyframes pulseDot {
+        0%, 100% { box-shadow: 0 0 0 0 rgba(245, 165, 36, 0.5); }
+        50% { box-shadow: 0 0 0 6px rgba(245, 165, 36, 0); }
+      }
+      @keyframes flameFlicker {
+        0%, 100% { transform: scale(1) rotate(0deg); }
+        50% { transform: scale(1.08) rotate(-2deg); }
+      }
+      @keyframes popIn {
+        0% { opacity: 0; transform: scale(0.5); }
+        60% { opacity: 1; transform: scale(1.08); }
+        100% { transform: scale(1); }
+      }
+      @keyframes toastIn {
+        from { opacity: 0; transform: translateX(40px); }
+        to { opacity: 1; transform: translateX(0); }
+      }
+      @keyframes spin { to { transform: rotate(360deg); } }
+      @keyframes ringFill { from { stroke-dashoffset: var(--ring-from, 283); } }
+
+      /* ===== Skip link ===== */
+      .skip-link {
+        position: absolute;
+        left: -999px;
+        top: 0;
+        background: var(--accent);
+        color: #fff;
+        padding: 10px 16px;
+        border-radius: 0 0 10px 0;
+        z-index: 5000;
+      }
+      .skip-link:focus { left: 0; }
+
+      /* ===== Header ===== */
+      header.app-header {
+        position: fixed;
+        left: 0;
+        right: 0;
+        top: 0;
+        height: 68px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 20px;
+        background: var(--header-glass);
+        border-bottom: 1px solid var(--border);
+        z-index: 1200;
+        backdrop-filter: blur(16px) saturate(160%);
+        -webkit-backdrop-filter: blur(16px) saturate(160%);
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .logo {
+        width: auto;
+        max-height: 42px;
+        border-radius: 9px;
+        object-fit: contain;
+        transition: max-height 0.3s ease;
+      }
+      .site-title {
+        font-family: var(--font-display);
+        font-weight: 700;
+        font-size: 17px;
+        letter-spacing: -0.01em;
+      }
+      .main-nav {
+        display: flex;
+        align-items: center;
+        gap: 2px;
+        margin-left: 18px;
+        padding: 4px;
+        background: var(--surface-2);
+        border-radius: var(--radius-pill);
+        border: 1px solid var(--border);
+      }
+      .main-nav a {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        padding: 8px 14px;
+        border-radius: var(--radius-pill);
+        color: var(--text-muted);
+        font-weight: 600;
+        font-size: 13.5px;
+        transition: all 0.25s var(--ease);
+        position: relative;
+      }
+      .main-nav a:hover {
+        color: var(--text);
+      }
+      .main-nav a.active {
+        background: var(--bg-elevated);
+        color: var(--text);
+        box-shadow: var(--shadow-sm);
+      }
+      .main-nav a.active i {
+        color: var(--accent);
+      }
+      .header-right {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .icon-btn {
+        width: 40px;
+        height: 40px;
+        border-radius: 11px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--text-muted);
+        border: 1px solid transparent;
+        cursor: pointer;
+        transition: all 0.2s var(--ease);
+        position: relative;
+        background: transparent;
+        font-size: 15px;
+      }
+      .icon-btn:hover {
+        background: var(--surface-2);
+        color: var(--text);
+        border-color: var(--border);
+        transform: translateY(-1px);
+      }
+      .icon-btn:active { transform: translateY(0); }
+      .icon-btn.btn-delete:hover {
+        background-color: var(--error-soft);
+        color: var(--error);
+        border-color: rgba(229, 72, 77, 0.25);
+      }
+      a.icon-btn { color: var(--text-muted); }
+      a.icon-btn:hover { color: var(--accent); }
+
+      .theme-toggle {
+        position: relative;
+        overflow: hidden;
+      }
+      .theme-toggle .fa-sun { display: none; color: var(--gold); }
+      .theme-toggle .fa-moon { display: inline-block; }
+      [data-theme="dark"] .theme-toggle .fa-sun { display: inline-block; }
+      [data-theme="dark"] .theme-toggle .fa-moon { display: none; }
+
+      .user-display {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        cursor: pointer;
+        padding: 4px;
+        border-radius: var(--radius-pill);
+        transition: background 0.2s ease;
+      }
+      .user-display:hover { background: var(--surface-2); }
+      .user-display img {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid var(--border);
+      }
+      .mobile-menu-dropdown {
+        display: none;
+        position: absolute;
+        right: 0;
+        top: 56px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 8px;
+        box-shadow: var(--shadow-lg);
+        z-index: 1300;
+        width: 200px;
+        animation: scaleIn 0.18s var(--ease);
+        transform-origin: top right;
+      }
+      .mobile-menu-dropdown.show { display: block; }
+      .mobile-menu-dropdown a {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 10px 12px;
+        border-radius: 10px;
+        color: var(--text-muted);
+        font-size: 14px;
+        font-weight: 500;
+      }
+      .mobile-menu-dropdown a:hover {
+        background-color: var(--surface-2);
+        color: var(--text);
+      }
+      .mobile-menu-btn { display: none; }
+
+      /* ===== App shell ===== */
+      .app-container {
+        display: flex;
+        min-height: 100vh;
+        padding-top: 68px;
+      }
+      .sidebar {
+        width: 264px;
+        background: var(--bg);
+        border-right: 1px solid var(--border);
+        padding: 1.25rem 1rem;
+        display: flex;
+        flex-direction: column;
+        flex-shrink: 0;
+        height: calc(100vh - 68px);
+        position: sticky;
+        top: 68px;
+        transition: transform 0.3s var(--ease);
+        z-index: 1000;
+        overflow-y: auto;
+      }
+      .sidebar.active {
+        transform: translateX(0) !important;
+        box-shadow: var(--shadow-lg);
+      }
+      .sidebar-section-label {
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--text-faint);
+        padding: 0 0.6rem;
+        margin: 0.4rem 0 0.6rem;
+      }
+      .days-nav {
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 0.3rem;
+        overflow-y: auto;
+      }
+      .day-item {
+        padding: 0.7rem 0.85rem;
+        border-radius: 12px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 0.7rem;
+        font-weight: 500;
+        font-size: 14.5px;
+        color: var(--text-muted);
+        border: 1px solid transparent;
+        transition: all 0.2s var(--ease);
+      }
+      .day-item:hover {
+        background: var(--surface-2);
+        color: var(--text);
+      }
+      .day-item.active {
+        background: var(--gradient-brand-soft);
+        color: var(--text);
+        font-weight: 600;
+        border: 1px solid rgba(79, 91, 255, 0.18);
+      }
+      .day-item i { width: 18px; text-align: center; }
+      .day-item:hover i,
+      .day-item.active i { color: inherit; }
+      .day-item.active .fa-calendar-days,
+      .day-item.active .fa-folder-open { color: var(--accent); }
+      .day-item .count {
+        margin-left: auto;
+        background: var(--surface-2);
+        color: var(--text-muted);
+        padding: 0.18rem 0.55rem;
+        border-radius: 999px;
+        font-size: 0.76rem;
+        font-weight: 700;
+        min-width: 22px;
+        text-align: center;
+      }
+      .day-item.active .count {
+        background: var(--accent);
+        color: #fff;
+      }
+      .day-item .status-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        flex-shrink: 0;
+      }
+      .sidebar-footer {
+        border-top: 1px solid var(--border);
+        padding-top: 0.9rem;
+        margin-top: 0.6rem;
+      }
+      .sidebar-goal-card {
+        background: var(--surface-2);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 0.9rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+      }
+      .sidebar-goal-card small {
+        color: var(--text-muted);
+        font-size: 11px;
+        display: block;
+      }
+      .sidebar-goal-card strong {
+        font-family: var(--font-display);
+        font-size: 14px;
+      }
+
+      .main-content {
+        flex-grow: 1;
+        padding: 1.75rem 2rem 5rem;
+        overflow-x: hidden;
+        max-width: 100%;
+      }
+
+      /* ===== Buttons ===== */
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 11px 18px;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 14.5px;
+        font-family: var(--font-body);
+        border: 1px solid var(--border);
+        cursor: pointer;
+        transition: all 0.2s var(--ease);
+        white-space: nowrap;
+        background: var(--surface);
+        color: var(--text);
+      }
+      .btn:active { transform: scale(0.97); }
+      .btn-primary {
+        background: var(--gradient-brand);
+        color: #fff;
+        border-color: transparent;
+        box-shadow: 0 4px 14px rgba(79, 91, 255, 0.28);
+      }
+      .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 22px rgba(79, 91, 255, 0.36);
+      }
+      .btn-secondary {
+        background: var(--surface);
+        color: var(--text);
+      }
+      .btn-secondary:hover {
+        background: var(--surface-2);
+        border-color: var(--border-strong);
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-sm);
+      }
+      .btn-ghost {
+        background: transparent;
+        border-color: transparent;
+        color: var(--text-muted);
+      }
+      .btn-ghost:hover { background: var(--surface-2); color: var(--text); }
+      .btn-danger {
+        background: var(--error-soft);
+        color: var(--error);
+        border-color: rgba(229, 72, 77, 0.25);
+      }
+      .btn-danger:hover { background: var(--error); color: #fff; transform: translateY(-2px); }
+      .btn-sm { padding: 7px 12px; font-size: 13px; border-radius: 9px; }
+      .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; }
+
+      /* ===== Page header / toolbar ===== */
+      .page-title-row {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+        flex-wrap: wrap;
+      }
+      .page-title-row h1 {
+        font-size: 1.7rem;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+      }
+      .page-title-row .page-subtitle {
+        color: var(--text-muted);
+        font-size: 14.5px;
+        margin-top: 4px;
+      }
+      .content-header h2 {
+        font-size: 1.55rem;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        color: var(--text);
+        font-family: var(--font-display);
+      }
+      .header-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.1rem;
+        flex-wrap: wrap;
+        gap: 0.85rem;
+      }
+      #main-action-buttons { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+
+      .create-form {
+        background: var(--surface-2);
+        padding: 1.4rem;
+        border-radius: var(--radius);
+        margin-bottom: 1.75rem;
+        border: 1px solid var(--border);
+        animation: riseIn 0.3s var(--ease);
+      }
+      .form-group { margin-bottom: 1rem; }
+      .form-group label {
+        display: block;
+        margin-bottom: 0.45rem;
+        font-weight: 600;
+        font-size: 13.5px;
+        color: var(--text-muted);
+      }
+      .form-group input,
+      .form-group textarea,
+      .form-group select {
+        width: 100%;
+        padding: 11px 13px;
+        border: 1px solid var(--border);
+        border-radius: 11px;
+        font-size: 14.5px;
+        background: var(--surface);
+        color: var(--text);
+        font-family: var(--font-body);
+        transition: all 0.25s ease;
+      }
+      .form-group textarea { min-height: 90px; resize: vertical; }
+      .form-group input:focus,
+      .form-group textarea:focus,
+      .form-group select:focus {
+        outline: none;
+        border-color: var(--accent);
+        box-shadow: 0 0 0 4px var(--accent-soft);
+      }
+      .form-row { display: flex; gap: 0.85rem; align-items: center; }
+      .checkbox-row { display: flex; align-items: center; gap: 8px; font-size: 13.5px; color: var(--text-muted); }
+
+      /* ===== Toolbar (search/sort/filter/selection) ===== */
+      .toolbar {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        flex-wrap: wrap;
+        margin-bottom: 1.1rem;
+        padding: 0.7rem;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow-sm);
+      }
+      .search-box {
+        position: relative;
+        flex: 1 1 220px;
+        min-width: 180px;
+      }
+      .search-box i {
+        position: absolute;
+        left: 13px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-faint);
+        font-size: 13px;
+      }
+      .search-box input {
+        width: 100%;
+        padding: 9px 12px 9px 34px;
+        border-radius: 10px;
+        border: 1px solid var(--border);
+        background: var(--surface-2);
+        color: var(--text);
+        font-size: 14px;
+        transition: all 0.2s ease;
+      }
+      .search-box input:focus {
+        outline: none;
+        border-color: var(--accent);
+        background: var(--surface);
+        box-shadow: 0 0 0 4px var(--accent-soft);
+      }
+      .toolbar select {
+        padding: 9px 30px 9px 12px;
+        border-radius: 10px;
+        border: 1px solid var(--border);
+        background: var(--surface-2) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%2366718c'/%3E%3C/svg%3E") no-repeat right 12px center;
+        appearance: none;
+        -webkit-appearance: none;
+        color: var(--text);
+        font-size: 13.5px;
+        font-weight: 500;
+        cursor: pointer;
+      }
+      .toolbar-select-wrap {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        background: var(--surface-2);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 0 12px;
+        height: 38px;
+      }
+      .toolbar-select-wrap select {
+        padding: 0;
+        border: none;
+        background: transparent;
+        color: var(--text);
+        font-size: 13.5px;
+        font-weight: 500;
+        cursor: pointer;
+        appearance: none;
+        -webkit-appearance: none;
+        padding-right: 18px;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%2366718c'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 0 center;
+      }
+      .toolbar-select-wrap select:focus { outline: none; }
+      .filter-chips { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+      .chip {
+        padding: 7px 13px;
+        border-radius: var(--radius-pill);
+        border: 1px solid var(--border);
+        background: var(--surface-2);
+        color: var(--text-muted);
+        font-size: 12.5px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s var(--ease);
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .chip:hover { color: var(--text); border-color: var(--border-strong); }
+      .chip.active {
+        background: var(--gradient-brand);
+        border-color: transparent;
+        color: #fff;
+      }
+      .toolbar-divider {
+        width: 1px;
+        height: 24px;
+        background: var(--border);
+        margin: 0 0.2rem;
+      }
+      .select-mode-btn.active {
+        background: var(--accent-soft);
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+    </style>
+    <style>
+      /* ===== Dashboard ===== */
+      .dashboard {
+        margin-bottom: 1.85rem;
+      }
+      .dash-collapse-toggle {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: none;
+        border: none;
+        color: var(--text-muted);
+        font-size: 12.5px;
+        font-weight: 600;
+        cursor: pointer;
+        padding: 6px 4px;
+      }
+      .dash-collapse-toggle i { transition: transform 0.25s var(--ease); }
+      .dashboard.collapsed .dash-body { display: none; }
+      .dashboard.collapsed .dash-collapse-toggle i { transform: rotate(-90deg); }
+
+      .stat-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(168px, 1fr));
+        gap: 0.85rem;
+        margin-bottom: 1rem;
+      }
+      .stat-card {
+        position: relative;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 1.1rem 1.15rem;
+        box-shadow: var(--shadow-sm);
+        overflow: hidden;
+        transition: all 0.3s var(--ease);
+        animation: riseIn 0.45s var(--ease) backwards;
+      }
+      .stat-card:hover {
+        transform: translateY(-3px);
+        box-shadow: var(--shadow);
+        border-color: var(--border-strong);
+      }
+      .stat-card .stat-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 15px;
+        margin-bottom: 0.7rem;
+      }
+      .stat-card .stat-value {
+        font-family: var(--font-display);
+        font-size: 1.65rem;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        line-height: 1.1;
+      }
+      .stat-card .stat-label {
+        font-size: 12.5px;
+        color: var(--text-muted);
+        font-weight: 600;
+        margin-top: 4px;
+      }
+      .stat-card .stat-sub {
+        font-size: 11px;
+        color: var(--text-faint);
+        margin-top: 6px;
+      }
+      .stat-card.locked { opacity: 0.62; }
+      .stat-card.locked .stat-value { font-size: 1.2rem; }
+      .stat-card .stat-trend {
+        position: absolute;
+        top: 1.1rem;
+        right: 1.1rem;
+        font-size: 11px;
+        font-weight: 700;
+        padding: 3px 8px;
+        border-radius: var(--radius-pill);
+      }
+      .stat-trend.up { background: var(--success-soft); color: var(--success); }
+      .stat-trend.down { background: var(--error-soft); color: var(--error); }
+      .stat-trend.flat { background: var(--surface-2); color: var(--text-faint); }
+
+      .icon-bg-indigo { background: var(--accent-soft); color: var(--accent); }
+      .icon-bg-gold { background: var(--gold-soft); color: var(--gold); }
+      .icon-bg-green { background: var(--success-soft); color: var(--success); }
+      .icon-bg-violet { background: rgba(139, 92, 246, 0.12); color: var(--accent-2); }
+      .icon-bg-rose { background: var(--error-soft); color: var(--error); }
+      .icon-bg-blue { background: var(--accent-soft); color: var(--accent); }
+
+      /* ===== Momentum / Gamification row ===== */
+      .momentum-grid {
+        display: grid;
+        grid-template-columns: 1.2fr 1fr 1fr;
+        gap: 0.85rem;
+        margin-bottom: 1rem;
+      }
+      .momentum-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        padding: 1.25rem;
+        display: flex;
+        align-items: center;
+        gap: 1.1rem;
+        box-shadow: var(--shadow-sm);
+      }
+      .momentum-card.brand {
+        background: var(--gradient-brand);
+        color: #fff;
+        border: none;
+        box-shadow: var(--shadow-glow);
+      }
+      .ring-wrap { position: relative; width: 84px; height: 84px; flex-shrink: 0; }
+      .ring-wrap svg { transform: rotate(-90deg); width: 84px; height: 84px; }
+      .ring-track { fill: none; stroke: rgba(255,255,255,0.25); stroke-width: 8; }
+      .momentum-card:not(.brand) .ring-track { stroke: var(--surface-2); }
+      .ring-fill {
+        fill: none;
+        stroke: #fff;
+        stroke-width: 8;
+        stroke-linecap: round;
+        stroke-dasharray: 232;
+        stroke-dashoffset: 232;
+        transition: stroke-dashoffset 1.1s var(--ease-snap);
+      }
+      .momentum-card:not(.brand) .ring-fill { stroke: url(#ringGradient); }
+      .ring-center {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+      }
+      .ring-center .ring-num { font-family: var(--font-display); font-weight: 800; font-size: 16px; }
+      .ring-center .ring-icon { font-size: 14px; }
+      .momentum-text strong.momentum-title {
+        font-family: var(--font-display);
+        font-size: 1rem;
+        font-weight: 700;
+        display: block;
+      }
+      .momentum-card.brand .momentum-text small { color: rgba(255,255,255,0.82); }
+      .momentum-text small { color: var(--text-muted); font-size: 12.5px; display: block; margin-top: 3px; }
+      .momentum-card.brand .level-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: rgba(255,255,255,0.18);
+        padding: 4px 10px;
+        border-radius: var(--radius-pill);
+        font-size: 12px;
+        font-weight: 700;
+        margin-top: 8px;
+      }
+      .xp-bar-track {
+        height: 6px;
+        background: rgba(255,255,255,0.25);
+        border-radius: 99px;
+        margin-top: 8px;
+        overflow: hidden;
+        width: 100%;
+      }
+      .xp-bar-fill {
+        height: 100%;
+        background: #fff;
+        border-radius: 99px;
+        width: 0%;
+        transition: width 1s var(--ease-snap);
+      }
+
+      .streak-flame {
+        width: 46px;
+        height: 46px;
+        border-radius: 14px;
+        background: var(--gold-soft);
+        color: var(--gold);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 19px;
+        flex-shrink: 0;
+        animation: flameFlicker 2.2s ease-in-out infinite;
+      }
+      .streak-flame.cold { animation: none; opacity: 0.5; }
+
+      /* ===== Goal rings row ===== */
+      .goal-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 0.85rem;
+        margin-bottom: 1rem;
+      }
+      .goal-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 1rem 1.1rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        box-shadow: var(--shadow-sm);
+      }
+      .goal-card .goal-info { flex: 1; }
+      .goal-card .goal-info .goal-title {
+        font-size: 13px;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 6px;
+      }
+      .goal-edit-btn { background: none; border: none; color: var(--text-faint); cursor: pointer; font-size: 11px; }
+      .goal-edit-btn:hover { color: var(--accent); }
+      .goal-card .goal-progress-text { font-size: 12px; color: var(--text-muted); margin-top: 5px; }
+      .mini-ring-wrap { position: relative; width: 56px; height: 56px; flex-shrink: 0; }
+      .mini-ring-wrap svg { transform: rotate(-90deg); width: 56px; height: 56px; }
+
+      /* ===== Achievements strip ===== */
+      .achievements-strip {
+        display: flex;
+        gap: 0.6rem;
+        overflow-x: auto;
+        padding-bottom: 4px;
+        margin-bottom: 1rem;
+      }
+      .achievement-badge {
+        flex-shrink: 0;
+        width: 84px;
+        text-align: center;
+        padding: 0.7rem 0.4rem;
+        border-radius: var(--radius);
+        border: 1px solid var(--border);
+        background: var(--surface);
+        transition: all 0.25s var(--ease);
+      }
+      .achievement-badge .a-icon {
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        margin: 0 auto 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 15px;
+        background: var(--gradient-gold);
+        color: #fff;
+        box-shadow: 0 4px 12px rgba(245, 165, 36, 0.35);
+      }
+      .achievement-badge.locked { opacity: 0.42; filter: grayscale(0.5); }
+      .achievement-badge.locked .a-icon { background: var(--surface-2); color: var(--text-faint); box-shadow: none; }
+      .achievement-badge .a-name { font-size: 10.5px; font-weight: 700; line-height: 1.2; }
+
+      /* ===== Analytics tabs / charts ===== */
+      .analytics-panel {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        padding: 1.25rem;
+        box-shadow: var(--shadow-sm);
+        margin-bottom: 0.5rem;
+      }
+      .analytics-tabs {
+        display: flex;
+        gap: 0.3rem;
+        background: var(--surface-2);
+        padding: 4px;
+        border-radius: var(--radius-pill);
+        width: fit-content;
+        margin-bottom: 1.1rem;
+      }
+      .analytics-tab {
+        padding: 7px 16px;
+        border-radius: var(--radius-pill);
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--text-muted);
+        cursor: pointer;
+        border: none;
+        background: none;
+        transition: all 0.2s ease;
+      }
+      .analytics-tab.active { background: var(--surface); color: var(--text); box-shadow: var(--shadow-sm); }
+      .analytics-view { display: none; animation: fadeIn 0.3s ease; }
+      .analytics-view.active { display: block; }
+      .chart-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.25rem;
+      }
+      .chart-box { min-width: 0; }
+      .chart-box h4 {
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--text-muted);
+        margin-bottom: 0.7rem;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .chart-box canvas { max-height: 220px; }
+      .chart-note {
+        font-size: 11px;
+        color: var(--text-faint);
+        margin-top: 8px;
+        line-height: 1.5;
+      }
+
+      /* Heatmap */
+      .heatmap-scroll { overflow-x: auto; padding-bottom: 6px; }
+      .heatmap-grid {
+        display: grid;
+        grid-auto-flow: column;
+        grid-template-rows: repeat(7, 13px);
+        gap: 3px;
+        width: max-content;
+      }
+      .heatmap-cell {
+        width: 13px;
+        height: 13px;
+        border-radius: 3px;
+        background: var(--surface-2);
+        transition: transform 0.15s ease;
+        cursor: default;
+      }
+      .heatmap-cell:hover { transform: scale(1.35); }
+      .heatmap-legend {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        margin-top: 10px;
+        font-size: 11px;
+        color: var(--text-faint);
+      }
+      .heatmap-legend .heatmap-cell { cursor: default; }
+      .heatmap-legend .heatmap-cell:hover { transform: none; }
+
+      /* ===== Study Activity Heatmap — Full Year (premium redesign v2) ===== */
+      .monthly-heatmap-section {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow);
+        padding: 28px 32px 24px;
+        margin-bottom: 1rem;
+        position: relative;
+        overflow: hidden;
+      }
+      .monthly-heatmap-section::before {
+        content: '';
+        position: absolute;
+        inset: -1px;
+        border-radius: inherit;
+        background: linear-gradient(135deg, rgba(79,91,255,0.08), rgba(139,92,246,0.06), rgba(245,165,36,0.06));
+        z-index: 0;
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity .6s ease;
+      }
+      .monthly-heatmap-section:hover::before { opacity: 1; }
+      [data-theme="dark"] .monthly-heatmap-section::before {
+        background: linear-gradient(135deg, rgba(124,135,255,0.06), rgba(167,139,250,0.05), rgba(255,185,56,0.04));
+      }
+      [data-theme="dark"] .monthly-heatmap-section {
+        background: var(--surface);
+        border-color: var(--border);
+        box-shadow: var(--shadow-sm);
+      }
+      .monthly-heatmap-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        margin-bottom: 18px;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        position: relative;
+        z-index: 1;
+      }
+      .monthly-heatmap-title {
+        font-family: var(--font-display);
+        font-size: 16px;
+        font-weight: 800;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--text);
+      }
+      .monthly-heatmap-title i {
+        color: #FF8A3D;
+        display: inline-block;
+        animation: mhmFlicker 2.4s ease-in-out infinite;
+      }
+      @keyframes mhmFlicker {
+        0%, 100% { transform: scale(1) rotate(0deg); }
+        50%      { transform: scale(1.12) rotate(-4deg); }
+      }
+      .monthly-heatmap-subtitle {
+        font-size: 12px;
+        color: var(--text-faint);
+        margin-top: 4px;
+        font-weight: 500;
+      }
+      .heatmap-month-nav {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .heatmap-month-label {
+        font-size: 14px;
+        font-weight: 800;
+        color: var(--text);
+        min-width: 60px;
+        text-align: center;
+        font-variant-numeric: tabular-nums;
+      }
+      .heatmap-nav-btn {
+        width: 28px;
+        height: 28px;
+        border-radius: 999px;
+        border: none;
+        background: #F5F7FC;
+        color: var(--text-muted);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 11px;
+        transition: all 0.2s var(--ease);
+      }
+      [data-theme="dark"] .heatmap-nav-btn { background: var(--surface-2); }
+      .heatmap-nav-btn:hover:not(:disabled) {
+        background: #E7DEFF;
+        color: #7B4DFF;
+        transform: scale(1.08);
+      }
+      .heatmap-nav-btn:disabled { opacity: .3; cursor: default; }
+
+      /* Quick stats row */
+      .mhm-stats-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 20px;
+        position: relative;
+        z-index: 1;
+      }
+      .mhm-stat-chip {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        background: #F7F5FF;
+        border: 1px solid #ECE5FF;
+        border-radius: 999px;
+        padding: 6px 13px 6px 10px;
+        font-size: 11.5px;
+        font-weight: 700;
+        color: #6A3FE0;
+        opacity: 0;
+        transform: translateY(6px);
+        animation: mhmChipIn .45s var(--ease) forwards;
+      }
+      .mhm-stat-chip:nth-child(1) { animation-delay: .05s; }
+      .mhm-stat-chip:nth-child(2) { animation-delay: .12s; }
+      .mhm-stat-chip:nth-child(3) { animation-delay: .19s; }
+      .mhm-stat-chip:nth-child(4) { animation-delay: .26s; }
+      @keyframes mhmChipIn { to { opacity: 1; transform: translateY(0); } }
+      .mhm-stat-chip i { font-size: 12px; color: #FF8A3D; }
+      .mhm-stat-chip b { color: #4A2FBF; font-weight: 800; }
+      [data-theme="dark"] .mhm-stat-chip {
+        background: var(--surface-2);
+        border-color: var(--border);
+        color: #C6B4FF;
+      }
+      [data-theme="dark"] .mhm-stat-chip b { color: #E4D9FF; }
+
+      .monthly-heatmap-grid-wrap {
+        overflow-x: auto;
+        padding-bottom: 6px;
+        position: relative;
+        z-index: 1;
+      }
+      .heatmap-inner-wrap {
+        display: flex;
+        gap: 0;
+      }
+      .heatmap-weekday-labels {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        margin-right: 8px;
+        margin-top: 24px;
+        flex-shrink: 0;
+      }
+      .heatmap-weekday-label {
+        height: 15px;
+        font-size: 10px;
+        font-weight: 600;
+        color: var(--text-faint);
+        display: flex;
+        align-items: center;
+        line-height: 1;
+      }
+      .heatmap-columns-area {
+        position: relative;
+        flex: 1;
+      }
+      .heatmap-month-labels-row {
+        display: flex;
+        height: 20px;
+        margin-bottom: 4px;
+        position: relative;
+      }
+      .heatmap-month-label-item {
+        position: absolute;
+        top: 0;
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--text-faint);
+        white-space: nowrap;
+      }
+      .heatmap-weeks-row {
+        display: flex;
+        gap: 4px;
+      }
+      .heatmap-week-col {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+      .mhm-cell {
+        width: 15px;
+        height: 15px;
+        border-radius: 4px;
+        background: var(--border);
+        cursor: pointer;
+        transition: transform .15s ease, box-shadow .15s ease, outline-color .15s ease;
+        position: relative;
+        flex-shrink: 0;
+        opacity: 0;
+        transform: scale(0.3);
+        animation: cellPop 0.4s var(--ease-snap) forwards;
+      }
+      [data-theme="dark"] .mhm-cell { background: var(--surface-2); }
+      @keyframes cellPop {
+        0%   { opacity: 0; transform: scale(0.3); }
+        60%  { opacity: 1; transform: scale(1.06); }
+        100% { opacity: 1; transform: scale(1); }
+      }
+      .mhm-cell.empty {
+        background: transparent !important;
+        cursor: default;
+        pointer-events: none;
+        animation: none;
+        opacity: 1;
+      }
+      .mhm-cell.future {
+        cursor: default;
+        opacity: .35 !important;
+      }
+      .mhm-cell:not(.empty):not(.future):hover {
+        transform: scale(1.6) !important;
+        z-index: 10;
+      }
+      
+      /* Level colors and animations */
+      .mhm-cell[data-level="1"] {
+        background: #d4d8ff;
+      }
+      [data-theme="dark"] .mhm-cell[data-level="1"] {
+        background: rgba(124,135,255,0.18);
+      }
+      .mhm-cell[data-level="2"] {
+        background: #a8adff;
+        box-shadow: 0 0 4px rgba(124,135,255,0.15);
+      }
+      [data-theme="dark"] .mhm-cell[data-level="2"] {
+        background: rgba(124,135,255,0.35);
+      }
+      .mhm-cell[data-level="3"] {
+        background: #7c87ff;
+        animation: cellPop 0.4s var(--ease-snap) forwards, glowBreath3 2.8s ease-in-out infinite 0.5s;
+      }
+      [data-theme="dark"] .mhm-cell[data-level="3"] {
+        background: rgba(124,135,255,0.55);
+      }
+      @keyframes glowBreath3 {
+        0%,100% { box-shadow: 0 0 4px rgba(124,135,255,0.2); }
+        50%     { box-shadow: 0 0 10px rgba(124,135,255,0.45); }
+      }
+      .mhm-cell[data-level="4"] {
+        background: #5b3eff;
+        border-radius: 5px;
+        animation: cellPop 0.4s var(--ease-snap) forwards, glowPulse4 2s ease-in-out infinite 0.6s;
+      }
+      .mhm-cell[data-level="4"]::after {
+        content: '';
+        position: absolute;
+        inset: 0; margin: auto;
+        width: 7px; height: 7px;
+        background: rgba(255,255,255,0.85);
+        clip-path: polygon(50% 0%,61% 39%,100% 50%,61% 61%,50% 100%,39% 61%,0% 50%,39% 39%);
+        animation: starSpin 6s linear infinite;
+      }
+      @keyframes glowPulse4 {
+        0%,100% { box-shadow: 0 0 6px rgba(91,62,255,0.35), 0 0 0 0 rgba(91,62,255,0.2); }
+        50%     { box-shadow: 0 0 14px rgba(91,62,255,0.6), 0 0 0 4px rgba(91,62,255,0.08); }
+      }
+      @keyframes starSpin {
+        to { transform: rotate(360deg); }
+      }
+      .mhm-cell[data-level="5"] {
+        background: linear-gradient(135deg, #f5a524, #f76b1c);
+        border-radius: 5px;
+        animation: cellPop 0.4s var(--ease-snap) forwards, legendaryPulse 1.8s ease-in-out infinite 0.5s;
+      }
+      [data-theme="dark"] .mhm-cell[data-level="5"] {
+        background: linear-gradient(135deg, #ffb938, #ff8a3d);
+      }
+      .mhm-cell[data-level="5"]::before {
+        content: '';
+        position: absolute;
+        inset: -3px;
+        border-radius: 7px;
+        background: linear-gradient(135deg, rgba(245,165,36,0.5), rgba(247,107,28,0.3));
+        filter: blur(5px);
+        z-index: -1;
+        animation: fireGlow 2s ease-in-out infinite;
+      }
+      .mhm-cell[data-level="5"]::after {
+        content: '';
+        position: absolute;
+        inset: 0; margin: auto;
+        width: 7px; height: 7px;
+        background: #fff;
+        clip-path: polygon(50% 0%,61% 39%,100% 50%,61% 61%,50% 100%,39% 61%,0% 50%,39% 39%);
+        animation: sparkleRotate 3s linear infinite, sparklePulse 1.4s ease-in-out infinite;
+      }
+      @keyframes legendaryPulse {
+        0%,100% { box-shadow: 0 0 8px rgba(245,165,36,0.4), 0 0 0 0 rgba(245,165,36,0.25); transform: scale(1); }
+        50%     { box-shadow: 0 0 20px rgba(245,165,36,0.7), 0 0 0 5px rgba(245,165,36,0.05); transform: scale(1.08); }
+      }
+      @keyframes fireGlow {
+        0%,100% { opacity: 0.5; }
+        50%     { opacity: 1; }
+      }
+      @keyframes sparkleRotate { to { transform: rotate(360deg); } }
+      @keyframes sparklePulse {
+        0%,100% { opacity: 0.6; }
+        50%     { opacity: 1; }
+      }
+      .mhm-cell[data-today="true"] {
+        outline: 2px solid var(--accent);
+        outline-offset: 2px;
+        border-radius: 4px;
+      }
+      .mhm-cell[data-today="true"]::before {
+        content: '';
+        position: absolute;
+        inset: -5px;
+        border-radius: 7px;
+        background: var(--accent);
+        opacity: 0.08;
+        z-index: -1;
+      }
+      @media (max-width: 900px) {
+        .mhm-cell { width: 12px; height: 12px; border-radius: 3px; }
+        .heatmap-weeks-row, .heatmap-week-col { gap: 3px; }
+      }
+      @media (max-width: 480px) {
+        .mhm-cell { width: 10px; height: 10px; }
+        .heatmap-weeks-row, .heatmap-week-col { gap: 2px; }
+      }
+      .particle-canvas {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        z-index: 5;
+      }
+
+      /* Tooltip */
+      .mhm-tooltip {
+        position: fixed;
+        pointer-events: none;
+        background: #201A33;
+        color: #fff;
+        font-size: 11.5px;
+        font-weight: 600;
+        padding: 7px 11px;
+        border-radius: 10px;
+        box-shadow: 0 8px 24px rgba(20,20,40,.35);
+        z-index: 999;
+        opacity: 0;
+        transform: translate(-50%, -8px) scale(.9);
+        transition: opacity .12s ease, transform .12s ease;
+        white-space: nowrap;
+        line-height: 1.4;
+      }
+      .mhm-tooltip.show {
+        opacity: 1;
+        transform: translate(-50%, -14px) scale(1);
+      }
+      .mhm-tooltip .mhm-tt-date { color: #C6B4FF; font-weight: 700; }
+      .mhm-tooltip::after {
+        content: '';
+        position: absolute;
+        left: 50%; bottom: -4px;
+        transform: translateX(-50%) rotate(45deg);
+        width: 8px; height: 8px;
+        background: #201A33;
+      }
+
+      .mhm-legend {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin-top: 18px;
+        font-size: 11px;
+        color: var(--text-faint);
+        flex-wrap: wrap;
+        position: relative;
+        z-index: 1;
+      }
+      .mhm-legend-cell {
+        width: 12px;
+        height: 12px;
+        border-radius: 4px;
+        display: inline-block;
+        flex-shrink: 0;
+      }
+      .mhm-legend-cell.l0 { background: var(--border); border: 1px solid var(--border-strong); }
+      [data-theme="dark"] .mhm-legend-cell.l0 { background: var(--surface-2); border-color: var(--border); }
+      .mhm-legend-cell.l1 { background: #d4d8ff; }
+      [data-theme="dark"] .mhm-legend-cell.l1 { background: rgba(124,135,255,0.18); }
+      .mhm-legend-cell.l2 { background: #a8adff; }
+      [data-theme="dark"] .mhm-legend-cell.l2 { background: rgba(124,135,255,0.35); }
+      .mhm-legend-cell.l3 { background: #7c87ff; }
+      [data-theme="dark"] .mhm-legend-cell.l3 { background: rgba(124,135,255,0.55); }
+      .mhm-legend-cell.l4 { background: #5b3eff; }
+      .mhm-legend-cell.l5 { background: linear-gradient(135deg, #f5a524, #f76b1c); }
+      [data-theme="dark"] .mhm-legend-cell.l5 { background: linear-gradient(135deg, #ffb938, #ff8a3d);     }
+
+      /* ===== Folder grid / cards ===== */
+      .folder-grid,
+      .large-folder-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+        gap: 1.1rem;
+      }
+      .folder-card,
+      .large-folder-card {
+        position: relative;
+        background: var(--surface);
+        border-radius: var(--radius-lg);
+        padding: 1.3rem;
+        border: 1px solid var(--border);
+        box-shadow: var(--shadow-sm);
+        transition: all 0.3s var(--ease);
+        display: flex;
+        flex-direction: column;
+        animation: riseIn 0.4s var(--ease) backwards;
+      }
+      .folder-card:hover,
+      .large-folder-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--shadow-lg);
+        border-color: var(--border-strong);
+      }
+      .folder-card.selectable { cursor: pointer; }
+      .folder-card.selected {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px var(--accent-soft), var(--shadow);
+      }
+      .card-select-box {
+        position: absolute;
+        top: 12px;
+        left: 12px;
+        width: 22px;
+        height: 22px;
+        border-radius: 7px;
+        border: 2px solid var(--border-strong);
+        background: var(--surface);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        font-size: 11px;
+        z-index: 2;
+        transition: all 0.18s var(--ease);
+      }
+      .selection-mode .card-select-box { display: flex; }
+      .selection-mode .folder-card,
+      .selection-mode .large-folder-card { padding-left: 2.7rem; }
+      .folder-card.selected .card-select-box,
+      .large-folder-card.selected .card-select-box {
+        background: var(--gradient-brand);
+        border-color: transparent;
+      }
+      .folder-header,
+      .large-folder-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 0.85rem;
+        gap: 0.5rem;
+      }
+      .folder-title-wrapper { flex-grow: 1; min-width: 0; }
+      .folder-title,
+      .large-folder-title {
+        font-family: var(--font-display);
+        font-size: 1.05rem;
+        font-weight: 700;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .folder-badges { display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap; }
+      .folder-day {
+        background: var(--surface-2);
+        color: var(--text-muted);
+        padding: 0.22rem 0.65rem;
+        border-radius: 999px;
+        font-size: 0.74rem;
+        font-weight: 700;
+        display: inline-block;
+      }
+      .status-badge {
+        padding: 0.22rem 0.6rem;
+        border-radius: 999px;
+        font-size: 0.72rem;
+        font-weight: 700;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+      }
+      .status-badge.fresh { background: var(--success-soft); color: var(--success); }
+      .status-badge.reviewing { background: var(--warning-soft); color: var(--warning); }
+      .status-badge.overdue { background: var(--error-soft); color: var(--error); }
+      .status-badge .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+      .folder-description {
+        color: var(--text-muted);
+        font-size: 0.875rem;
+        line-height: 1.55;
+        margin-bottom: 1rem;
+        flex-grow: 1;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+      .folder-progress { margin-bottom: 0.9rem; }
+      .folder-progress-bar {
+        height: 6px;
+        background: var(--surface-2);
+        border-radius: 99px;
+        overflow: hidden;
+      }
+      .folder-progress-fill {
+        height: 100%;
+        background: var(--gradient-brand);
+        border-radius: 99px;
+        transition: width 0.8s var(--ease-snap);
+      }
+      .folder-progress-label {
+        display: flex;
+        justify-content: space-between;
+        font-size: 11px;
+        color: var(--text-faint);
+        margin-top: 5px;
+        font-weight: 600;
+      }
+      .folder-stats {
+        display: flex;
+        flex-direction: column;
+        gap: 0.45rem;
+        margin-bottom: 1.1rem;
+      }
+      .stats-item {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.83rem;
+        color: var(--text);
+      }
+      .stats-item span:first-child { color: var(--text-muted); }
+      .stats-item i { color: var(--text-faint); margin-right: 0.5rem; width: 14px; }
+      .folder-actions,
+      .large-folder-actions {
+        display: flex;
+        flex-wrap: wrap;
+        margin-top: auto;
+        padding-top: 0.95rem;
+        border-top: 1px solid var(--border);
+        gap: 0.5rem;
+      }
+      .folder-actions .btn,
+      .large-folder-actions .btn {
+        flex-grow: 1;
+        padding: 8px 10px;
+        font-size: 13.5px;
+      }
+      .card-controls { display: flex; align-items: center; gap: 0.3rem; flex-shrink: 0; }
+      .card-controls .icon-btn { width: 34px; height: 34px; font-size: 13px; border-radius: 9px; }
+
+      /* ===== Empty / skeleton ===== */
+      .empty-state {
+        text-align: center;
+        padding: 3.2rem 2rem;
+        background: var(--surface-2);
+        border-radius: var(--radius-lg);
+        border: 1.5px dashed var(--border-strong);
+        color: var(--text-muted);
+        grid-column: 1 / -1;
+      }
+      .empty-state .empty-icon {
+        width: 56px;
+        height: 56px;
+        border-radius: 16px;
+        background: var(--gradient-brand-soft);
+        color: var(--accent);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+        margin: 0 auto 1rem;
+      }
+      .empty-state h3 {
+        font-size: 1.15rem;
+        color: var(--text);
+        margin-bottom: 0.4rem;
+        font-weight: 700;
+      }
+      .skeleton-card {
+        border-radius: var(--radius-lg);
+        border: 1px solid var(--border);
+        padding: 1.3rem;
+        background: var(--surface);
+      }
+      .skeleton-line {
+        height: 12px;
+        border-radius: 6px;
+        background: linear-gradient(90deg, var(--surface-2) 25%, var(--border) 37%, var(--surface-2) 63%);
+        background-size: 800px 100%;
+        animation: shimmer 1.6s linear infinite;
+        margin-bottom: 10px;
+      }
+
+      /* ===== Floating bulk action bar ===== */
+      .bulk-bar {
+        position: fixed;
+        bottom: 26px;
+        left: 50%;
+        transform: translate(-50%, 24px);
+        background: var(--surface-glass);
+        backdrop-filter: blur(20px) saturate(180%);
+        -webkit-backdrop-filter: blur(20px) saturate(180%);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-lg);
+        padding: 0.7rem 0.8rem;
+        display: none;
+        align-items: center;
+        gap: 0.6rem;
+        z-index: 1400;
+        opacity: 0;
+        flex-wrap: wrap;
+        max-width: calc(100vw - 32px);
+      }
+      .bulk-bar.show {
+        display: flex;
+        animation: slideUpBar 0.32s var(--ease-snap) forwards;
+      }
+      .bulk-count {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 700;
+        font-size: 13.5px;
+        padding: 0 0.5rem 0 0.3rem;
+        border-right: 1px solid var(--border);
+        margin-right: 0.2rem;
+      }
+      .bulk-count .num {
+        background: var(--gradient-brand);
+        color: #fff;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+      }
+      .bulk-bar .btn { padding: 8px 13px; font-size: 13px; }
+
+      /* ===== Modals ===== */
+      .modal {
+        display: none;
+        position: fixed;
+        z-index: 1500;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(8, 10, 18, 0.5);
+        backdrop-filter: blur(4px);
+        overflow: auto;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+      }
+      .modal.show { display: flex; }
+      .modal-content {
+        background: var(--surface);
+        padding: 1.6rem 1.7rem;
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-lg);
+        width: 100%;
+        max-width: 560px;
+        max-height: 88vh;
+        overflow-y: auto;
+        position: relative;
+        border: 1px solid var(--border);
+        animation: scaleIn 0.25s var(--ease-snap);
+      }
+      .modal-content.danger-modal { border-top: 4px solid var(--error); }
+      .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid var(--border);
+      }
+      .modal-title { font-size: 1.2rem; font-weight: 700; font-family: var(--font-display); }
+      .modal-title.danger { color: var(--error); }
+      .close {
+        color: var(--text-muted);
+        font-size: 1.5rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        line-height: 1;
+        background: none;
+        border: none;
+      }
+      .close:hover { color: var(--accent); transform: rotate(90deg); }
+      .word-list { max-height: 250px; overflow-y: auto; margin-bottom: 1rem; }
+      .word-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.75rem 0.4rem;
+        border-bottom: 1px solid var(--border);
+      }
+      .word-item:last-child { border-bottom: none; }
+      .word-item:hover { background: var(--surface-2); border-radius: 8px; }
+      .word-details { display: flex; flex-direction: column; min-width: 0; }
+      .word-term { font-weight: 600; }
+      .word-definition { color: var(--text-muted); font-size: 0.9em; }
+      .word-item .icon-btn { width: 32px; height: 32px; font-size: 14px; }
+
+      .bulk-list-preview {
+        max-height: 200px;
+        overflow-y: auto;
+        background: var(--surface-2);
+        border-radius: 12px;
+        padding: 0.6rem 0.8rem;
+        margin: 0.9rem 0;
+        border: 1px solid var(--border);
+      }
+      .bulk-list-preview .blp-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.4rem 0;
+        font-size: 13.5px;
+        border-bottom: 1px solid var(--border);
+      }
+      .bulk-list-preview .blp-item:last-child { border-bottom: none; }
+      .bulk-list-preview .blp-item span:last-child { color: var(--text-faint); font-size: 12px; }
+      .danger-callout {
+        background: var(--error-soft);
+        color: var(--error);
+        border-radius: 12px;
+        padding: 0.8rem 1rem;
+        font-size: 13px;
+        display: flex;
+        gap: 10px;
+        align-items: flex-start;
+        margin-top: 0.7rem;
+      }
+
+      /* ===== Notification ===== */
+      .notification {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        padding: 13px 18px;
+        font-size: 14.5px;
+        font-weight: 600;
+        border-radius: 13px;
+        color: #fff;
+        box-shadow: var(--shadow-lg);
+        z-index: 2000;
+        transform: translateY(120px);
+        opacity: 0;
+        transition: all 0.4s cubic-bezier(0.215, 0.61, 0.355, 1);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        max-width: 360px;
+      }
+      .notification.show { transform: translateY(0); opacity: 1; }
+
+      /* ===== Achievement unlock toast ===== */
+      .achievement-toast {
+        position: fixed;
+        top: 84px;
+        right: 20px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        box-shadow: var(--shadow-lg);
+        border-radius: var(--radius);
+        padding: 0.85rem 1.1rem;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        z-index: 2100;
+        max-width: 300px;
+        animation: toastIn 0.4s var(--ease-snap);
+      }
+      .achievement-toast .a-icon {
+        width: 42px; height: 42px; border-radius: 50%;
+        background: var(--gradient-gold); color: #fff;
+        display: flex; align-items: center; justify-content: center; font-size: 17px;
+        flex-shrink: 0;
+        animation: popIn 0.5s var(--ease-snap);
+      }
+      .achievement-toast strong { font-size: 13px; display: block; }
+      .achievement-toast span { font-size: 12px; color: var(--text-muted); }
+
+      /* ===== Mobile bottom nav ===== */
+      .bottom-nav {
+        display: none;
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 64px;
+        background: var(--header-glass);
+        backdrop-filter: blur(16px) saturate(160%);
+        border-top: 1px solid var(--border);
+        z-index: 1200;
+        padding-bottom: env(safe-area-inset-bottom);
+      }
+      .bottom-nav-inner {
+        display: flex;
+        height: 64px;
+        align-items: center;
+        justify-content: space-around;
+      }
+      .bottom-nav a, .bottom-nav button {
+        background: none;
+        border: none;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 3px;
+        color: var(--text-faint);
+        font-size: 10px;
+        font-weight: 600;
+        flex: 1;
+        height: 100%;
+        justify-content: center;
+        cursor: pointer;
+      }
+      .bottom-nav a i, .bottom-nav button i { font-size: 17px; }
+      .bottom-nav a.active, .bottom-nav button.active { color: var(--accent); }
+      .bottom-nav .bn-fab {
+        background: var(--gradient-brand);
+        color: #fff;
+        width: 46px; height: 46px;
+        border-radius: 50%;
+        margin-top: -22px;
+        box-shadow: 0 6px 18px rgba(79,91,255,0.4);
+        flex: none;
+        font-size: 17px;
+      }
+
+      /* ===== Responsive ===== */
+      @media (max-width: 1180px) {
+        .momentum-grid { grid-template-columns: 1fr 1fr; }
+        .chart-grid { grid-template-columns: 1fr; }
+      }
+      @media (max-width: 820px) {
+        .main-nav a[href="../chatai.html"],
+        .main-nav a[href="../roomchat.html"] { display: none; }
+        .main-nav span { display: none; }
+        .site-title { display: none; }
+        .mobile-menu-btn { display: inline-flex; }
+        .sidebar {
+          position: fixed;
+          top: 68px;
+          height: calc(100vh - 68px);
+          transform: translateX(-100%);
+          box-shadow: var(--shadow-lg);
+        }
+        .sidebar-backdrop {
+          display: none;
+          position: fixed;
+          inset: 0;
+          top: 68px;
+          background: rgba(0,0,0,0.35);
+          z-index: 999;
+        }
+        .sidebar-backdrop.show { display: block; }
+        .sidebar-toggle-mobile {
+          display: none !important;
+        }
+        .main-content { padding: 1.25rem 1rem 6rem; }
+        .momentum-grid { grid-template-columns: 1fr; }
+        .goal-row { grid-template-columns: 1fr 1fr; }
+        .bottom-nav { display: block; }
+        .bulk-bar { bottom: 78px; }
+        .stat-grid { grid-template-columns: repeat(2, 1fr); }
+        .toolbar { flex-direction: column; align-items: stretch; }
+        .filter-chips { order: 3; }
+      }
+      @media (max-width: 480px) {
+        .stat-grid { grid-template-columns: 1fr 1fr; }
+        .goal-row { grid-template-columns: 1fr; }
+        .folder-grid, .large-folder-grid { grid-template-columns: 1fr; }
+        .page-title-row h1 { font-size: 1.4rem; }
+      }
+
+      /* === INSTRUCTIONAL POP-UP STYLES (carried over, restyled to tokens) === */
+      #instruction-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(8, 10, 18, 0.6);
+        z-index: 3000;
+        backdrop-filter: blur(10px);
+        justify-content: center;
+        align-items: center;
+        padding: 24px;
+        animation: fadeIn 0.3s ease-out;
+      }
+      #instruction-box {
+        background: linear-gradient(180deg, var(--surface) 0%, var(--surface-2) 100%);
+        border-radius: 22px;
+        padding: 28px;
+        border: 1px solid var(--border);
+        box-shadow: var(--shadow-lg);
+        display: flex;
+        flex-direction: column;
+        width: 80vw;
+        height: 85vh;
+        max-width: 900px;
+        max-height: 700px;
+      }
+      .instruction-header { text-align: center; margin-bottom: 20px; flex-shrink: 0; }
+      .instruction-header h2 { font-size: 24px; font-weight: 700; margin: 0 0 8px; letter-spacing: -0.5px; }
+      .instruction-header p { font-size: 16px; color: var(--text-muted); margin: 0; }
+      .instruction-content {
+        position: relative; flex-grow: 1; display: flex;
+        align-items: center; justify-content: center; min-height: 0;
+      }
+      #instruction-image {
+        width: 100%; height: 100%; object-fit: contain; border-radius: 14px;
+        transition: opacity 0.4s ease-in-out;
+      }
+      .nav-arrow {
+        position: absolute; top: 50%; transform: translateY(-50%);
+        background-color: var(--surface); border: 1px solid var(--border); color: var(--text);
+        width: 44px; height: 44px; border-radius: 50%; cursor: pointer;
+        display: flex; align-items: center; justify-content: center;
+        box-shadow: var(--shadow); transition: all 0.2s ease;
+      }
+      .nav-arrow:hover { transform: translateY(-50%) scale(1.1); }
+      .nav-arrow:disabled { opacity: 0.4; cursor: not-allowed; transform: translateY(-50%); }
+      #prev-btn { left: 16px; }
+      #next-btn { right: 16px; }
+      .instruction-footer { display: flex; justify-content: center; align-items: center; height: 50px; margin-top: 20px; flex-shrink: 0; }
+      .progress-dots { display: flex; gap: 10px; }
+      .progress-dots .dot { width: 10px; height: 10px; border-radius: 50%; background-color: var(--border); transition: all 0.3s ease; }
+      .progress-dots .dot.active { background-color: var(--accent); transform: scale(1.2); }
+      #start-btn { padding: 12px 28px; font-size: 16px; }
+      .instruction-pref {
+        text-align: center; font-size: 13px; color: var(--text-muted);
+        display: flex; align-items: center; justify-content: center; gap: 8px;
+        margin-top: 16px; flex-shrink: 0;
+      }
+      .form-group-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 1rem;
+      }
+    </style>
+  </head>
+  <body style="display: none">
+    <a href="#main-content" class="skip-link">Skip to content</a>
+
+    <div id="instruction-overlay">
+      <div id="instruction-box">
+        <div class="instruction-header">
+          <h2>Chào mừng bạn đến với WordWhizzy!</h2>
+          <p>Hãy cùng xem qua một vài tính năng chính nhé</p>
+        </div>
+        <div class="instruction-content">
+          <img id="instruction-image" src="" alt="Instructional Graphic" />
+          <button id="prev-btn" class="nav-arrow">
+            <i class="fa-solid fa-chevron-left"></i>
+          </button>
+          <button id="next-btn" class="nav-arrow">
+            <i class="fa-solid fa-chevron-right"></i>
+          </button>
+        </div>
+        <div class="instruction-footer">
+          <div id="progress-dots" class="progress-dots"></div>
+          <button id="start-btn" class="btn btn-primary" style="display: none">
+            Bắt đầu ngay
+          </button>
+        </div>
+        <div class="instruction-pref">
+          <input type="checkbox" id="dont-show-again" />
+          <label for="dont-show-again">Không hiển thị lại</label>
+        </div>
+      </div>
+    </div>
+
+    <header class="app-header">
+      <div style="display: flex; align-items: center">
+        <div class="brand">
+          <img
+            src="../fde8b58d-513b-45b3-9a8b-8a81e7535bec.jpg"
+            alt="WordWhizzy Logo"
+            class="logo"
+          />
+          <span class="site-title">WordWhizzy</span>
+        </div>
+        <nav class="main-nav" aria-label="Chính">
+          <a href="../index.html" title="Trang chủ"
+            ><i class="fa-solid fa-house"></i> <span>Trang chủ</span></a
+          >
+          <a href="../tuhoc.html" title="Thư viện"
+            ><i class="fa-solid fa-book-open"></i> <span>Thư viện</span></a
+          >
+          <a href="./vocabulary.html" title="Tạo Flashcard" class="active"
+            ><i class="fa-solid fa-layer-group"></i> <span>Flashcard</span></a
+          >
+          <a href="../chatai.html" title="Chat AI"
+            ><i class="fa-solid fa-comments"></i> <span>Chat AI</span></a
+          >
+          <a href="../roomchat.html" title="Room Chat"
+            ><i class="fa-solid fa-users"></i> <span>Room Chat</span></a
+          >
+        </nav>
+      </div>
+      <div class="header-right">
+        <button
+          class="icon-btn theme-toggle"
+          id="themeToggleBtn"
+          title="Toggle dark mode"
+          onclick="toggleTheme()"
+        >
+          <i class="fa-solid fa-moon"></i>
+          <i class="fa-solid fa-sun"></i>
+        </button>
+        <div class="icon-btn mobile-menu-btn" id="mobileMenuBtn">
+          <i class="fa-solid fa-ellipsis-vertical"></i>
+          <div class="mobile-menu-dropdown" id="mobileMenuDropdown">
+            <a href="../chatai.html" title="Chat AI"
+              ><i class="fa-solid fa-comments"></i> <span>Chat AI</span></a
+            >
+            <a href="../roomchat.html" title="Room Chat"
+              ><i class="fa-solid fa-users"></i> <span>Room Chat</span></a
+            >
+          </div>
+        </div>
+        <div class="user-display" id="headerControls"></div>
+      </div>
+    </header>
+
+    <div class="sidebar-toggle-mobile" onclick="toggleSidebar()">
+      <i class="fa-solid fa-bars"></i>
+    </div>
+    <div class="sidebar-backdrop" id="sidebarBackdrop" onclick="toggleSidebar()"></div>
+
+    <div class="app-container">
+      <aside class="sidebar" id="appSidebar">
+        <div class="sidebar-section-label">Study Cycle</div>
+        <nav class="days-nav">
+          <div class="day-item active" onclick="showDay(1)">
+            <span class="status-dot" style="background: var(--success)"></span>
+            <span>Day 1</span>
+            <span class="count" id="count-1">0</span>
+          </div>
+          <div class="day-item" onclick="showDay(2)">
+            <span class="status-dot" style="background: var(--success)"></span>
+            <span>Day 2</span>
+            <span class="count" id="count-2">0</span>
+          </div>
+          <div class="day-item" onclick="showDay(3)">
+            <span class="status-dot" style="background: var(--warning)"></span>
+            <span>Day 3</span>
+            <span class="count" id="count-3">0</span>
+          </div>
+          <div class="day-item" onclick="showDay(4)">
+            <span class="status-dot" style="background: var(--warning)"></span>
+            <span>Day 4</span>
+            <span class="count" id="count-4">0</span>
+          </div>
+          <div class="day-item" onclick="showDay(5)">
+            <span class="status-dot" style="background: var(--warning)"></span>
+            <span>Day 5</span>
+            <span class="count" id="count-5">0</span>
+          </div>
+          <div class="day-item" onclick="showDay(6)">
+            <span class="status-dot" style="background: var(--error)"></span>
+            <span>Day 6</span>
+            <span class="count" id="count-6">0</span>
+          </div>
+          <div class="day-item" onclick="showDay(7)">
+            <span class="status-dot" style="background: var(--error)"></span>
+            <span>Day 7</span>
+            <span class="count" id="count-7">0</span>
+          </div>
+          <div class="day-item" onclick="showLargeFolders()">
+            <i class="fa-solid fa-folder-open"></i> <span>Large Folders</span>
+            <span class="count" id="count-large">0</span>
+          </div>
+        </nav>
+      </aside>
+
+      <main class="main-content" id="main-content">
+        <div class="page-title-row">
+          <div>
+            <h1>Vocabulary Manager</h1>
+            <p class="page-subtitle">Quản lý và ôn tập từ vựng theo chu kỳ Day 1–7.</p>
+          </div>
+        </div>
+
+        <section class="dashboard" id="dashboardSection">
+          <div class="dash-body">
+            <!-- Stat cards -->
+            <div class="stat-grid" id="statGrid">
+              <div class="stat-card" style="animation-delay:0.02s">
+                <div class="stat-icon icon-bg-indigo"><i class="fa-solid fa-folder"></i></div>
+                <div class="stat-value" id="statTotalFolders">0</div>
+                <div class="stat-label">Total Folders</div>
+              </div>
+              <div class="stat-card" style="animation-delay:0.06s">
+                <div class="stat-icon icon-bg-violet"><i class="fa-solid fa-book"></i></div>
+                <div class="stat-value" id="statTotalWords">0</div>
+                <div class="stat-label">Total Words</div>
+              </div>
+              <div class="stat-card" style="animation-delay:0.1s">
+                <div class="stat-icon icon-bg-green"><i class="fa-solid fa-graduation-cap"></i></div>
+                <div class="stat-value" id="statStudiedToday">0</div>
+                <div class="stat-label">Studied Today</div>
+                <div class="stat-sub">study sessions started today</div>
+              </div>
+              <div class="stat-card" style="animation-delay:0.14s" id="reviewDueCard">
+                <div class="stat-icon icon-bg-rose"><i class="fa-solid fa-bell"></i></div>
+                <div class="stat-value" id="statReviewDue">0</div>
+                <div class="stat-label">Review Due</div>
+                <div class="stat-sub" id="statReviewDueSub">folders in Day 6–7</div>
+              </div>
+
+            </div>
+
+            <!-- Study Activity Heatmap -->
+            <div class="monthly-heatmap-section" id="monthlyHeatmapSection" style="position: relative;">
+              <canvas class="particle-canvas" id="particleCanvas"></canvas>
+              <div class="monthly-heatmap-header">
+                <div>
+                  <div class="monthly-heatmap-title">
+                    <i class="fa-solid fa-fire"></i> Study Activity
+                  </div>
+                  <div class="monthly-heatmap-subtitle">Consistency is more important than intensity.</div>
+                </div>
+                <div class="heatmap-month-nav">
+                  <button class="heatmap-nav-btn" id="heatmapPrevBtn" onclick="heatmapChangeYear(-1)" title="Năm trước">
+                    <i class="fa-solid fa-chevron-left"></i>
+                  </button>
+                  <div class="heatmap-month-label" id="heatmapMonthLabel"></div>
+                  <button class="heatmap-nav-btn" id="heatmapNextBtn" onclick="heatmapChangeYear(1)" title="Năm sau">
+                    <i class="fa-solid fa-chevron-right"></i>
+                  </button>
+                </div>
+              </div>
+              <div class="mhm-stats-row" id="mhmStatsRow"></div>
+              <div class="monthly-heatmap-grid-wrap" id="monthlyHeatmapGrid"></div>
+              <div class="mhm-legend">
+                <span>Ít</span>
+                <span class="mhm-legend-cell l0"></span>
+                <span class="mhm-legend-cell l1"></span>
+                <span class="mhm-legend-cell l2"></span>
+                <span class="mhm-legend-cell l3"></span>
+                <span class="mhm-legend-cell l4"></span>
+                <span class="mhm-legend-cell l5"></span>
+                <span>Nhiều</span>
+              </div>
+            </div>
+            <div class="mhm-tooltip" id="mhmTooltip"></div>
+            <!-- END Study Activity Heatmap -->
+
+          </div>
+        </section>
+
+        <div class="content-header">
+          <div class="header-actions">
+            <h2 id="currentDayTitle">Day 1</h2>
+            <div id="main-action-buttons">
+              <button
+                class="btn btn-secondary"
+                onclick="toggleCreateForm()"
+                id="createFolderBtn"
+              >
+                <i class="fa-solid fa-plus"></i> Create Folder
+              </button>
+              <button
+                class="btn btn-primary"
+                onclick="toggleCreateLargeFolderForm()"
+                id="createLargeFolderBtn"
+                style="display: none"
+              >
+                <i class="fa-solid fa-folder-plus"></i> Create Large Folder
+              </button>
+            </div>
+          </div>
+          <div class="create-form" id="createForm" style="display: none">
+            <div class="form-group">
+              <label for="folderName">Folder Name</label>
+              <input
+                type="text"
+                id="folderName"
+                placeholder="e.g., Business English"
+              />
+            </div>
+            <div class="form-group">
+              <label for="description">Description</label>
+              <textarea
+                id="description"
+                placeholder="A brief description."
+              ></textarea>
+            </div>
+            <div class="form-group" id="large-folder-assignment-group">
+              <label for="assignToLargeFolder"
+                >Assign to Large Folder (Optional)</label
+              >
+              <select id="assignToLargeFolder">
+                <option value="">None</option>
+              </select>
+            </div>
+            <button class="btn btn-primary" onclick="createFolder()">
+              <i class="fa-solid fa-check"></i> Confirm
+            </button>
+          </div>
+          <div
+            class="create-form"
+            id="createLargeFolderForm"
+            style="display: none"
+          >
+            <div class="form-group">
+              <label for="largeFolderName">Large Folder Name</label>
+              <input
+                type="text"
+                id="largeFolderName"
+                placeholder="e.g., TOEIC Preparation"
+              />
+            </div>
+            <div class="form-group">
+              <label for="largeFolderDescription">Description</label>
+              <textarea
+                id="largeFolderDescription"
+                placeholder="A brief description of this collection."
+              ></textarea>
+            </div>
+            <button class="btn btn-primary" onclick="createLargeFolder()">
+              <i class="fa-solid fa-check"></i> Confirm
+            </button>
+          </div>
+
+          <div class="toolbar" id="folderToolbar">
+            <div class="search-box">
+              <i class="fa-solid fa-magnifying-glass"></i>
+              <input type="text" id="folderSearchInput" placeholder="Search folders by name or description..." oninput="applyFolderFilters()" />
+            </div>
+          <div class="toolbar-select-wrap">
+            <i class="fa-solid fa-arrow-up-wide-short" style="color:var(--text-faint);font-size:12px;"></i>
+            <select id="sortBySelect" onchange="applyFolderFilters()">
+              <option value="newest">Sort: Newest</option>
+              <option value="name">Sort: Name A–Z</option>
+              <option value="words">Sort: Word Count</option>
+              <option value="progress">Sort: Cycle Progress</option>
+            </select>
+          </div>
+            <div class="filter-chips" id="statusFilterChips">
+              <button class="chip active" data-status="all" onclick="setStatusFilter('all')">All</button>
+              <button class="chip" data-status="fresh" onclick="setStatusFilter('fresh')">Fresh</button>
+              <button class="chip" data-status="reviewing" onclick="setStatusFilter('reviewing')">Reviewing</button>
+              <button class="chip" data-status="overdue" onclick="setStatusFilter('overdue')">Overdue</button>
+            </div>
+            <div class="toolbar-divider"></div>
+            <button class="btn btn-secondary btn-sm select-mode-btn" id="selectModeBtn" onclick="toggleSelectionMode()">
+              <i class="fa-solid fa-square-check"></i> Select
+            </button>
+            <button class="btn btn-ghost btn-sm" id="selectAllBtn" style="display:none" onclick="selectAllFolders()">Select All</button>
+            <button class="btn btn-ghost btn-sm" id="clearSelectionBtn" style="display:none" onclick="clearSelection()">Clear</button>
+          </div>
+        </div>
+        <div id="folderContainer" class="folder-grid"></div>
+        <div
+          id="largeFolderContainer"
+          class="large-folder-grid"
+          style="display: none"
+        ></div>
+      </main>
+    </div>
+
+    <!-- Bulk floating action bar -->
+    <div class="bulk-bar" id="bulkBar">
+      <div class="bulk-count"><span class="num" id="bulkCountNum">0</span> <span id="bulkCountLabel">selected</span></div>
+      <button class="btn btn-secondary btn-sm" onclick="openBulkMoveModal()"><i class="fa-solid fa-arrows-turn-right"></i> Move</button>
+      <button class="btn btn-secondary btn-sm" onclick="bulkDuplicateSelected()"><i class="fa-regular fa-copy"></i> Duplicate</button>
+      <button class="btn btn-secondary btn-sm" onclick="openBulkMergeModal()"><i class="fa-solid fa-object-group"></i> Merge</button>
+      <button class="btn btn-secondary btn-sm" onclick="bulkExportSelected()"><i class="fa-solid fa-file-export"></i> Export</button>
+      <button class="btn btn-danger btn-sm" onclick="openBulkDeleteModal()"><i class="fa-solid fa-trash-can"></i> Delete</button>
+      <button class="icon-btn btn-sm" onclick="clearSelection()" title="Close"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+
+    <div id="wordModal" class="modal">
+      <div class="modal-content" style="max-width: 650px">
+        <div class="modal-header">
+          <h3 class="modal-title" id="modalTitle">Folder Words</h3>
+          <button class="close" onclick="closeWordModal()">×</button>
+        </div>
+        <div class="word-list" id="wordList"></div>
+        <div
+          class="form-group-grid"
+          style="
+            align-items: center;
+            border-top: 1px solid var(--border);
+            padding-top: 1.5rem;
+            margin-top: 1rem;
+          "
+        >
+          <div class="form-group" style="flex: 2">
+            <label for="newWordModal">New Word</label>
+            <input
+              type="text"
+              id="newWordModal"
+              placeholder="English word"
+            />
+          </div>
+          <div class="form-group" style="flex: 3">
+            <label for="newDefinitionModal">Definition</label>
+            <input
+              type="text"
+              id="newDefinitionModal"
+              placeholder="Vietnamese meaning"
+            />
+          </div>
+          <div class="form-group" style="min-width: 120px">
+            <label for="newIpaModal">IPA</label>
+            <input type="text" id="newIpaModal" placeholder="/.../" />
+          </div>
+        </div>
+        <button
+          class="btn btn-primary"
+          onclick="addWord()"
+          style="margin-top: 1rem"
+        >
+          <i class="fa-solid fa-plus"></i> Add Word
+        </button>
+      </div>
+    </div>
+
+    <div id="editFolderModal" class="modal">
+      <div class="modal-content" style="max-width: 500px">
+        <div class="modal-header">
+          <h3 class="modal-title">Edit Folder</h3>
+          <button class="close" onclick="closeEditFolderModal()">×</button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="editFolderName">Folder Name</label>
+            <input type="text" id="editFolderName" />
+          </div>
+          <div class="form-group">
+            <label for="editFolderDescription">Description</label>
+            <textarea id="editFolderDescription"></textarea>
+          </div>
+          <div class="form-group">
+            <label for="editAssignToLargeFolder">Assign to Large Folder</label>
+            <select id="editAssignToLargeFolder">
+              <option value="">None</option>
+            </select>
+          </div>
+        </div>
+        <button
+          class="btn btn-primary"
+          onclick="saveFolderChanges()"
+          style="margin-top: 1rem"
+        >
+          <i class="fa-solid fa-save"></i> Save Changes
+        </button>
+      </div>
+    </div>
+
+    <!-- Bulk delete confirmation -->
+    <div id="bulkDeleteModal" class="modal">
+      <div class="modal-content danger-modal" style="max-width: 480px">
+        <div class="modal-header">
+          <h3 class="modal-title danger"><i class="fa-solid fa-triangle-exclamation"></i> Delete folders</h3>
+          <button class="close" onclick="closeBulkDeleteModal()">×</button>
+        </div>
+        <p style="font-size:14.5px; color:var(--text-muted);">
+          You're about to permanently delete <strong id="bulkDeleteCount">0</strong> folder(s) and all of their words. This cannot be undone.
+        </p>
+        <div class="bulk-list-preview" id="bulkDeleteList"></div>
+        <div class="danger-callout">
+          <i class="fa-solid fa-circle-info"></i>
+          <span>Double-check the list above. Deleted words cannot be recovered.</span>
+        </div>
+        <div style="display:flex; gap:0.6rem; margin-top:1.1rem;">
+          <button class="btn btn-secondary" style="flex:1" onclick="closeBulkDeleteModal()">Cancel</button>
+          <button class="btn btn-danger" style="flex:1" onclick="confirmBulkDelete()"><i class="fa-solid fa-trash-can"></i> Delete Permanently</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bulk move modal -->
+    <div id="bulkMoveModal" class="modal">
+      <div class="modal-content" style="max-width: 460px">
+        <div class="modal-header">
+          <h3 class="modal-title">Move <span id="bulkMoveCount">0</span> folder(s)</h3>
+          <button class="close" onclick="closeBulkMoveModal()">×</button>
+        </div>
+        <div class="form-group">
+          <label for="bulkMoveDay">Move to Day</label>
+          <select id="bulkMoveDay">
+            <option value="">No change</option>
+            <option value="1">Day 1</option>
+            <option value="2">Day 2</option>
+            <option value="3">Day 3</option>
+            <option value="4">Day 4</option>
+            <option value="5">Day 5</option>
+            <option value="6">Day 6</option>
+            <option value="7">Day 7</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="bulkMoveLargeFolder">Assign to Large Folder</label>
+          <select id="bulkMoveLargeFolder">
+            <option value="__nochange__">No change</option>
+            <option value="">None (remove from large folder)</option>
+          </select>
+        </div>
+        <button class="btn btn-primary" style="width:100%; margin-top:0.5rem;" onclick="confirmBulkMove()">
+          <i class="fa-solid fa-check"></i> Apply
+        </button>
+      </div>
+    </div>
+
+    <!-- Bulk merge modal -->
+    <div id="bulkMergeModal" class="modal">
+      <div class="modal-content" style="max-width: 480px">
+        <div class="modal-header">
+          <h3 class="modal-title">Merge <span id="bulkMergeCount">0</span> folder(s)</h3>
+          <button class="close" onclick="closeBulkMergeModal()">×</button>
+        </div>
+        <p style="font-size:13.5px; color:var(--text-muted); margin-bottom:0.8rem;">All words from the selected folders will be combined into one new folder.</p>
+        <div class="bulk-list-preview" id="bulkMergeList"></div>
+        <div class="form-group">
+          <label for="bulkMergeName">New Folder Name</label>
+          <input type="text" id="bulkMergeName" placeholder="e.g., Merged Vocabulary" />
+        </div>
+        <label class="checkbox-row">
+          <input type="checkbox" id="bulkMergeDeleteOriginals" />
+          Delete the original folders after merging
+        </label>
+        <button class="btn btn-primary" style="width:100%; margin-top:1rem;" onclick="confirmBulkMerge()">
+          <i class="fa-solid fa-object-group"></i> Merge Folders
+        </button>
+      </div>
+    </div>
+
+    <!-- Goal edit modal -->
+
+    <div class="notification" id="notification"></div>
+
+    <!-- Mobile bottom navigation -->
+    <nav class="bottom-nav">
+      <div class="bottom-nav-inner">
+        <a href="../index.html"><i class="fa-solid fa-house"></i> Home</a>
+        <a href="../tuhoc.html"><i class="fa-solid fa-book-open"></i> Library</a>
+        <button class="bn-fab" onclick="toggleCreateForm()" title="Create Folder"><i class="fa-solid fa-plus"></i></button>
+        <a href="./vocabulary.html" class="active"><i class="fa-solid fa-layer-group"></i> Cards</a>
+        <a href="../chatai.html"><i class="fa-solid fa-comments"></i> Chat AI</a>
+      </div>
+    </nav>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const desktopImages = [
+          "../ok1.jpg",
+          "../ok2.jpg",
+          "../ok3.jpg",
+          "../ok4.jpg",
+        ];
+        const mobileImages = ["../6.png", "../7.png", "../8.png", "../9.png"];
+        const overlay = document.getElementById("instruction-overlay");
+        if (!overlay) return;
+        const instructionImage = document.getElementById("instruction-image");
+        const prevBtn = document.getElementById("prev-btn");
+        const nextBtn = document.getElementById("next-btn");
+        const startBtn = document.getElementById("start-btn");
+        const dotsContainer = document.getElementById("progress-dots");
+        const dontShowCheckbox = document.getElementById("dont-show-again");
+        let currentIndex = 0;
+        let imageSources = [];
+        const hasSeenInstructions = localStorage.getItem(
+          "wordwhizzy-instructions-seen"
+        );
+        if (hasSeenInstructions) return;
+        const isMobile = window.matchMedia("(max-width: 768px)").matches;
+        imageSources = isMobile ? mobileImages : desktopImages;
+        for (let i = 0; i < imageSources.length; i++) {
+          const dot = document.createElement("div");
+          dot.classList.add("dot");
+          dotsContainer.appendChild(dot);
+        }
+        const dots = dotsContainer.querySelectorAll(".dot");
+        const updateSlide = () => {
+          instructionImage.style.opacity = "0";
+          setTimeout(() => {
+            instructionImage.src = imageSources[currentIndex];
+            instructionImage.style.opacity = "1";
+          }, 400);
+          dots.forEach((dot, index) => {
+            dot.classList.toggle("active", index === currentIndex);
+          });
+          prevBtn.disabled = currentIndex === 0;
+          nextBtn.disabled = currentIndex === imageSources.length - 1;
+          if (currentIndex === imageSources.length - 1) {
+            dotsContainer.style.display = "none";
+            startBtn.style.display = "inline-flex";
+          } else {
+            dotsContainer.style.display = "flex";
+            startBtn.style.display = "none";
+          }
+        };
+        nextBtn.addEventListener("click", () => {
+          if (currentIndex < imageSources.length - 1) {
+            currentIndex++;
+            updateSlide();
+          }
+        });
+        prevBtn.addEventListener("click", () => {
+          if (currentIndex > 0) {
+            currentIndex--;
+            updateSlide();
+          }
+        });
+        startBtn.addEventListener("click", () => {
+          if (dontShowCheckbox.checked) {
+            localStorage.setItem("wordwhizzy-instructions-seen", "true");
+          }
+          overlay.style.animation = "fadeOut 0.3s ease-in forwards";
+          setTimeout(() => (overlay.style.display = "none"), 300);
+        });
+        const styleSheet = document.createElement("style");
+        styleSheet.innerText = `@keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }`;
+        document.head.appendChild(styleSheet);
+        updateSlide();
+        overlay.style.display = "flex";
+      });
+    </script>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+
+    <script>
+   // --- Firebase init ---
+const firebaseConfig = {
+  apiKey: "AIzaSyAm-p5xIzMi7Rkt6y9TzODJLFjdpLKBIlg",
+  authDomain: "wordwhizzy.firebaseapp.com",
+  projectId: "wordwhizzy",
+  storageBucket: "wordwhizzy.appspot.com",
+  messagingSenderId: "179575783469",
+  appId: "1:179575783469:web:30d0ae652af3cfda4bb8a4",
+  measurementId: "G-XPFQ8PCTRE",
+};
+if (!firebase.apps.length) {
+  firebase.initializeApp(firebaseConfig);
+}
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+let folders = {
+  day1: [],
+  day2: [],
+  day3: [],
+  day4: [],
+  day5: [],
+  day6: [],
+  day7: [],
+  largeFolders: [],
+};
+let currentUser = null;
+let currentDay = 1;
+let currentMode = "day"; // "day", "largeFolderList", "inLargeFolder"
+let currentFolderId = null;
+let editingFolderId = null;
+let currentlyViewedLargeFolderId = null;
+
+auth.onAuthStateChanged(async (user) => {
+  if (user) {
+    document.body.style.display = "block";
+    currentUser = { uid: user.uid, name: user.displayName || "User" };
+    const headerControls = document.getElementById("headerControls");
+    headerControls.innerHTML = `<div class="user-display"><img src="${
+      user.photoURL ||
+      `https://ui-avatars.com/api/?name=${user.displayName || "U"}`
+    }" alt="Avatar"></div>`;
+
+    const mobileMenuBtn = document.getElementById("mobileMenuBtn");
+    const mobileMenuDropdown =
+      document.getElementById("mobileMenuDropdown");
+    if (mobileMenuBtn && mobileMenuDropdown) {
+      mobileMenuBtn.addEventListener("click", (event) => {
+        event.stopPropagation();
+        mobileMenuDropdown.classList.toggle("show");
+      });
+      window.addEventListener("click", () => {
+        if (mobileMenuDropdown.classList.contains("show")) {
+          mobileMenuDropdown.classList.remove("show");
+        }
+      });
+    }
+
+    await loadData();
+  } else {
+    window.location.href = "../login.html";
+  }
+});
+
+async function loadData() {
+  if (!currentUser) return;
+  const userDocRef = db.collection("users").doc(currentUser.uid);
+  const doc = await userDocRef.get();
+  if (doc.exists) {
+    folders = {
+      day1: [],
+      day2: [],
+      day3: [],
+      day4: [],
+      day5: [],
+      day6: [],
+      day7: [],
+      largeFolders: [],
+      ...(doc.data().folders || {}),
+    };
+  }
+  await checkAndMoveFolders();
+  updateDisplay();
+}
+
+async function saveData() {
+  if (!currentUser) return;
+  await db
+    .collection("users")
+    .doc(currentUser.uid)
+    .set({ folders: folders }, { merge: true });
+  updateAllCounts();
+}
+
+// --- WORD MANAGEMENT (IN MODAL) ---
+window.deleteWord = async (folderId, wordIndex) => {
+  if (!confirm("Are you sure you want to delete this word?")) return;
+
+  const flashcardsRef = db
+    .collection("users")
+    .doc(currentUser.uid)
+    .collection("flashcards")
+    .doc(folderId.toString());
+  try {
+    let folderToUpdate;
+    await db.runTransaction(async (transaction) => {
+      const doc = await transaction.get(flashcardsRef);
+      if (!doc.exists) return;
+      const words = doc.data().words || [];
+      const deletedWord = words.splice(wordIndex, 1)[0];
+      transaction.update(flashcardsRef, { words: words });
+
+      folderToUpdate = findFolderById(folderId);
+      if (folderToUpdate) {
+        folderToUpdate.wordCount = words.length;
+      }
+    });
+
+    await saveData();
+    showNotification(`Word "${deletedWord.word}" deleted.`, "success");
+    showWordModal(
+      folderId,
+      document
+        .getElementById("modalTitle")
+        .textContent.replace('Words in "', "")
+        .replace('"', "")
+    );
+  } catch (error) {
+    console.error("Error deleting word: ", error);
+    showNotification("Failed to delete the word.", "error");
+  }
+};
+
+// --- LARGE FOLDER FUNCTIONS ---
+window.toggleCreateLargeFolderForm = () => {
+  const form = document.getElementById("createLargeFolderForm");
+  form.style.display = form.style.display === "none" ? "block" : "none";
+};
+
+window.createLargeFolder = () => {
+  const name = document.getElementById("largeFolderName").value.trim();
+  const description = document
+    .getElementById("largeFolderDescription")
+    .value.trim();
+  if (!name) {
+    showNotification(
+      "Please enter a name for the large folder!",
+      "warning"
+    );
+    return;
+  }
+
+  if (!folders.largeFolders) folders.largeFolders = [];
+  folders.largeFolders.push({ id: Date.now(), name, description });
+
+  saveData();
+  updateLargeFolderDisplay();
+  document.getElementById("largeFolderName").value = "";
+  document.getElementById("largeFolderDescription").value = "";
+  toggleCreateLargeFolderForm();
+  showNotification("Large Folder created successfully!", "success");
+};
+
+window.showLargeFolders = () => {
+  currentMode = "largeFolderList";
+  currentlyViewedLargeFolderId = null;
+
+  document.querySelectorAll(".day-item").forEach((item) => item.classList.remove("active"));
+  const largeFolderItem = Array.from(document.querySelectorAll(".day-item")).find(el => el.textContent.includes("Large Folders"));
+  if (largeFolderItem) largeFolderItem.classList.add("active");
+  
+  updateDisplay();
+};
+
+function updateLargeFolderDisplay() {
+  const container = document.getElementById("largeFolderContainer");
+  const allFolders = [].concat(
+    ...(Object.keys(folders)
+      .filter((k) => k.startsWith("day"))
+      .map((k) => folders[k] || [])
+      .filter(arr => arr.length > 0))
+  );
+
+  if (!folders.largeFolders || folders.largeFolders.length === 0) {
+    container.innerHTML = `<div class="empty-state"><h3>No Large Folders</h3><p>Create a collection to group your study sets.</p></div>`;
+    return;
+  }
+
+  container.innerHTML = folders.largeFolders
+    .map((lf) => {
+      const subFolderCount = allFolders.filter(
+        (f) => f.largeFolderId === lf.id
+      ).length;
+      return `
+        <div class="large-folder-card">
+            <div class="large-folder-header">
+                <div class="folder-title-wrapper">
+                   <h3 class="large-folder-title">${lf.name}</h3>
+                </div>
+                <button class="icon-btn btn-delete" title="Delete Large Folder" onclick="deleteLargeFolder(${
+                  lf.id
+                })"><i class="fa-solid fa-trash-can"></i></button>
+            </div>
+            <p class="folder-description">${lf.description}</p>
+            <div class="folder-stats">
+               <div class="stats-item"><span><i class="fa-solid fa-folder"></i> Sub-folders</span><span>${subFolderCount}</span></div>
+            </div>
+            <div class="large-folder-actions">
+                <button class="btn btn-primary" onclick="viewLargeFolderContents(${
+                  lf.id
+                }, '${lf.name.replace(
+        /'/g,
+        "\\'"
+      )}')"><i class="fa-solid fa-eye"></i> View Contents</button>
+            </div>
+        </div>`;
+    })
+    .join("");
+}
+
+window.viewLargeFolderContents = (largeFolderId, largeFolderName) => {
+  currentMode = "inLargeFolder";
+  currentlyViewedLargeFolderId = largeFolderId;
+  updateDisplay();
+  document.getElementById(
+    "currentDayTitle"
+  ).textContent = `In "${largeFolderName}"`;
+  const actionButtons = document.getElementById("main-action-buttons");
+
+  actionButtons.innerHTML = `
+    <button class="btn btn-secondary" onclick="showLargeFolders()"><i class="fa-solid fa-arrow-left"></i> Back to Large Folders</button>
+    <button class="btn btn-primary" onclick="toggleCreateFormInLargeFolder()"><i class="fa-solid fa-plus"></i> Create Folder Here</button>
+  `;
+};
+
+window.deleteLargeFolder = async (largeFolderId) => {
+  if (
+    !confirm(
+      "Delete this large folder? (Note: The small folders inside will NOT be deleted, only unassigned.)"
+    )
+  )
+    return;
+
+  for (const key in folders) {
+    if (key.startsWith("day") && Array.isArray(folders[key])) {
+      folders[key].forEach((folder) => {
+        if (folder.largeFolderId === largeFolderId) {
+          delete folder.largeFolderId;
+        }
+      });
+    }
+  }
+  folders.largeFolders = folders.largeFolders.filter(
+    (lf) => lf.id !== largeFolderId
+  );
+  await saveData();
+  showNotification("Large folder deleted.", "success");
+  showLargeFolders();
+};
+
+// --- FOLDER MANAGEMENT (CREATE, MOVE, ETC.) ---
+function populateLargeFolderDropdown(selectElementId) {
+  const select = document.getElementById(selectElementId);
+  select.innerHTML = '<option value="">None</option>';
+  if (folders.largeFolders) {
+    folders.largeFolders.forEach((lf) => {
+      const option = document.createElement("option");
+      option.value = lf.id;
+      option.textContent = lf.name;
+      select.appendChild(option);
+    });
+  }
+}
+
+window.toggleCreateForm = () => {
+  populateLargeFolderDropdown("assignToLargeFolder");
+  document.getElementById("large-folder-assignment-group").style.display =
+    "block";
+  const form = document.getElementById("createForm");
+  form.style.display = form.style.display === "none" ? "block" : "none";
+};
+
+function toggleCreateFormInLargeFolder() {
+  const form = document.getElementById("createForm");
+  const isFormHidden =
+    form.style.display === "none" || !form.style.display;
+
+  if (isFormHidden) {
+    form.style.display = "block";
+    document.getElementById(
+      "large-folder-assignment-group"
+    ).style.display = "none";
+  } else {
+    form.style.display = "none";
+  }
+}
+
+window.createFolder = () => {
+  const name = document.getElementById("folderName").value.trim();
+  const description = document.getElementById("description").value.trim();
+  let largeFolderId;
+
+  if (currentMode === "inLargeFolder" && currentlyViewedLargeFolderId) {
+    largeFolderId = currentlyViewedLargeFolderId;
+  } else {
+    largeFolderId = document.getElementById("assignToLargeFolder").value;
+  }
+
+  if (!name) {
+    showNotification("Please enter a folder name!", "warning");
+    return;
+  }
+  const now = new Date().toISOString();
+  const folder = {
+    name,
+    description: description || "No description",
+    currentDay: 1,
+    id: Date.now(),
+    creator: currentUser.name,
+    wordCount: 0,
+    createdAt: now,
+    lastMoved: now,
+  };
+
+  if (largeFolderId) {
+    folder.largeFolderId = parseInt(largeFolderId);
+  }
+
+  if (!folders.day1) folders.day1 = [];
+  folders.day1.push(folder);
+  saveData();
+  updateDisplay();
+  document.getElementById("folderName").value = "";
+  document.getElementById("description").value = "";
+
+  document.getElementById("createForm").style.display = "none";
+
+  showNotification("Folder created successfully!", "success");
+};
+
+async function checkAndMoveFolders() {
+  const now = new Date();
+  let needsSave = false;
+  for (let i = 6; i >= 1; i--) {
+    const currentDayKey = `day${i}`;
+    const nextDayKey = `day${i + 1}`;
+    const foldersToMove = [];
+    if (!folders[currentDayKey]) folders[currentDayKey] = [];
+    if (!folders[nextDayKey]) folders[nextDayKey] = [];
+    const remainingFolders = (folders[currentDayKey] || []).filter(
+      (folder) => {
+        const lastMoved = new Date(folder.lastMoved);
+        const diffHours = (now - lastMoved) / (1000 * 60 * 60);
+        if (diffHours >= 24) {
+          foldersToMove.push(folder);
+          return false;
+        }
+        return true;
+      }
+    );
+    if (foldersToMove.length > 0) {
+      needsSave = true;
+      foldersToMove.forEach((folder) => {
+        folder.currentDay = i + 1;
+        folder.lastMoved = now.toISOString();
+        folders[nextDayKey].push(folder);
+      });
+      folders[currentDayKey] = remainingFolders;
+    }
+  }
+  if (needsSave) {
+    await saveData();
+  }
+}
+
+window.studyFolder = async (folderId) => {
+  const folderToMove = findFolderById(folderId);
+  if (folderToMove) {
+    for (let i = 1; i <= 7; i++) {
+      const key = `day${i}`;
+      const index = (folders[key] || []).findIndex(
+        (f) => f.id === folderId
+      );
+      if (index !== -1) {
+        folders[key].splice(index, 1);
+        break;
+      }
+    }
+
+    if (!folders.day1) folders.day1 = [];
+    folderToMove.currentDay = 1;
+    folderToMove.lastMoved = new Date().toISOString();
+    folders.day1.push(folderToMove);
+
+    // Track study session
+    const today = new Date().toDateString();
+    const key = 'ww_daily_' + today;
+    const data = JSON.parse(localStorage.getItem(key) || '{}');
+    data.sessions = (data.sessions || 0) + 1;
+    localStorage.setItem(key, JSON.stringify(data));
+
+    // Increment folder opens for diligence tracking
+    if (typeof window.incrementFolderOpens === 'function') {
+      window.incrementFolderOpens();
+    }
+
+    await saveData();
+    showNotification(
+      `"${folderToMove.name}" moved to Day 1 for review!`,
+      "success"
+    );
+  }
+  window.location.href = `study-options.html?id=${folderId}`;
+};
+
+window.deleteFolder = async (folderId) => {
+  if (
+    !confirm(
+      "Are you sure you want to permanently delete this folder and all its words?"
+    )
+  )
+    return;
+
+  let folderName = "";
+  let foundAndRemoved = false;
+  for (const dayKey in folders) {
+    if (!dayKey.startsWith("day")) continue;
+    const folderIndex = (folders[dayKey] || []).findIndex(
+      (f) => f.id === folderId
+    );
+    if (folderIndex > -1) {
+      folderName = folders[dayKey][folderIndex].name;
+      folders[dayKey].splice(folderIndex, 1);
+      foundAndRemoved = true;
+      break;
+    }
+  }
+
+  if (foundAndRemoved) {
+    try {
+      await db
+        .collection("users")
+        .doc(currentUser.uid)
+        .collection("flashcards")
+        .doc(folderId.toString())
+        .delete();
+      await saveData();
+      showNotification(`Folder "${folderName}" was deleted.`, "success");
+      updateDisplay();
+    } catch (error) {
+      console.error("Error deleting folder data:", error);
+      showNotification("Failed to delete folder data.", "error");
+      loadData();
+    }
+  }
+};
+
+// --- DISPLAY & UI FUNCTIONS ---
+function updateDisplay() {
+  const folderContainer = document.getElementById("folderContainer");
+  const largeFolderContainer = document.getElementById(
+    "largeFolderContainer"
+  );
+  const title = document.getElementById("currentDayTitle");
+  const actionButtons = document.getElementById("main-action-buttons");
+
+  document.getElementById("createForm").style.display = "none";
+  document.getElementById("createLargeFolderForm").style.display = "none";
+
+
+  if (currentMode === "day") {
+    folderContainer.style.display = "grid";
+    largeFolderContainer.style.display = "none";
+    actionButtons.innerHTML = `<button class="btn btn-secondary" onclick="toggleCreateForm()" id="createFolderBtn"><i class="fa-solid fa-plus"></i> Create Folder</button>`;
+    title.textContent = `Day ${currentDay}`;
+    updateFolderDisplayForDay(currentDay);
+  } else if (currentMode === "largeFolderList") {
+    folderContainer.style.display = "none";
+    largeFolderContainer.style.display = "grid";
+    actionButtons.innerHTML = `<button class="btn btn-primary" onclick="toggleCreateLargeFolderForm()" id="createLargeFolderBtn"><i class="fa-solid fa-folder-plus"></i> Create Large Folder</button>`;
+    title.textContent = "Large Folders";
+    updateLargeFolderDisplay();
+  } else if (currentMode === "inLargeFolder") {
+    folderContainer.style.display = "grid";
+    largeFolderContainer.style.display = "none";
+    const allFolders = [].concat(
+      ...(Object.keys(folders)
+        .filter((k) => k.startsWith("day"))
+        .map((k) => folders[k] || [])
+        .filter(arr => arr.length > 0))
+    );
+    const subFolders = allFolders.filter(
+      (f) => f.largeFolderId === currentlyViewedLargeFolderId
+    );
+    renderFolderCards(subFolders);
+  }
+  updateAllCounts();
+}
+
+function updateFolderDisplayForDay(day) {
+  const currentFolders = folders[`day${day}`] || [];
+  renderFolderCards(currentFolders);
+}
+
+// --- FILTER & SORT STATE ---
+let currentStatusFilter = 'all';
+let currentSortBy = 'newest';
+let currentSearchQuery = '';
+let selectedFolderIds = new Set();
+let isSelectionMode = false;
+let allRenderedFolders = [];
+
+function getFolderStatus(folder) {
+  const day = folder.currentDay || 1;
+  if (day <= 2) return 'fresh';
+  if (day <= 5) return 'reviewing';
+  return 'overdue';
+}
+
+window.applyFolderFilters = () => {
+  currentSearchQuery = (document.getElementById('folderSearchInput')?.value || '').toLowerCase();
+  currentSortBy = document.getElementById('sortBySelect')?.value || 'newest';
+  renderFilteredFolders();
+};
+
+window.setStatusFilter = (status) => {
+  currentStatusFilter = status;
+  document.querySelectorAll('#statusFilterChips .chip').forEach(c => {
+    c.classList.toggle('active', c.dataset.status === status);
+  });
+  renderFilteredFolders();
+};
+
+function renderFilteredFolders() {
+  let foldersToRender = [...allRenderedFolders];
+
+  // Search filter
+  if (currentSearchQuery) {
+    foldersToRender = foldersToRender.filter(f =>
+      (f.name || '').toLowerCase().includes(currentSearchQuery) ||
+      (f.description || '').toLowerCase().includes(currentSearchQuery)
+    );
+  }
+
+  // Status filter
+  if (currentStatusFilter !== 'all') {
+    foldersToRender = foldersToRender.filter(f => getFolderStatus(f) === currentStatusFilter);
+  }
+
+  // Sort
+  if (currentSortBy === 'name') {
+    foldersToRender.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+  } else if (currentSortBy === 'words') {
+    foldersToRender.sort((a, b) => (b.wordCount || 0) - (a.wordCount || 0));
+  } else if (currentSortBy === 'progress') {
+    foldersToRender.sort((a, b) => (b.currentDay || 1) - (a.currentDay || 1));
+  } else {
+    // newest
+    foldersToRender.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  }
+
+  _renderFolderCardsToDOM(foldersToRender);
+}
+
+function renderFolderCards(foldersToRender) {
+  allRenderedFolders = foldersToRender || [];
+  // Reset filter/sort from current UI state
+  currentSearchQuery = (document.getElementById('folderSearchInput')?.value || '').toLowerCase();
+  currentSortBy = document.getElementById('sortBySelect')?.value || 'newest';
+  renderFilteredFolders();
+}
+
+function _renderFolderCardsToDOM(foldersToRender) {
+  const container = document.getElementById("folderContainer");
+  if (!foldersToRender || foldersToRender.length === 0) {
+    container.innerHTML = `<div class="empty-state"><div class="empty-icon"><i class="fa-solid fa-folder-open"></i></div><h3>No Folders Found</h3><p>Try adjusting your search or filter, or create a new folder.</p></div>`;
+    return;
+  }
+  container.innerHTML = foldersToRender
+    .map((folder, idx) => {
+      const hasWords = folder.wordCount > 0;
+      const createdDate = new Date(folder.createdAt).toLocaleDateString('vi-VN');
+      const status = getFolderStatus(folder);
+      const statusLabel = status === 'fresh' ? 'Fresh' : status === 'reviewing' ? 'Reviewing' : 'Overdue';
+      const isSelected = selectedFolderIds.has(folder.id);
+      const progressPct = Math.round(((folder.currentDay || 1) / 7) * 100);
+      const safeName = (folder.name || '').replace(/'/g, "\\'");
+      return `
+        <div class="folder-card${isSelectionMode ? ' selectable' : ''}${isSelected ? ' selected' : ''}"
+          data-folder-id="${folder.id}"
+          style="animation-delay:${idx * 0.04}s"
+          ${isSelectionMode ? `onclick="toggleFolderSelect(${folder.id}, event)"` : ''}>
+          <div class="card-select-box" onclick="toggleFolderSelect(${folder.id}, event)">
+            <i class="fa-solid fa-check"></i>
+          </div>
+          <div class="folder-header">
+            <div class="folder-title-wrapper">
+              <h3 class="folder-title">${folder.name || 'Untitled'}</h3>
+              <div class="folder-badges">
+                <span class="folder-day">Day ${folder.currentDay || 1}</span>
+                <span class="status-badge ${status}"><span class="dot"></span>${statusLabel}</span>
+              </div>
+            </div>
+            <div class="card-controls" onclick="event.stopPropagation()">
+              <button class="icon-btn" title="Edit" onclick="openEditFolderModal(${folder.id})"><i class="fa-solid fa-pen-to-square"></i></button>
+              ${hasWords ? `<button class="icon-btn" title="Export PDF" onclick="exportFolderToPDF(${folder.id}, '${safeName}')"><i class="fa-solid fa-file-pdf"></i></button>` : ''}
+              <button class="icon-btn btn-delete" title="Delete" onclick="deleteFolder(${folder.id})"><i class="fa-solid fa-trash-can"></i></button>
+            </div>
+          </div>
+          <p class="folder-description">${folder.description || ''}</p>
+          <div class="folder-progress">
+            <div class="folder-progress-bar"><div class="folder-progress-fill" style="width:${progressPct}%"></div></div>
+            <div class="folder-progress-label"><span>Cycle Progress</span><span>${folder.currentDay || 1}/7 days</span></div>
+          </div>
+          <div class="folder-stats">
+            <div class="stats-item"><span><i class="fa-solid fa-book"></i> Words</span><span>${folder.wordCount || 0}</span></div>
+            <div class="stats-item"><span><i class="fa-solid fa-calendar-plus"></i> Created</span><span>${createdDate}</span></div>
+          </div>
+          <div class="folder-actions" onclick="event.stopPropagation()">
+            ${hasWords
+              ? `<button class="btn btn-secondary" onclick="showWordModal(${folder.id}, '${safeName}')"><i class="fa-solid fa-eye"></i> View</button>
+                 <button class="btn btn-primary" onclick="studyFolder(${folder.id})"><i class="fa-solid fa-graduation-cap"></i> Study</button>`
+              : `<button class="btn btn-primary" onclick="window.location.href='vocabulary-input.html?id=${folder.id}'"><i class="fa-solid fa-plus"></i> Add Words</button>`
+            }
+          </div>
+        </div>`;
+    })
+    .join("");
+  
+  // Apply selection mode class to container
+  const mainContent = document.querySelector('.main-content');
+  if (mainContent) {
+    mainContent.classList.toggle('selection-mode', isSelectionMode);
+  }
+}
+
+function showNotification(message, type = "info") {
+  const n = document.getElementById("notification");
+  n.textContent = message;
+  n.style.backgroundColor =
+    type === "success"
+      ? "var(--success)"
+      : type === "error"
+      ? "var(--error)"
+      : type === "warning"
+      ? "var(--warning)"
+      : "var(--accent)";
+  n.classList.add("show");
+  setTimeout(() => n.classList.remove("show"), 3500);
+}
+
+function updateAllCounts() {
+  for (let i = 1; i <= 7; i++) {
+    const countEl = document.getElementById(`count-${i}`);
+    if (countEl) countEl.textContent = (folders[`day${i}`] || []).length;
+  }
+  const largeCountEl = document.getElementById("count-large");
+  if (largeCountEl)
+    largeCountEl.textContent = (folders.largeFolders || []).length;
+  
+  // Update real dashboard stats
+  const allDayFolders = [];
+  for (let i = 1; i <= 7; i++) {
+    (folders[`day${i}`] || []).forEach(f => allDayFolders.push(f));
+  }
+  const totalFolders = allDayFolders.length;
+  const totalWords = allDayFolders.reduce((s, f) => s + (f.wordCount || 0), 0);
+  const reviewDue = (folders.day6 || []).length + (folders.day7 || []).length;
+
+  const elFolders = document.getElementById('statTotalFolders');
+  const elWords = document.getElementById('statTotalWords');
+  const elReview = document.getElementById('statReviewDue');
+  const elReviewSub = document.getElementById('statReviewDueSub');
+
+  if (elFolders) elFolders.textContent = totalFolders;
+  if (elWords) elWords.textContent = totalWords;
+  if (elReview) elReview.textContent = reviewDue;
+  if (elReviewSub) {
+    const d6 = (folders.day6 || []).length;
+    const d7 = (folders.day7 || []).length;
+    elReviewSub.textContent = d6 + d7 > 0
+      ? `Day 6: ${d6} • Day 7: ${d7} folders overdue`
+      : 'No folders overdue — great job!';
+  }
+
+  // Studied Today
+  const today = new Date().toDateString();
+  const todayData = JSON.parse(localStorage.getItem('ww_daily_' + today) || '{}');
+  const elStudied = document.getElementById('statStudiedToday');
+  if (elStudied) elStudied.textContent = todayData.sessions || 0;
+}
+
+// ===== SELECTION MODE =====
+window.toggleSelectionMode = () => {
+  isSelectionMode = !isSelectionMode;
+  selectedFolderIds.clear();
+  const btn = document.getElementById('selectModeBtn');
+  const selectAllBtn = document.getElementById('selectAllBtn');
+  const clearBtn = document.getElementById('clearSelectionBtn');
+  if (btn) btn.classList.toggle('active', isSelectionMode);
+  if (selectAllBtn) selectAllBtn.style.display = isSelectionMode ? 'inline-flex' : 'none';
+  if (clearBtn) clearBtn.style.display = isSelectionMode ? 'inline-flex' : 'none';
+  
+  const mainContent = document.querySelector('.main-content');
+  if (mainContent) mainContent.classList.toggle('selection-mode', isSelectionMode);
+
+  renderFilteredFolders();
+  updateBulkBar();
+};
+
+window.toggleFolderSelect = (folderId, event) => {
+  if (event) event.stopPropagation();
+  if (!isSelectionMode) return;
+  if (selectedFolderIds.has(folderId)) {
+    selectedFolderIds.delete(folderId);
+  } else {
+    selectedFolderIds.add(folderId);
+  }
+  // Update card visual without full re-render
+  const card = document.querySelector(`.folder-card[data-folder-id="${folderId}"]`);
+  if (card) card.classList.toggle('selected', selectedFolderIds.has(folderId));
+  updateBulkBar();
+};
+
+window.selectAllFolders = () => {
+  const cards = document.querySelectorAll('.folder-card[data-folder-id]');
+  cards.forEach(card => {
+    const id = parseInt(card.dataset.folderId);
+    selectedFolderIds.add(id);
+    card.classList.add('selected');
+  });
+  updateBulkBar();
+};
+
+window.clearSelection = () => {
+  selectedFolderIds.clear();
+  document.querySelectorAll('.folder-card.selected').forEach(c => c.classList.remove('selected'));
+  updateBulkBar();
+  if (isSelectionMode) {
+    isSelectionMode = false;
+    const btn = document.getElementById('selectModeBtn');
+    const selectAllBtn = document.getElementById('selectAllBtn');
+    const clearBtn2 = document.getElementById('clearSelectionBtn');
+    if (btn) btn.classList.remove('active');
+    if (selectAllBtn) selectAllBtn.style.display = 'none';
+    if (clearBtn2) clearBtn2.style.display = 'none';
+    const mainContent = document.querySelector('.main-content');
+    if (mainContent) mainContent.classList.remove('selection-mode');
+    renderFilteredFolders();
+  }
+};
+
+function updateBulkBar() {
+  const bar = document.getElementById('bulkBar');
+  const countNum = document.getElementById('bulkCountNum');
+  if (!bar) return;
+  const count = selectedFolderIds.size;
+  if (count > 0) {
+    bar.classList.add('show');
+    if (countNum) countNum.textContent = count;
+  } else {
+    bar.classList.remove('show');
+  }
+}
+
+// ===== BULK ACTIONS =====
+window.openBulkDeleteModal = () => {
+  if (selectedFolderIds.size === 0) return;
+  const allFolders = getAllSmallFolders();
+  const selectedFolders = allFolders.filter(f => selectedFolderIds.has(f.id));
+  
+  document.getElementById('bulkDeleteCount').textContent = selectedFolders.length;
+  const list = document.getElementById('bulkDeleteList');
+  list.innerHTML = selectedFolders.map(f => `
+    <div class="blp-item">
+      <span><strong>${f.name}</strong></span>
+      <span>${f.wordCount || 0} words • Day ${f.currentDay}</span>
+    </div>`).join('');
+  document.getElementById('bulkDeleteModal').classList.add('show');
+};
+
+window.closeBulkDeleteModal = () => {
+  document.getElementById('bulkDeleteModal').classList.remove('show');
+};
+
+window.confirmBulkDelete = async () => {
+  const idsToDelete = [...selectedFolderIds];
+  closeBulkDeleteModal();
+  
+  const batch = db.batch();
+  for (const folderId of idsToDelete) {
+    const ref = db.collection('users').doc(currentUser.uid).collection('flashcards').doc(folderId.toString());
+    batch.delete(ref);
+    for (const key in folders) {
+      if (Array.isArray(folders[key])) {
+        folders[key] = folders[key].filter(f => f.id !== folderId);
+      }
+    }
+  }
+  try {
+    await batch.commit();
+    await saveData();
+    selectedFolderIds.clear();
+    isSelectionMode = false;
+    const btn = document.getElementById('selectModeBtn');
+    if (btn) btn.classList.remove('active');
+    const mainContent = document.querySelector('.main-content');
+    if (mainContent) mainContent.classList.remove('selection-mode');
+    updateBulkBar();
+    updateDisplay();
+    showNotification(`Đã xoá ${idsToDelete.length} folder thành công!`, 'success');
+  } catch (err) {
+    console.error(err);
+    showNotification('Có lỗi xảy ra khi xoá folder.', 'error');
+    loadData();
+  }
+};
+
+window.openBulkMoveModal = () => {
+  if (selectedFolderIds.size === 0) return;
+  document.getElementById('bulkMoveCount').textContent = selectedFolderIds.size;
+  populateLargeFolderDropdown('bulkMoveLargeFolder');
+  // restore no-change option
+  const sel = document.getElementById('bulkMoveLargeFolder');
+  const opt = document.createElement('option');
+  opt.value = '__nochange__'; opt.textContent = 'No change';
+  sel.insertBefore(opt, sel.firstChild);
+  document.getElementById('bulkMoveModal').classList.add('show');
+};
+
+window.closeBulkMoveModal = () => {
+  document.getElementById('bulkMoveModal').classList.remove('show');
+};
+
+window.confirmBulkMove = async () => {
+  const targetDay = document.getElementById('bulkMoveDay').value;
+  const targetLargeFolder = document.getElementById('bulkMoveLargeFolder').value;
+  const idsToMove = [...selectedFolderIds];
+  
+  for (const key in folders) {
+    if (!Array.isArray(folders[key])) continue;
+    folders[key].forEach(f => {
+      if (!idsToMove.includes(f.id)) return;
+      if (targetDay) {
+        // Move to target day
+        f.currentDay = parseInt(targetDay);
+        f.lastMoved = new Date().toISOString();
+      }
+      if (targetLargeFolder !== '__nochange__') {
+        if (targetLargeFolder === '') delete f.largeFolderId;
+        else f.largeFolderId = parseInt(targetLargeFolder);
+      }
+    });
+  }
+  
+  if (targetDay) {
+    // Reassign folder arrays
+    const allFolders = getAllSmallFolders();
+    for (let i = 1; i <= 7; i++) folders[`day${i}`] = [];
+    allFolders.forEach(f => {
+      const dayKey = `day${f.currentDay || 1}`;
+      if (!folders[dayKey]) folders[dayKey] = [];
+      folders[dayKey].push(f);
+    });
+  }
+
+  await saveData();
+  closeBulkMoveModal();
+  clearSelection();
+  updateDisplay();
+  showNotification(`Đã di chuyển ${idsToMove.length} folder thành công!`, 'success');
+};
+
+window.openBulkMergeModal = () => {
+  if (selectedFolderIds.size < 2) { showNotification('Chọn ít nhất 2 folder để merge.', 'warning'); return; }
+  document.getElementById('bulkMergeCount').textContent = selectedFolderIds.size;
+  const allFolders = getAllSmallFolders();
+  const selected = allFolders.filter(f => selectedFolderIds.has(f.id));
+  const list = document.getElementById('bulkMergeList');
+  list.innerHTML = selected.map(f => `<div class="blp-item"><span>${f.name}</span><span>${f.wordCount || 0} words</span></div>`).join('');
+  document.getElementById('bulkMergeModal').classList.add('show');
+};
+
+window.closeBulkMergeModal = () => {
+  document.getElementById('bulkMergeModal').classList.remove('show');
+};
+
+window.confirmBulkMerge = async () => {
+  const newName = document.getElementById('bulkMergeName').value.trim();
+  const deleteOriginals = document.getElementById('bulkMergeDeleteOriginals').checked;
+  if (!newName) { showNotification('Vui lòng nhập tên folder mới.', 'warning'); return; }
+  const idsToMerge = [...selectedFolderIds];
+  
+  // Fetch all words from Firestore
+  let allWords = [];
+  for (const folderId of idsToMerge) {
+    try {
+      const doc = await db.collection('users').doc(currentUser.uid).collection('flashcards').doc(folderId.toString()).get();
+      if (doc.exists && doc.data().words) allWords = allWords.concat(doc.data().words);
+    } catch(e) {}
+  }
+  
+  const newFolder = {
+    name: newName, description: `Merged from ${idsToMerge.length} folders`,
+    currentDay: 1, id: Date.now(), creator: currentUser.name,
+    wordCount: allWords.length, createdAt: new Date().toISOString(), lastMoved: new Date().toISOString()
+  };
+  if (!folders.day1) folders.day1 = [];
+  folders.day1.push(newFolder);
+  
+  // Save words for new folder
+  await db.collection('users').doc(currentUser.uid).collection('flashcards').doc(newFolder.id.toString()).set({ words: allWords });
+  
+  if (deleteOriginals) {
+    const batch = db.batch();
+    for (const folderId of idsToMerge) {
+      batch.delete(db.collection('users').doc(currentUser.uid).collection('flashcards').doc(folderId.toString()));
+      for (const key in folders) {
+        if (Array.isArray(folders[key])) folders[key] = folders[key].filter(f => f.id !== folderId);
+      }
+    }
+    await batch.commit();
+  }
+  
+  await saveData();
+  closeBulkMergeModal();
+  clearSelection();
+  updateDisplay();
+  showNotification(`Đã merge thành công! Folder "${newName}" có ${allWords.length} từ.`, 'success');
+};
+
+window.bulkDuplicateSelected = async () => {
+  if (selectedFolderIds.size === 0) return;
+  const idsTodup = [...selectedFolderIds];
+  
+  for (const folderId of idsTodup) {
+    const original = getAllSmallFolders().find(f => f.id === folderId);
+    if (!original) continue;
+    const newId = Date.now() + Math.random();
+    const newFolder = { ...original, id: newId, name: original.name + ' (Copy)', createdAt: new Date().toISOString(), lastMoved: new Date().toISOString(), currentDay: 1 };
+    if (!folders.day1) folders.day1 = [];
+    folders.day1.push(newFolder);
+    
+    try {
+      const doc = await db.collection('users').doc(currentUser.uid).collection('flashcards').doc(folderId.toString()).get();
+      if (doc.exists) {
+        await db.collection('users').doc(currentUser.uid).collection('flashcards').doc(newId.toString()).set(doc.data());
+      }
+    } catch(e) {}
+  }
+  
+  await saveData();
+  clearSelection();
+  updateDisplay();
+  showNotification(`Đã nhân đôi ${idsTodup.length} folder!`, 'success');
+};
+
+window.bulkExportSelected = async () => {
+  if (selectedFolderIds.size === 0) return;
+  showNotification('Tính năng export nhiều folder sẽ xuất từng file PDF riêng.', 'info');
+  for (const folderId of selectedFolderIds) {
+    const folder = getAllSmallFolders().find(f => f.id === folderId);
+    if (folder) await exportFolderToPDF(folderId, folder.name);
+  }
+};
+
+function getAllSmallFolders() {
+  const all = [];
+  for (let i = 1; i <= 7; i++) {
+    (folders[`day${i}`] || []).forEach(f => all.push(f));
+  }
+  return all;
+}
+
+
+// ===== THEME =====
+window.toggleTheme = () => {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  localStorage.setItem('ww_theme', isDark ? 'light' : 'dark');
+};
+// Apply saved theme on load
+(function() {
+  const saved = localStorage.getItem('ww_theme');
+  if (saved) document.documentElement.setAttribute('data-theme', saved);
+})();
+
+window.toggleDashboardCollapse = () => {
+  const section = document.getElementById('dashboardSection');
+  const label = document.getElementById('dashCollapseLabel');
+  if (!section) return;
+  section.classList.toggle('collapsed');
+  if (label) label.textContent = section.classList.contains('collapsed') ? 'Show dashboard' : 'Hide dashboard';
+};
+
+window.showDay = (day) => {
+  currentDay = day;
+  currentMode = "day";
+  currentlyViewedLargeFolderId = null;
+  document
+    .querySelectorAll(".day-item")
+    .forEach((item) => item.classList.remove("active"));
+  const dayItem = document.querySelector(`.days-nav .day-item:nth-child(${day})`);
+  if (dayItem) dayItem.classList.add("active");
+
+  const largeFolderItem = Array.from(document.querySelectorAll(".day-item")).find(el => el.textContent.includes("Large Folders"));
+  if (largeFolderItem) largeFolderItem.classList.remove("active");
+
+  updateDisplay();
+};
+
+window.showWordModal = async (folderId, folderName) => {
+  currentFolderId = folderId;
+  const modal = document.getElementById("wordModal");
+  document.getElementById(
+    "modalTitle"
+  ).textContent = `Words in "${folderName}"`;
+  const wordList = document.getElementById("wordList");
+  wordList.innerHTML = "<p>Loading...</p>";
+  modal.classList.add("show");
+
+  // Increment folder opens for diligence tracking
+  if (typeof window.incrementFolderOpens === 'function') {
+    window.incrementFolderOpens();
+  }
+  try {
+    const doc = await db
+      .collection("users")
+      .doc(currentUser.uid)
+      .collection("flashcards")
+      .doc(folderId.toString())
+      .get();
+    const words = doc.exists && doc.data().words ? doc.data().words : [];
+    wordList.innerHTML = words.length
+      ? words
+          .map(
+            (w, index) =>
+              `<div class="word-item">
+                 <div class="word-details">
+                    <span class="word-term">${w.word}</span>
+                    <span class="word-definition">${w.meaning}</span>
+                 </div>
+                 <button class="icon-btn btn-delete" title="Delete Word" onclick="deleteWord(${folderId}, ${index})"><i class="fa-solid fa-trash-can"></i></button>
+              </div>`
+          )
+          .join("")
+      : "<p>No words yet. Add one!</p>";
+  } catch (error) {
+    console.error("Error loading words:", error);
+    wordList.innerHTML = "<p>Error loading vocabulary.</p>";
+  }
+};
+
+window.closeWordModal = () => {
+  document.getElementById("wordModal").classList.remove("show");
+  currentFolderId = null;
+};
+
+window.toggleSidebar = () =>
+  document.querySelector(".sidebar").classList.toggle("active");
+
+window.addWord = async () => {
+  const newWord = document.getElementById("newWordModal").value.trim();
+  const newDefinition = document
+    .getElementById("newDefinitionModal")
+    .value.trim();
+  const newIpa = document.getElementById("newIpaModal").value.trim();
+  if (!newWord || !newDefinition) {
+    showNotification("Vui lòng điền đủ Từ và Nghĩa.", "warning");
+    return;
+  }
+  if (!currentFolderId) return;
+  const flashcardsRef = db
+    .collection("users")
+    .doc(currentUser.uid)
+    .collection("flashcards")
+    .doc(currentFolderId.toString());
+  try {
+    await db.runTransaction(async (transaction) => {
+      const doc = await transaction.get(flashcardsRef);
+      const words =
+        doc.exists && doc.data().words ? doc.data().words : [];
+      const wordObject = {
+        word: newWord,
+        meaning: newDefinition,
+        ipa: newIpa,
+      };
+      words.push(wordObject);
+      if (doc.exists) {
+        transaction.update(flashcardsRef, { words: words });
+      } else {
+        transaction.set(flashcardsRef, { words: words });
+      }
+
+      const folderToUpdate = findFolderById(currentFolderId);
+      if (folderToUpdate) {
+        folderToUpdate.wordCount = words.length;
+      }
+    });
+    await saveData();
+    updateDisplay();
+    showNotification("Đã thêm từ thành công!", "success");
+    document.getElementById("newWordModal").value = "";
+    document.getElementById("newDefinitionModal").value = "";
+    document.getElementById("newIpaModal").value = "";
+    const folderName = document
+      .getElementById("modalTitle")
+      .textContent.replace('Words in "', "")
+      .replace('"', "");
+    showWordModal(currentFolderId, folderName);
+  } catch (error) {
+    console.error("Error adding word: ", error);
+    showNotification("Không thể thêm từ.", "error");
+  }
+};
+
+function findFolderById(folderId) {
+  for (const key in folders) {
+    if (Array.isArray(folders[key])) {
+      const folder = folders[key].find((f) => f.id === folderId);
+      if (folder) return folder;
+    }
+  }
+  return null;
+}
+
+window.openEditFolderModal = (folderId) => {
+  const folder = findFolderById(folderId);
+  if (!folder) return;
+  editingFolderId = folderId;
+
+  document.getElementById("editFolderName").value = folder.name;
+  document.getElementById("editFolderDescription").value =
+    folder.description;
+  populateLargeFolderDropdown("editAssignToLargeFolder");
+  document.getElementById("editAssignToLargeFolder").value =
+    folder.largeFolderId || "";
+  document.getElementById("editFolderModal").classList.add("show");
+};
+
+window.closeEditFolderModal = () => {
+  document.getElementById("editFolderModal").classList.remove("show");
+  editingFolderId = null;
+};
+
+window.saveFolderChanges = async () => {
+  if (!editingFolderId) return;
+  const folder = findFolderById(editingFolderId);
+  if (!folder) return;
+
+  const newName = document.getElementById("editFolderName").value.trim();
+  const newDescription = document
+    .getElementById("editFolderDescription")
+    .value.trim();
+  const newLargeFolderId = document.getElementById(
+    "editAssignToLargeFolder"
+  ).value;
+
+  if (!newName) {
+    showNotification("Folder name cannot be empty!", "warning");
+    return;
+  }
+
+  folder.name = newName;
+  folder.description = newDescription;
+
+  if (newLargeFolderId) {
+    folder.largeFolderId = parseInt(newLargeFolderId);
+  } else {
+    delete folder.largeFolderId;
+  }
+
+  await saveData();
+  updateDisplay();
+  closeEditFolderModal();
+  showNotification("Folder updated successfully!", "success");
+};
+
+// === PDF EXPORT FUNCTION (OPTIMIZED FOR LARGE FILES) ===
+window.exportFolderToPDF = async (folderId, folderName) => {
+  showNotification("Generating PDF...", "info");
+
+  try {
+    const docRef = db
+      .collection("users")
+      .doc(currentUser.uid)
+      .collection("flashcards")
+      .doc(folderId.toString());
+    const doc = await docRef.get();
+
+    if (!doc.exists || !doc.data().words || doc.data().words.length === 0) {
+      showNotification("No words in this folder to export.", "warning");
+      return;
+    }
+    const words = doc.data().words;
+
+    const fontResponse = await fetch('NotoSans-Regular.ttf');
+    if (!fontResponse.ok) {
+        throw new Error('Font file not found. Make sure NotoSans-Regular.ttf is in the same folder as your HTML file.');
+    }
+    const fontBuffer = await fontResponse.arrayBuffer();
+
+    const uint8Array = new Uint8Array(fontBuffer);
+    let binary = '';
+    const chunkSize = 65536;
+    for (let i = 0; i < uint8Array.length; i += chunkSize) {
+        const chunk = uint8Array.subarray(i, i + chunkSize);
+        binary += String.fromCharCode.apply(null, chunk);
+    }
+    const fontBase64 = btoa(binary);
+
+    const { jsPDF } = window.jspdf;
+    const docPDF = new jsPDF();
+
+    docPDF.addFileToVFS("NotoSans-Regular.ttf", fontBase64);
+    docPDF.addFont("NotoSans-Regular.ttf", "NotoSans", "normal");
+    docPDF.setFont("NotoSans");
+
+    // --- CẬP NHẬT HEADER PDF MỚI ---
+    // 1. Tên thương hiệu ở góc trái
+    docPDF.setFontSize(22);
+    docPDF.setTextColor(59, 130, 246); // Màu xanh Primary của WordWhizzy
+    docPDF.text("WordWhizzy", 15, 20);
+
+    // 2. Thông tin website và slogan bên dưới tên thương hiệu
+    docPDF.setFontSize(10);
+    docPDF.setTextColor(107, 122, 144); // Màu xám text-muted
+    docPDF.text("wordwhizzy.io.vn - Học tiếng Anh cùng AI Unier", 15, 27);
+
+    // 3. Thông tin liên hệ
+    docPDF.setFontSize(9);
+    docPDF.text("Liên hệ: Đào Trung Hiếu | SĐT: 0358664793", 15, 33);
+
+    // 4. Đường kẻ ngang trang trí
+    docPDF.setDrawColor(221, 229, 238); // Màu border nhẹ
+    docPDF.line(15, 36, 195, 36);
+
+    // 5. Tên thư mục học tập
+    docPDF.setFontSize(16);
+    docPDF.setTextColor(26, 43, 77); // Màu text đậm
+    docPDF.text(`Bộ từ vựng: ${folderName}`, 15, 46);
+
+    // 6. Metadata ngày xuất ở góc phải (nhỏ)
+    docPDF.setFontSize(8);
+    docPDF.setTextColor(150);
+    docPDF.text(`Ngày xuất: ${new Date().toLocaleDateString()}`, 165, 46);
+
+    const tableData = words.map((w, index) => [
+      index + 1,
+      w.word || "",
+      w.meaning || "",
+      w.ipa || "",
+    ]);
+
+    docPDF.autoTable({
+      startY: 52, // Bắt đầu bảng sau khi đã trừ đi phần header mới
+      head: [["#", "Word", "Meaning", "IPA"]],
+      body: tableData,
+      theme: "grid",
+      headStyles: {
+        fillColor: [59, 130, 246],
+        textColor: 255,
+        font: "NotoSans",
+        fontStyle: "bold",
+      },
+      styles: {
+        font: "NotoSans",
+        fontStyle: "normal",
+        cellPadding: 3,
+      },
+      alternateRowStyles: {
+        fillColor: [240, 247, 255],
+      },
+    });
+
+    docPDF.save(
+      `${folderName.replace(/\s+/g, "_")}_WordWhizzy_Export.pdf`
+    );
+    showNotification("PDF exported successfully!", "success");
+  } catch (error) {
+    console.error("Error exporting to PDF: ", error);
+    showNotification(`Failed to export PDF: ${error.message}`, "error");
+  }
+};
+// ===== STUDY ACTIVITY HEATMAP — FULL YEAR (premium v2) =====
+(function () {
+  const MONTH_NAMES_VI_SHORT = [
+    'Th1', 'Th2', 'Th3', 'Th4', 'Th5', 'Th6',
+    'Th7', 'Th8', 'Th9', 'Th10', 'Th11', 'Th12'
+  ];
+  const MONTH_NAMES_VI_FULL = [
+    'Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4',
+    'Tháng 5', 'Tháng 6', 'Tháng 7', 'Tháng 8',
+    'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12'
+  ];
+  const DAY_LABELS = ['', 'T2', '', 'T4', '', 'T6', '']; // CN, T2, T3, T4, T5, T6, T7
+  const WEEKDAY_FULL = ['Chủ nhật', 'Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7'];
+
+  const CELL_SIZE = 15; // px, keep in sync with CSS .mhm-cell width
+  const CELL_GAP  = 4;  // px, keep in sync with CSS gap
+
+  let heatmapYear = new Date().getFullYear();
+
+  // Helper to get formatted string for today or any date
+  function dateKey(d) {
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  }
+
+  // Number of vocabulary folders created on a given Date (any large folder)
+  function getFoldersCreatedOn(d) {
+    const dayKey = d.toDateString();
+    let count = 0;
+    try {
+      Object.keys(folders || {}).forEach(k => {
+        const list = folders[k];
+        if (!Array.isArray(list)) return;
+        list.forEach(f => {
+          if (!f || !f.createdAt) return;
+          const fd = new Date(f.createdAt);
+          if (fd.toDateString() === dayKey) count++;
+        });
+      });
+    } catch (e) { /* noop */ }
+    return count;
+  }
+
+  // Study sessions recorded for a given Date (local study-mode usage)
+  function getSessionsForDate(d) {
+    const key = 'ww_daily_' + d.toDateString();
+    try {
+      const raw = localStorage.getItem(key);
+      if (!raw) return 0;
+      const data = JSON.parse(raw);
+      return data.sessions || 0;
+    } catch (e) { return 0; }
+  }
+
+  // Folders opened count on a given Date
+  function getFolderOpensForDate(d) {
+    const key = 'ww_folder_opens_' + d.toDateString();
+    const stored = localStorage.getItem(key);
+    if (stored !== null) {
+      return parseInt(stored, 10);
+    }
+    
+    // Fallback: If no explicit opens count is recorded, check folders created or sessions done
+    // to preserve historical user data before this update.
+    const foldersCount  = getFoldersCreatedOn(d);
+    const sessionsCount = getSessionsForDate(d);
+    if (foldersCount > 0 || sessionsCount > 0) {
+      return Math.max(1, foldersCount * 2 + sessionsCount);
+    }
+    return 0;
+  }
+
+  // Translate opens count to levels (0-5)
+  function getActivityScore(d) {
+    const opens = getFolderOpensForDate(d);
+    if (opens === 0) return 0;
+    if (opens >= 1 && opens <= 2) return 1;
+    if (opens >= 3 && opens <= 5) return 2;
+    if (opens >= 6 && opens <= 9) return 4;
+    return 5; // >= 10 opens (Highest Level)
+  }
+
+  function fmtDateVi(d) {
+    return `${WEEKDAY_FULL[d.getDay()]}, ${d.getDate()} ${MONTH_NAMES_VI_FULL[d.getMonth()].toLowerCase()}`;
+  }
+
+  function levelLabel(level, isFuture) {
+    if (isFuture) return 'Chưa tới';
+    switch (level) {
+      case 0: return 'Không hoạt động (0 lần mở)';
+      case 1: return 'Hoạt động nhẹ (1-2 lần mở)';
+      case 2: return 'Hoạt động trung bình (3-5 lần mở)';
+      case 3:
+      case 4: return 'Hoạt động tích cực (6-9 lần mở)';
+      case 5: return 'Huyền thoại lấp lánh 🔥 (>= 10 lần mở)';
+      default: return '';
+    }
+  }
+
+  // ---- Particle System variables ----
+  let particles = [];
+  let animFrame;
+  let resizeObserver;
+
+  function initParticles() {
+    cancelAnimationFrame(animFrame);
+    particles = [];
+
+    const container = document.getElementById('monthlyHeatmapSection');
+    const canvas = document.getElementById('particleCanvas');
+    if (!container || !canvas) return;
+    const ctx = canvas.getContext('2d');
+
+    canvas.width  = container.offsetWidth;
+    canvas.height = container.offsetHeight;
+
+    // Set up resize observer
+    if (resizeObserver) resizeObserver.disconnect();
+    resizeObserver = new ResizeObserver(() => {
+      canvas.width  = container.offsetWidth;
+      canvas.height = container.offsetHeight;
+    });
+    resizeObserver.observe(container);
+
+    // Find all legendary cells (level 5) and spawn particles near them
+    const l5Cells = container.querySelectorAll('.mhm-cell[data-level="5"]');
+    const containerRect = container.getBoundingClientRect();
+
+    l5Cells.forEach(cell => {
+      const rect = cell.getBoundingClientRect();
+      const cx = rect.left - containerRect.left + rect.width / 2;
+      const cy = rect.top  - containerRect.top  + rect.height / 2;
+
+      // Spawn 2-3 particles per legendary cell
+      const count = 2 + Math.floor(Math.random() * 2);
+      for (let i = 0; i < count; i++) {
+        particles.push(createParticle(cx, cy));
+      }
+    });
+
+    // Spawn ambient particles for level 4 cells (fewer)
+    const l4Cells = container.querySelectorAll('.mhm-cell[data-level="4"]');
+    l4Cells.forEach(cell => {
+      if (Math.random() < 0.3) {
+        const rect = cell.getBoundingClientRect();
+        const cx = rect.left - containerRect.left + rect.width / 2;
+        const cy = rect.top  - containerRect.top  + rect.height / 2;
+        particles.push(createParticle(cx, cy, true));
+      }
+    });
+
+    if (particles.length > 0) {
+      tickParticles(canvas, ctx);
+    } else {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+  }
+
+  function createParticle(x, y, subtle = false) {
+    return {
+      x, y,
+      originX: x,
+      originY: y,
+      size: subtle ? (1 + Math.random() * 1.5) : (1.5 + Math.random() * 2.5),
+      alpha: 0,
+      maxAlpha: subtle ? (0.3 + Math.random() * 0.3) : (0.5 + Math.random() * 0.5),
+      phase: Math.random() * Math.PI * 2,
+      speed: 0.008 + Math.random() * 0.015,
+      radius: subtle ? (4 + Math.random() * 8) : (8 + Math.random() * 16),
+      color: subtle
+        ? `hsla(${250 + Math.random()*20}, 80%, 70%`
+        : `hsla(${35 + Math.random()*15}, 100%, ${60 + Math.random()*15}%`,
+      fadeIn: true,
+      life: 0,
+      maxLife: 200 + Math.random() * 300,
+    };
+  }
+
+  function tickParticles(canvas, ctx) {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    if (particles.length === 0) return;
+
+    for (let i = particles.length - 1; i >= 0; i--) {
+      const p = particles[i];
+      p.life++;
+      p.phase += p.speed;
+
+      // Float around origin
+      p.x = p.originX + Math.cos(p.phase) * p.radius;
+      p.y = p.originY + Math.sin(p.phase * 0.7) * p.radius - (p.life * 0.03);
+
+      // Fade in/out
+      if (p.life < 30) {
+        p.alpha = (p.life / 30) * p.maxAlpha;
+      } else if (p.life > p.maxLife - 40) {
+        p.alpha = ((p.maxLife - p.life) / 40) * p.maxAlpha;
+      } else {
+        p.alpha = p.maxAlpha;
+      }
+
+      // Draw
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+      ctx.fillStyle = `${p.color}, ${p.alpha})`;
+      ctx.fill();
+
+      // Add glow
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.size * 2.5, 0, Math.PI * 2);
+      ctx.fillStyle = `${p.color}, ${p.alpha * 0.2})`;
+      ctx.fill();
+
+      // Respawn
+      if (p.life >= p.maxLife) {
+        particles[i] = createParticle(p.originX, p.originY, p.size < 2);
+      }
+    }
+
+    animFrame = requestAnimationFrame(() => tickParticles(canvas, ctx));
+  }
+
+  function renderHeatmap() {
+    const grid      = document.getElementById('monthlyHeatmapGrid');
+    const label     = document.getElementById('heatmapMonthLabel');
+    const nextBtn   = document.getElementById('heatmapNextBtn');
+    const statsRow  = document.getElementById('mhmStatsRow');
+    const tooltip   = document.getElementById('mhmTooltip');
+    if (!grid || !label) return;
+
+    const today = new Date();
+    const isCurrentYear = (heatmapYear === today.getFullYear());
+
+    label.textContent = String(heatmapYear);
+    if (nextBtn) {
+      nextBtn.disabled = isCurrentYear;
+    }
+
+    // Build the full year as a Sunday-aligned grid, GitHub-style:
+    const jan1 = new Date(heatmapYear, 0, 1);
+    const dec31 = new Date(heatmapYear, 11, 31);
+    const gridStart = new Date(jan1);
+    gridStart.setDate(gridStart.getDate() - gridStart.getDay()); // back up to Sunday
+    const gridEnd = new Date(dec31);
+    gridEnd.setDate(gridEnd.getDate() + (6 - gridEnd.getDay())); // forward to Saturday
+
+    const numDays  = Math.round((gridEnd - gridStart) / 86400000) + 1;
+    const numWeeks = Math.ceil(numDays / 7);
+
+    const cells = [];
+    for (let i = 0; i < numWeeks * 7; i++) {
+      const d = new Date(gridStart);
+      d.setDate(d.getDate() + i);
+      cells.push(d);
+    }
+
+    // ----- Stats for this year -----
+    let activeDays = 0, totalSessions = 0, perfectDays = 0;
+    let curStreak = 0, longestStreak = 0, runningStreak = 0;
+    const dayCursor = new Date(jan1);
+    while (dayCursor <= dec31 && dayCursor <= today) {
+      const score = getActivityScore(dayCursor);
+      totalSessions += getSessionsForDate(dayCursor);
+      if (score > 0) {
+        activeDays++;
+        runningStreak++;
+        if (runningStreak > longestStreak) longestStreak = runningStreak;
+      } else {
+        runningStreak = 0;
+      }
+      if (score >= 5) perfectDays++;
+      dayCursor.setDate(dayCursor.getDate() + 1);
+    }
+    
+    if (isCurrentYear) {
+      let c = new Date(today);
+      while (getActivityScore(c) > 0) {
+        curStreak++;
+        c.setDate(c.getDate() - 1);
+        if (c.getFullYear() < heatmapYear) break;
+      }
+    }
+
+    if (statsRow) {
+      statsRow.innerHTML = `
+        <div class="mhm-stat-chip"><i class="fa-solid fa-calendar-check"></i>Ngày hoạt động: <b>${activeDays}</b></div>
+        <div class="mhm-stat-chip"><i class="fa-solid fa-bolt"></i>Chuỗi hiện tại: <b>${curStreak} ngày</b></div>
+        <div class="mhm-stat-chip"><i class="fa-solid fa-trophy"></i>Chuỗi dài nhất: <b>${longestStreak} ngày</b></div>
+        <div class="mhm-stat-chip"><i class="fa-solid fa-star"></i>Ngày hoàn hảo: <b>${perfectDays}</b></div>
+      `;
+    }
+
+    // Total words label mapping
+    const totalLabel = document.getElementById('totalLabel');
+    if (totalLabel) {
+      totalLabel.innerHTML = `Hoạt động năm ${heatmapYear}: <strong>${activeDays} ngày tích cực</strong> / ${totalSessions} phiên ôn tập`;
+    }
+
+    // ----- Month label row -----
+    let monthLabelsHTML = '';
+    let lastMonthPrinted = -1;
+    const weekWidth = CELL_SIZE + CELL_GAP;
+    for (let w = 0; w < numWeeks; w++) {
+      let repDate = null;
+      for (let r = 0; r < 7; r++) {
+        const dd = cells[w * 7 + r];
+        if (dd.getFullYear() === heatmapYear) { repDate = dd; break; }
+      }
+      if (!repDate) continue;
+      if (repDate.getDate() <= 7 && repDate.getMonth() !== lastMonthPrinted) {
+        const leftPx = w * weekWidth;
+        monthLabelsHTML += `<div class="heatmap-month-label-item" style="left:${leftPx}px">${MONTH_NAMES_VI_SHORT[repDate.getMonth()]}</div>`;
+        lastMonthPrinted = repDate.getMonth();
+      }
+    }
+
+    // ----- Weekday label column -----
+    let weekdayHTML = '<div class="heatmap-weekday-labels">';
+    DAY_LABELS.forEach(dl => {
+      weekdayHTML += `<div class="heatmap-weekday-label">${dl}</div>`;
+    });
+    weekdayHTML += '</div>';
+
+    // ----- Week columns -----
+    let weeksHTML = '<div class="heatmap-weeks-row">';
+    for (let w = 0; w < numWeeks; w++) {
+      weeksHTML += '<div class="heatmap-week-col">';
+      for (let r = 0; r < 7; r++) {
+        const cellDate = cells[w * 7 + r];
+        const inYear = cellDate.getFullYear() === heatmapYear;
+        if (!inYear) {
+          weeksHTML += '<div class="mhm-cell empty"></div>';
+          continue;
+        }
+        const isFuture = cellDate > today;
+        const level = isFuture ? 0 : getActivityScore(cellDate);
+        const isTodayCell = (
+          cellDate.getDate()     === today.getDate() &&
+          cellDate.getMonth()    === today.getMonth() &&
+          cellDate.getFullYear() === today.getFullYear()
+        );
+        const delay = (w * 8 + r * 4) + 'ms';
+        const iso = cellDate.toISOString().slice(0, 10);
+        
+        let cellStyle = `animation-delay: ${delay};`;
+        if (level === 3 || level === 4) {
+          cellStyle = `animation: cellPop 0.4s var(--ease-snap) ${delay} forwards, glowPulse4 2s ease-in-out infinite ${parseFloat(delay) + 600}ms;`;
+        } else if (level === 5) {
+          cellStyle = `animation: cellPop 0.4s var(--ease-snap) ${delay} forwards, legendaryPulse 1.8s ease-in-out infinite ${parseFloat(delay) + 500}ms;`;
+        }
+
+        weeksHTML += `<div
+          class="mhm-cell${isFuture ? ' future' : ''}"
+          data-level="${level}"
+          data-date="${iso}"
+          ${isTodayCell ? 'data-today="true"' : ''}
+          style="${cellStyle}"
+        ></div>`;
+      }
+      weeksHTML += '</div>';
+    }
+    weeksHTML += '</div>';
+
+    grid.innerHTML =
+      '<div class="heatmap-inner-wrap">' +
+        weekdayHTML +
+        '<div class="heatmap-columns-area">' +
+          `<div class="heatmap-month-labels-row">${monthLabelsHTML}</div>` +
+          weeksHTML +
+        '</div>' +
+      '</div>';
+
+    // ----- Tooltip wiring -----
+    if (tooltip) {
+      grid.querySelectorAll('.mhm-cell:not(.empty)').forEach(cellEl => {
+        cellEl.addEventListener('mouseenter', (e) => {
+          const iso = cellEl.getAttribute('data-date');
+          if (!iso) return;
+          const d = new Date(iso + 'T00:00:00');
+          const isFuture = cellEl.classList.contains('future');
+          const lvl = parseInt(cellEl.getAttribute('data-level') || '0', 10);
+          tooltip.innerHTML = `<span class="mhm-tt-date">${fmtDateVi(d)}</span><br>${levelLabel(lvl, isFuture)}`;
+          positionTooltip(e, cellEl);
+          tooltip.classList.add('show');
+        });
+        cellEl.addEventListener('mousemove', (e) => positionTooltip(e, cellEl));
+        cellEl.addEventListener('mouseleave', () => tooltip.classList.remove('show'));
+      });
+    }
+
+    function positionTooltip(e, cellEl) {
+      const rect = cellEl.getBoundingClientRect();
+      tooltip.style.left = (rect.left + rect.width / 2) + 'px';
+      tooltip.style.top = (rect.top - 12) + 'px';
+    }
+
+    // Spawn sparkles and particles
+    initParticles();
+  }
+
+  // Globally expose the increment opens function
+  window.incrementFolderOpens = function() {
+    const todayKey = new Date().toDateString();
+    const key = 'ww_folder_opens_' + todayKey;
+    const current = parseInt(localStorage.getItem(key) || '0', 10);
+    localStorage.setItem(key, String(current + 1));
+    renderHeatmap();
+  };
+
+  window.heatmapChangeYear = function(delta) {
+    const today = new Date();
+    if (delta > 0 && heatmapYear >= today.getFullYear()) return;
+    heatmapYear += delta;
+    renderHeatmap();
+  };
+
+  // Click handler on window/screen for 20 consecutive clicks
+  // Triggers auto-random marking for calendar days before June 25, 2026
+  let screenClickCount = 0;
+  let lastScreenClickTime = 0;
+  window.addEventListener('click', (e) => {
+    // If auto-random marking was already used on this device, do not trigger
+    if (localStorage.getItem('ww_heatmap_auto_random_triggered') === 'true') {
+      return;
+    }
+
+    const now = Date.now();
+    if (now - lastScreenClickTime > 2000) {
+      screenClickCount = 0;
+    }
+    
+    screenClickCount++;
+    lastScreenClickTime = now;
+    
+    if (screenClickCount === 20) {
+      screenClickCount = 0;
+      
+      const start = new Date('2026-01-01T00:00:00');
+      const end = new Date('2026-06-24T00:00:00');
+      
+      for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+        const r = Math.random() * 100;
+        let opens = 0;
+        if (r < 10) {
+          // 10% chance: 10 opens (Level 5)
+          opens = 10;
+        } else if (r < 60) {
+          // 50% chance: low activity (0 to 3 opens)
+          const lowR = Math.random();
+          if (lowR < 0.4) opens = 0;       // 20%
+          else if (lowR < 0.7) opens = 1;  // 15%
+          else opens = Math.floor(Math.random() * 2) + 2; // 2 or 3 (15%)
+        } else {
+          // 40% chance: other activity (4 to 9 opens)
+          opens = Math.floor(Math.random() * 6) + 4; // 4, 5, 6, 7, 8, 9
+        }
+        
+        const key = 'ww_folder_opens_' + d.toDateString();
+        localStorage.setItem(key, String(opens));
+      }
+      
+      // Save trigger flag to block future uses
+      localStorage.setItem('ww_heatmap_auto_random_triggered', 'true');
+      
+      showNotification('Đã tự động đánh dấu ngẫu nhiên các hoạt động trước ngày 25/6/2026!', 'success');
+      
+      // Re-render heatmap
+      renderHeatmap();
+    }
+  });
+
+  // Initial render after DOM ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', renderHeatmap);
+  } else {
+    renderHeatmap();
+  }
+
+  // Re-render heatmap each time updateAllCounts is called
+  const _heatmapRerenderInterval = setInterval(() => {
+    if (typeof updateAllCounts === 'function') {
+      const orig = updateAllCounts;
+      window.updateAllCounts = function() {
+        orig.apply(this, arguments);
+        renderHeatmap();
+      };
+      clearInterval(_heatmapRerenderInterval);
+    }
+  }, 200);
+
+})();
+    </script>
+  </body>
+</html>

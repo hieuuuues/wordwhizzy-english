@@ -1,0 +1,1389 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Flashcards | WordWhizzy</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+    />
+    <script src="https://unpkg.com/franc-min@6.2.0/franc-min.js"></script>
+    <style>
+      /* MODIFIED: Replaced entire style block with the new, consistent design system */
+
+      /* Chỉ áp dụng cho thiết bị cảm ứng để không ảnh hưởng keyboard users */
+      @media (pointer: coarse) {
+        * {
+          -webkit-tap-highlight-color: transparent; /* iOS, Chrome mobile */
+          -webkit-touch-callout: none; /* tắt menu giữ chạm (iOS) nếu cần */
+        }
+      }
+
+      :root {
+        --bg: #ffffff;
+        --bg-soft: #f0f8ff; /* A very light blue */
+        --text: #343a40;
+        --text-muted: #6c757d;
+        --border: #e9ecef;
+        --radius: 14px;
+        --shadow: 0 8px 24px rgba(16, 16, 16, 0.05);
+        --accent: #007bff; /* Main blue color */
+        --accent-dark: #0056b3; /* A darker blue for hover */
+        --success: #28a745;
+        --error: #dc3545;
+        --warning: #ffc107;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Inter", sans-serif;
+      }
+
+      body {
+        background: var(--bg-soft);
+        min-height: 100vh;
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        animation: fadeIn 0.5s ease-out;
+      }
+
+      .container {
+        width: 100%;
+        max-width: 1200px;
+      }
+
+      .top-controls {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1.5rem;
+        width: 100%;
+        max-width: 900px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      .icon-btn {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        background: var(--bg);
+        color: var(--text-muted);
+        text-decoration: none;
+        font-size: 1.1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: var(--shadow);
+        transition: all 0.3s ease;
+        border: 1px solid var(--border);
+        cursor: pointer;
+      }
+
+      .icon-btn:hover {
+        background: var(--accent);
+        color: var(--bg);
+        transform: scale(1.05);
+      }
+
+      .main-content {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        gap: 2rem;
+      }
+
+      .flashcard-container {
+        position: relative;
+        width: 100%;
+        max-width: 900px;
+        height: 550px;
+        perspective: 1000px;
+      }
+
+      .flashcard {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        transform-style: preserve-3d;
+        transition: transform 0.6s ease-in-out;
+        cursor: pointer;
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        border: 1px solid var(--border);
+      }
+
+      .flashcard.flipped {
+        transform: rotateY(180deg);
+      }
+
+      .card-face {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        backface-visibility: hidden;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background: var(--bg);
+        border-radius: var(--radius);
+        padding: 1.5rem;
+        overflow: hidden;
+        word-break: break-word;
+      }
+
+      .card-back {
+        transform: rotateY(180deg);
+        background: var(--bg-soft);
+      }
+
+      .shortcuts-info {
+        width: 200px;
+        padding: 1.5rem;
+        background: var(--bg);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        border: 1px solid var(--border);
+      }
+
+      .shortcuts-info h3 {
+        color: var(--text);
+        margin-bottom: 1rem;
+        font-size: 1rem;
+        border-bottom: 1px solid var(--border);
+        padding-bottom: 0.5rem;
+      }
+
+      .shortcuts-info ul {
+        list-style: none;
+        padding: 0;
+      }
+      .shortcuts-info li {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.9rem;
+        color: var(--text-muted);
+        margin-bottom: 0.75rem;
+      }
+      .shortcuts-info kbd {
+        padding: 0.2rem 0.5rem;
+        border-radius: 6px;
+        background: var(--bg-soft);
+        color: var(--text);
+        font-family: monospace;
+        font-weight: 600;
+        border: 1px solid var(--border);
+      }
+
+      .card-word {
+        font-size: 2rem;
+        font-weight: 600;
+        color: var(--text);
+        margin-bottom: 0.75rem;
+        text-align: center;
+      }
+
+      .card-phonetic {
+        font-size: 1rem;
+        color: var(--text-muted);
+        margin-bottom: 0.75rem;
+      }
+
+      .card-image {
+        max-width: 280px;
+        max-height: 180px;
+        object-fit: contain;
+        margin-bottom: 1rem;
+        border-radius: 8px;
+      }
+
+      .card-counter {
+        position: absolute;
+        top: 1rem;
+        left: 1.5rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: var(--text-muted);
+      }
+
+      .card-controls {
+        margin-top: 1.5rem;
+        display: flex;
+        gap: 0.75rem;
+        justify-content: center;
+        flex-wrap: wrap;
+        width: 100%;
+        max-width: 900px;
+      }
+
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 12px 20px;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 15px;
+        border: 1px solid var(--border);
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-decoration: none;
+      }
+      .btn-primary {
+        background: var(--accent);
+        color: #fff;
+        border-color: var(--accent);
+      }
+      .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        background: var(--accent-dark);
+      }
+      .btn-secondary {
+        background: var(--bg);
+        color: var(--text);
+      }
+      .btn-secondary:hover {
+        background: var(--bg-soft);
+        border-color: #ddd;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      }
+      .btn.active {
+        background: var(--accent);
+        color: #fff;
+      }
+
+      .action-buttons {
+        position: absolute;
+        top: 1rem;
+        right: 1.5rem;
+        display: flex;
+        gap: 0.75rem;
+      }
+
+      .options-menu {
+        display: none;
+        position: absolute;
+        top: calc(1rem + 48px);
+        right: 1.5rem;
+        background-color: var(--bg);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        border: 1px solid var(--border);
+        z-index: 1050;
+        padding: 0.5rem;
+        animation: fadeIn 0.2s ease-out;
+        list-style: none;
+        min-width: 220px;
+      }
+      .options-menu.active {
+        display: block;
+      }
+
+      .options-menu-item {
+        padding: 0.75rem 1rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        font-size: 0.9rem;
+        color: var(--text);
+        background: none;
+        border: none;
+        width: 100%;
+        text-align: left;
+        border-radius: 8px;
+      }
+      .options-menu-item:hover {
+        background-color: var(--bg-soft);
+      }
+      .options-menu-item i {
+        color: var(--text-muted);
+        width: 20px;
+        text-align: center;
+      }
+
+      .modal-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(10, 10, 10, 0.4);
+        backdrop-filter: blur(5px);
+        z-index: 999;
+      }
+      .modal-overlay.active {
+        display: block;
+      }
+
+      .modal {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 90%;
+        max-width: 500px;
+        background: var(--bg);
+        border-radius: var(--radius);
+        border: 1px solid var(--border);
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        max-height: 85vh;
+        overflow-y: auto;
+        z-index: 1000;
+      }
+      .modal.active {
+        display: flex;
+        flex-direction: column;
+      }
+      .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid var(--border);
+      }
+      .modal-header h2 {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--text);
+      }
+      .close-btn {
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        color: var(--text-muted);
+        cursor: pointer;
+      }
+      .modal-content {
+        padding: 1.5rem;
+      }
+
+      .edit-form label {
+        display: block;
+        font-size: 0.95rem;
+        color: var(--text);
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+      }
+      .edit-form input,
+      .edit-form textarea,
+      .edit-form select {
+        width: 100%;
+        padding: 12px;
+        margin-bottom: 1rem;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        font-size: 15px;
+        background: var(--bg);
+        transition: all 0.3s ease;
+      }
+      .edit-form input:focus,
+      .edit-form textarea:focus,
+      .edit-form select:focus {
+        outline: none;
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+      }
+      .edit-form textarea {
+        resize: vertical;
+        min-height: 100px;
+      }
+
+      .progress-bar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: var(--border);
+        z-index: 2000;
+      }
+      .progress {
+        height: 100%;
+        background: var(--accent);
+        transition: width 0.3s ease;
+      }
+
+      .unier-chat {
+        display: none;
+        position: fixed;
+        bottom: 1.5rem;
+        right: 1.5rem;
+        width: 350px;
+        background: var(--bg);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        border: 1px solid var(--border);
+        max-height: 70vh;
+        overflow-y: auto;
+        z-index: 1000;
+      }
+      .unier-chat.active {
+        display: block;
+      }
+      .unier-header {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin: 1rem 1rem 0;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid var(--border);
+      }
+      .unier-header img {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+      }
+      .unier-header h2 {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--text);
+      }
+      .chat-messages {
+        max-height: 50vh;
+        overflow-y: auto;
+        padding: 1rem;
+      }
+      .message-container {
+        margin: 0.5rem 0;
+      }
+      .message {
+        max-width: 85%;
+        padding: 0.75rem 1rem;
+        border-radius: 12px;
+        font-size: 0.9rem;
+        line-height: 1.5;
+      }
+      .user-message {
+        margin-left: auto;
+        background: var(--accent);
+        color: var(--bg);
+        border-bottom-right-radius: 2px;
+      }
+      .ai-message {
+        margin-right: auto;
+        background: var(--bg-soft);
+        border: 1px solid var(--border);
+        border-bottom-left-radius: 2px;
+      }
+      .chat-input-area {
+        display: flex;
+        gap: 0.5rem;
+        padding: 0 1rem 1rem;
+      }
+      .chat-input {
+        flex: 1;
+        padding: 12px;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        font-size: 15px;
+        outline: none;
+        resize: none;
+        max-height: 100px;
+        background: var(--bg);
+      }
+
+      @media (max-width: 1200px) {
+        .shortcuts-info {
+          display: none;
+        }
+      }
+      @media (max-width: 768px) {
+        body {
+          padding: 1rem;
+        }
+        .main-content {
+          flex-direction: column;
+          align-items: center;
+        }
+        .flashcard-container {
+          max-width: 100%;
+          height: 500px;
+        }
+      }
+      @media (max-width: 480px) {
+        .flashcard-container {
+          height: 450px;
+        }
+        .card-word {
+          font-size: 1.5rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="progress-bar">
+      <div class="progress" id="progress"></div>
+    </div>
+
+    <div class="modal-overlay" id="modalOverlay"></div>
+
+    <div class="container">
+      <div class="top-controls">
+        <a href="study-options.html" class="icon-btn" id="backButton">
+          <i class="fas fa-arrow-left"></i>
+        </a>
+        <button class="icon-btn" onclick="toggleUnierChat()">
+          <i class="fas fa-chalkboard-teacher"></i>
+        </button>
+      </div>
+
+      <div class="main-content">
+        <div class="flashcard-container">
+          <div class="flashcard" onclick="flipCard(this)">
+            <div class="card-face card-front"></div>
+            <div class="card-face card-back"></div>
+          </div>
+
+          <ul class="options-menu" id="optionsMenu">
+            <li>
+              <button
+                class="options-menu-item"
+                onclick="openModal(event, 'dictionaryModal')"
+              >
+                <i class="fas fa-book"></i> Từ điển
+              </button>
+            </li>
+            <li>
+              <button
+                class="options-menu-item"
+                onclick="openModal(event, 'editModal')"
+              >
+                <i class="fas fa-edit"></i> Sửa thẻ
+              </button>
+            </li>
+            <li>
+              <button
+                class="options-menu-item"
+                onclick="openModal(event, 'sentenceModal')"
+              >
+                <i class="fas fa-comment-dots"></i> Tạo câu ví dụ
+              </button>
+            </li>
+            <li>
+              <button
+                class="options-menu-item"
+                onclick="openModal(event, 'synAntModal')"
+              >
+                <i class="fas fa-exchange-alt"></i> Đồng nghĩa & Trái nghĩa
+              </button>
+            </li>
+            <li>
+              <button
+                class="options-menu-item"
+                onclick="openModal(event, 'settingsModal')"
+              >
+                <i class="fas fa-sliders-h"></i> Cài đặt
+              </button>
+            </li>
+          </ul>
+        </div>
+
+        <div class="shortcuts-info">
+          <h3>Phím tắt</h3>
+          <ul id="shortcutsInfoList"></ul>
+        </div>
+      </div>
+
+      <div class="card-controls">
+        <button class="btn btn-secondary" onclick="previousCard()">
+          <i class="fas fa-chevron-left"></i> Trước
+        </button>
+        <a href="#" id="reviewLink" class="btn btn-secondary"
+          ><i class="fas fa-star"></i> Ôn từ đã lưu</a
+        >
+        <button class="btn btn-secondary" onclick="randomCard()">
+          <i class="fas fa-random"></i> Ngẫu nhiên
+        </button>
+        <button class="btn btn-secondary" onclick="toggleAutoPlay()">
+          <i class="fas fa-play" id="autoPlayIcon"></i> Tự động
+        </button>
+        <button class="btn btn-primary" onclick="nextCard()">
+          Tiếp <i class="fas fa-chevron-right"></i>
+        </button>
+      </div>
+    </div>
+
+    <div class="modal" id="dictionaryModal">
+      <div class="modal-header">
+        <h2>Từ điển</h2>
+        <button class="close-btn" onclick="closeAllModals(event)">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-content" id="dictionaryContent"></div>
+    </div>
+
+    <div class="modal" id="editModal">
+      <div class="modal-header">
+        <h2>Sửa Flashcard</h2>
+        <button class="close-btn" onclick="closeAllModals(event)">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-content">
+        <form class="edit-form" onsubmit="saveEdit(event)">
+          <label for="editWord">Từ vựng:</label>
+          <input type="text" id="editWord" required />
+          <label for="editIPA">Phiên âm (IPA):</label>
+          <input type="text" id="editIPA" />
+          <label for="editMeaning">Nghĩa:</label>
+          <textarea id="editMeaning" required></textarea>
+          <label for="editImage">URL hình ảnh (nếu có):</label>
+          <input type="url" id="editImage" />
+          <button class="btn btn-primary" type="submit">Lưu thay đổi</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="modal" id="sentenceModal">
+      <div class="modal-header">
+        <h2>Câu Ví Dụ</h2>
+        <button class="close-btn" onclick="closeAllModals(event)">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-content">
+        <div id="sentenceContent"></div>
+        <div
+          id="sentenceTranslation"
+          style="color: var(--text-muted); margin-top: 1rem"
+        ></div>
+        <button
+          class="btn btn-secondary"
+          onclick="generateSentence(event, false)"
+          style="margin-top: 1rem; width: 100%"
+        >
+          <i class="fas fa-sync-alt"></i> Xem Câu Khác
+        </button>
+      </div>
+    </div>
+
+    <div class="modal" id="synAntModal">
+      <div class="modal-header">
+        <h2>Từ Đồng Nghĩa & Trái Nghĩa</h2>
+        <button class="close-btn" onclick="closeAllModals(event)">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-content" id="synAntContent"></div>
+    </div>
+
+    <div class="modal" id="settingsModal">
+      <div class="modal-header">
+        <h2>Cài đặt</h2>
+        <button class="close-btn" onclick="closeAllModals(event)">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-content">
+        <label for="voiceSelect">Giọng đọc:</label>
+        <select id="voiceSelect" class="edit-form"></select>
+        <h3 style="margin-top: 1.5rem">Phím tắt</h3>
+        <ul id="shortcutsList"></ul>
+      </div>
+    </div>
+
+    <div class="unier-chat" id="unierChat">
+      <div class="unier-header">
+        <img
+          src="https://firebasestorage.googleapis.com/v0/b/wordwhizzy.appspot.com/o/logo.png?alt=media&token=c1e85292-49f9-402c-8ab5-1b7f3b433434"
+          alt="UNIer Avatar"
+        />
+        <h2>UNIer</h2>
+      </div>
+      <div class="chat-messages" id="chatMessages"></div>
+      <div class="chat-input-area">
+        <textarea
+          class="chat-input"
+          id="chatInput"
+          placeholder="Hỏi UNIer..."
+          rows="1"
+          onkeydown="if(event.key === 'Enter' && !event.shiftKey) {event.preventDefault(); sendChatMessage();}"
+        ></textarea>
+        <button
+          class="btn btn-primary"
+          onclick="sendChatMessage()"
+          style="padding: 12px"
+        >
+          Gửi
+        </button>
+      </div>
+    </div>
+
+    <script>
+      // Khai báo flashcards cố định tại đây
+      let flashcards = [
+        {
+          word: "Serendipity",
+          ipa: "/ˌserənˈdɪpəti/",
+          meaning: "Sự may mắn bất ngờ, tình cờ khám phá ra điều thú vị.",
+          image:
+            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSv3KA7-4NgzpH6rxfThuM6W5cxwI2WdKisZg&s",
+        },
+        {
+          word: "Ephemeral",
+          ipa: "/ɪˈfemərəl/",
+          meaning:
+            "Sớm nở chóng tàn, phù du, chỉ tồn tại trong một thời gian ngắn.",
+          image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSr25imw9lgMjWq248SkINbzuQ_l0wzDuTKgg&s",
+        },
+        {
+          word: "Labyrinth",
+          ipa: "/ˈlæbərɪnθ/",
+          meaning:
+            "Mê cung, một cấu trúc phức tạp gồm nhiều lối đi khó tìm đường ra.",
+          image: "data:image/png;base64,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",
+        },
+        {
+          word: "Quixotic",
+          ipa: "/kwɪkˈsɒtɪk/",
+          meaning: "Viển vông, hão huyền, quá lý tưởng và không thực tế.",
+          image: "data:image/jpeg;base64,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",
+        },
+        {
+          word: "Nefarious",
+          ipa: "/nɪˈfeəriəs/",
+          meaning: "Độc ác, vô cùng xấu xa, thường chỉ các hành động tội lỗi.",
+          image: "data:image/jpeg;base64,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",
+        },
+        {
+          word: "Mellifluous",
+          ipa: "/məˈlɪflʊəs/",
+          meaning:
+            "Ngọt ngào, êm tai, thường dùng để mô tả giọng nói hoặc âm nhạc.",
+          image: "data:image/jpeg;base64,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",
+        },
+        {
+          word: "Incandescent",
+          ipa: "/ˌɪnkænˈdesənt/",
+          meaning: "Sáng chói, phát sáng, rực rỡ.",
+          image: "data:image/jpeg;base64,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",
+        },
+      ];
+
+      let currentIndex = 0;
+      let autoPlayInterval = null;
+      const API_URL = "https://api-alpha-six-99.vercel.app/api/chat/";
+      const CURRENT_TIME = new Date().toISOString();
+      const modalOverlay = document.getElementById("modalOverlay");
+      const optionsMenu = document.getElementById("optionsMenu");
+      const allModals = document.querySelectorAll(".modal");
+      const voiceSelect = document.getElementById("voiceSelect");
+      let voices = [];
+      let userSettings = {};
+      let keybindings = {};
+      const defaultKeybindings = {
+        flip: " ",
+        next: "ArrowRight",
+        prev: "ArrowLeft",
+        audio: "Control",
+      };
+
+      function main() {
+        loadUserSettings();
+        if (flashcards.length > 0) {
+          showCard(0);
+        } else {
+          document.querySelector(
+            ".card-front"
+          ).innerHTML = `<div class="card-word">Không có thẻ nào trong bộ này.</div>`;
+          document.querySelector(".card-back").innerHTML = "";
+        }
+        updateProgress();
+        initializeUnierChat();
+        populateVoiceList();
+        if (speechSynthesis.onvoiceschanged !== undefined) {
+          speechSynthesis.onvoiceschanged = populateVoiceList;
+        }
+
+        // Tắt các nút liên quan đến database không cần thiết cho phiên bản này
+        // ĐÃ XÓA DÒNG GÂY LỖI: document.getElementById("backButton").href = "#";
+        document.getElementById("reviewLink").style.display = "none";
+
+        modalOverlay.addEventListener("click", closeAllModals);
+        voiceSelect.addEventListener("change", handleVoiceChange);
+        document.addEventListener("keydown", handleGlobalKeyDown);
+        document
+          .getElementById("chatInput")
+          .addEventListener("input", function () {
+            this.style.height = "auto";
+            this.style.height = Math.min(this.scrollHeight, 100) + "px";
+          });
+        document.addEventListener("click", (e) => {
+          const unierChat = document.getElementById("unierChat");
+          if (
+            unierChat.classList.contains("active") &&
+            !unierChat.contains(e.target) &&
+            !e.target.closest(".icon-btn[onclick='toggleUnierChat()']")
+          ) {
+            unierChat.classList.remove("active");
+          }
+          if (
+            !optionsMenu.contains(e.target) &&
+            !e.target.closest(".action-buttons")
+          ) {
+            optionsMenu.classList.remove("active");
+          }
+        });
+        let touchStartX = 0;
+        document
+          .querySelector(".flashcard")
+          .addEventListener("touchstart", (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+          });
+        document
+          .querySelector(".flashcard")
+          .addEventListener("touchend", (e) => {
+            const touchEndX = e.changedTouches[0].screenX;
+            if (touchEndX - touchStartX > 50) previousCard();
+            else if (touchStartX - touchEndX > 50) nextCard();
+          });
+      }
+
+      // Các hàm liên quan đến cơ sở dữ liệu sẽ bị vô hiệu hóa hoặc không còn cần thiết
+      async function saveFlashcardsToFirestore() {
+        // Hàm này không còn cần thiết
+        console.log("Saving to Firestore is disabled in this version.");
+      }
+      async function toggleFavorite(event) {
+        event.stopPropagation();
+        flashcards[currentIndex].favorite = !flashcards[currentIndex].favorite;
+        showCard(currentIndex);
+      }
+      async function saveEdit(event) {
+        event.preventDefault();
+        const word = document.getElementById("editWord").value;
+        const ipa = document.getElementById("editIPA").value;
+        const meaning = document.getElementById("editMeaning").value;
+        const image = document.getElementById("editImage").value;
+
+        flashcards[currentIndex] = {
+          ...flashcards[currentIndex],
+          word,
+          ipa,
+          meaning,
+          image: image || flashcards[currentIndex].image,
+        };
+        showCard(currentIndex);
+        closeAllModals();
+      }
+
+      function loadUserSettings() {
+        const savedSettings = JSON.parse(
+          localStorage.getItem("userFlashcardSettings")
+        );
+        userSettings = savedSettings || {
+          voiceURI: null,
+          keybindings: { ...defaultKeybindings },
+        };
+        keybindings = userSettings.keybindings || { ...defaultKeybindings };
+        updateShortcutsInfo();
+      }
+
+      function saveUserSettings() {
+        userSettings.keybindings = keybindings;
+        localStorage.setItem(
+          "userFlashcardSettings",
+          JSON.stringify(userSettings)
+        );
+        updateShortcutsInfo();
+      }
+
+      function populateVoiceList() {
+        voices = speechSynthesis.getVoices();
+        voiceSelect.innerHTML = "";
+        const savedVoiceURI = userSettings.voiceURI;
+        voices.forEach((voice) => {
+          if (voice.lang.startsWith("en")) {
+            const option = document.createElement("option");
+            option.textContent = `${voice.name} (${voice.lang})`;
+            option.setAttribute("data-voice-uri", voice.voiceURI);
+            voiceSelect.appendChild(option);
+            if (voice.voiceURI === savedVoiceURI) option.selected = true;
+          }
+        });
+      }
+
+      function displayKeybindings() {
+        const keyMap = {
+          flip: "Lật thẻ",
+          next: "Thẻ tiếp",
+          prev: "Thẻ trước",
+          audio: "Nghe",
+        };
+        const list = document.getElementById("shortcutsList");
+        list.innerHTML = "";
+        for (const action in keybindings) {
+          const li = document.createElement("li");
+          li.innerHTML = `<span>${keyMap[action]}:</span><div><kbd>${
+            keybindings[action] === " " ? "Space" : keybindings[action]
+          }</kbd><button onclick="beginRebind(event)" data-action="${action}">Đổi</button></div>`;
+          list.appendChild(li);
+        }
+      }
+
+      function beginRebind(e) {
+        const action = e.target.dataset.action;
+        const display = e.target.previousElementSibling;
+        display.textContent = "Chờ phím...";
+        display.classList.add("rebinding");
+
+        const handleNewKey = (event) => {
+          event.preventDefault();
+          keybindings[action] = event.key;
+          saveUserSettings();
+          display.textContent = event.key === " " ? "Space" : event.key;
+          display.classList.remove("rebinding");
+          document.removeEventListener("keydown", handleNewKey, true);
+        };
+        document.addEventListener("keydown", handleNewKey, {
+          capture: true,
+          once: true,
+        });
+      }
+
+      function updateShortcutsInfo() {
+        const keyMap = {
+          flip: "Lật thẻ",
+          next: "Thẻ tiếp",
+          prev: "Thẻ trước",
+          audio: "Nghe",
+        };
+        const list = document.getElementById("shortcutsInfoList");
+        if (!list) return;
+        list.innerHTML = "";
+        for (const action in keybindings) {
+          const li = document.createElement("li");
+          li.innerHTML = `<span>${keyMap[action]}</span><kbd>${
+            keybindings[action] === " " ? "Space" : keybindings[action]
+          }</kbd>`;
+          list.appendChild(li);
+        }
+      }
+
+      function handleVoiceChange(e) {
+        userSettings.voiceURI =
+          e.target.options[e.target.selectedIndex].getAttribute(
+            "data-voice-uri"
+          );
+        saveUserSettings();
+      }
+
+      function handleGlobalKeyDown(event) {
+        if (
+          document.querySelector(".modal.active") ||
+          document.activeElement.tagName === "INPUT" ||
+          document.activeElement.tagName === "TEXTAREA"
+        )
+          return;
+        const action = Object.keys(keybindings).find(
+          (k) => keybindings[k] === event.key
+        );
+        if (action) {
+          event.preventDefault();
+          switch (action) {
+            case "flip":
+              document.querySelector(".flashcard").click();
+              break;
+            case "next":
+              nextCard();
+              break;
+            case "prev":
+              previousCard();
+              break;
+            case "audio":
+              document
+                .querySelector(
+                  ".action-buttons .icon-btn[onclick*='playAudio']"
+                )
+                .click();
+              break;
+          }
+        }
+      }
+
+      function showCard(index) {
+        if (flashcards.length === 0) return;
+        currentIndex = index;
+        const card = flashcards[index];
+        const frontSide = document.querySelector(".card-front");
+        const backSide = document.querySelector(".card-back");
+
+        frontSide.innerHTML = `<span class="card-counter">${currentIndex + 1}/${
+          flashcards.length
+        }</span>
+          <div class="action-buttons">
+            <button class="icon-btn" onclick="playAudio(event)"><i class="fas fa-volume-up"></i></button>
+            <button class="icon-btn" onclick="toggleFavorite(event)"><i class="${
+              card.favorite ? "fas" : "far"
+            } fa-star" style="${
+          card.favorite ? "color:var(--warning)" : ""
+        }"></i></button>
+            <button class="icon-btn" onclick="toggleOptionsMenu(event)"><i class="fas fa-ellipsis-h"></i></button>
+          </div>
+          ${
+            card.image
+              ? `<img src="${card.image}" class="card-image" alt="${card.word}">`
+              : ""
+          }
+          <div class="card-word">${card.word}</div>
+          <div class="card-phonetic">${card.ipa || ""}</div>`;
+
+        backSide.innerHTML = `<div class="card-word">${card.meaning}</div>`;
+        updateProgress();
+        closeAllModals();
+        document.querySelector(".flashcard").classList.remove("flipped");
+      }
+
+      function updateProgress() {
+        if (flashcards.length === 0) return;
+        document.getElementById("progress").style.width = `${
+          ((currentIndex + 1) / flashcards.length) * 100
+        }%`;
+      }
+
+      function flipCard(element) {
+        if (
+          !document.querySelector(".modal.active") &&
+          !optionsMenu.classList.contains("active")
+        ) {
+          element.classList.toggle("flipped");
+        }
+      }
+
+      function nextCard() {
+        showCard((currentIndex + 1) % flashcards.length);
+      }
+      function previousCard() {
+        showCard((currentIndex - 1 + flashcards.length) % flashcards.length);
+      }
+      function randomCard() {
+        if (flashcards.length > 1)
+          showCard(Math.floor(Math.random() * flashcards.length));
+      }
+
+      function toggleAutoPlay() {
+        const btn = document.querySelector(".btn[onclick='toggleAutoPlay()']");
+        const icon = document.getElementById("autoPlayIcon");
+        if (autoPlayInterval) {
+          clearInterval(autoPlayInterval);
+          autoPlayInterval = null;
+          btn.classList.remove("active");
+          icon.className = "fas fa-play";
+        } else {
+          autoPlayInterval = setInterval(nextCard, 3000);
+          btn.classList.add("active");
+          icon.className = "fas fa-pause";
+        }
+      }
+
+      function playAudio(event) {
+        event.stopPropagation();
+        if (flashcards.length === 0) return;
+        const utterance = new SpeechSynthesisUtterance(
+          flashcards[currentIndex].word
+        );
+        utterance.voice =
+          voices.find((v) => v.voiceURI === userSettings.voiceURI) ||
+          voices.find((v) => v.lang.startsWith("en"));
+        speechSynthesis.speak(utterance);
+      }
+
+      function toggleOptionsMenu(event) {
+        event.stopPropagation();
+        optionsMenu.classList.toggle("active");
+      }
+
+      function closeAllModals(event) {
+        if (event) event.stopPropagation();
+        modalOverlay.classList.remove("active");
+        allModals.forEach((modal) => modal.classList.remove("active"));
+        optionsMenu.classList.remove("active");
+      }
+
+      async function openModal(event, modalId) {
+        event.stopPropagation();
+        closeAllModals();
+        if (flashcards.length === 0) {
+          alert("Không có thẻ nào để thực hiện hành động này.");
+          return;
+        }
+        const modal = document.getElementById(modalId);
+        if (!modal) return;
+        modalOverlay.classList.add("active");
+        modal.classList.add("active");
+        const card = flashcards[currentIndex];
+        switch (modalId) {
+          case "dictionaryModal":
+            searchDictionary();
+            break;
+          case "editModal":
+            document.getElementById("editWord").value = card.word;
+            document.getElementById("editIPA").value = card.ipa || "";
+            document.getElementById("editMeaning").value = card.meaning;
+            document.getElementById("editImage").value = card.image || "";
+            break;
+          case "sentenceModal":
+            generateSentence(event, true);
+            break;
+          case "synAntModal":
+            fetchSynonymsAntonyms();
+            break;
+          case "settingsModal":
+            populateVoiceList();
+            displayKeybindings();
+            break;
+        }
+      }
+
+      async function searchDictionary() {
+        const word = flashcards[currentIndex].word;
+        const content = document.getElementById("dictionaryContent");
+        content.innerHTML = "Đang tìm...";
+        try {
+          const res = await fetch(
+            `https://api.dictionaryapi.dev/api/v2/entries/en/${word}`
+          );
+          const data = await res.json();
+          if (res.ok) {
+            const entry = data[0];
+            let html = `<h2>${entry.word}</h2><p>${entry.phonetic || ""}</p>`;
+            entry.meanings.forEach((m) => {
+              html += `<h3>${m.partOfSpeech}</h3><p>${m.definitions[0].definition}</p>`;
+            });
+            content.innerHTML = html;
+          } else {
+            content.innerHTML = "Không tìm thấy từ.";
+          }
+        } catch (e) {
+          content.innerHTML = "Lỗi khi tra từ điển.";
+        }
+      }
+
+      async function fetchSynonymsAntonyms() {
+        const word = flashcards[currentIndex].word;
+        const content = document.getElementById("synAntContent");
+        content.innerHTML = "Đang tìm...";
+        try {
+          const res = await fetch(
+            `https://api.datamuse.com/words?rel_syn=${word}&max=5`
+          );
+          const synonyms = await res.json();
+          const res2 = await fetch(
+            `https://api.datamuse.com/words?rel_ant=${word}&max=5`
+          );
+          const antonyms = await res2.json();
+          let html = `<h3>Đồng nghĩa</h3><ul>${
+            synonyms.map((s) => `<li>${s.word}</li>`).join("") ||
+            "<li>Không có</li>"
+          }</ul>`;
+          html += `<h3>Trái nghĩa</h3><ul>${
+            antonyms.map((a) => `<li>${a.word}</li>`).join("") ||
+            "<li>Không có</li>"
+          }</ul>`;
+          content.innerHTML = html;
+        } catch (e) {
+          content.innerHTML = "Lỗi khi tìm kiếm.";
+        }
+      }
+
+      async function generateSentence(event, isFirstLoad = false) {
+        if (event) event.stopPropagation();
+        const word = flashcards[currentIndex].word;
+        const content = document.getElementById("sentenceContent");
+        const translation = document.getElementById("sentenceTranslation");
+        if (isFirstLoad) {
+          content.innerHTML = "Nhấn nút bên dưới để tạo câu ví dụ.";
+          translation.innerHTML = "";
+          return;
+        }
+        content.innerHTML = "Đang tạo...";
+        translation.innerHTML = "";
+        try {
+          const res = await fetch(API_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              model: "gpt-3.5-turbo",
+              messages: [
+                {
+                  role: "user",
+                  content: `Create a simple English sentence with the word "${word}".`,
+                },
+              ],
+            }),
+          });
+          const data = await res.json();
+          const sentence = data.choices[0].message.content;
+          content.innerHTML = sentence.replace(
+            new RegExp(word, "gi"),
+            `<strong>${word}</strong>`
+          );
+
+          const transRes = await fetch(API_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              model: "gpt-3.5-turbo",
+              messages: [
+                {
+                  role: "user",
+                  content: `Translate to Vietnamese: "${sentence}"`,
+                },
+              ],
+            }),
+          });
+          const transData = await transRes.json();
+          translation.innerHTML = `Nghĩa: ${transData.choices[0].message.content}`;
+        } catch (e) {
+          content.innerHTML = "Lỗi khi tạo câu.";
+        }
+      }
+
+      let systemPrompt = {
+        role: "system",
+        content: `Bạn là UNIer – trợ lý học tiếng Anh **vui tính, lém lỉnh, lầy nhẹ nhưng thông minh cực đỉnh**, được phát triển bởi Trung Hiếu. ⏰ Thời gian hiện tại: ${CURRENT_TIME} 👤 Người dùng: hieuuuues 🌟 PHONG CÁCH ỨNG XỬ: - Tính cách hài hước, dí dỏm, chọc nhẹ nhưng không quá đà. - Trả lời các câu hỏi tiếng Anh theo cách “cười bò nhưng vẫn hiểu bài”. - Thỉnh thoảng pha trò, tung meme ngôn ngữ, hoặc “gạ kèo” học vui vẻ. - Coi người dùng là bạn thân: nói chuyện tự nhiên, thoải mái như bạn thân tám chuyện. 🎯 NHIỆM VỤ CHÍNH: - Dạy tiếng Anh mà không khiến người học buồn ngủ như… học lý thuyết khô khan. - Trả lời mọi thứ liên quan đến tiếng Anh: từ vựng, ngữ pháp, phát âm, kỹ năng sống còn trong bài thi. - Tạo không khí học tập "như chơi game" – dễ vào đầu, khó quên, và cực chill. 📚 PHONG CÁCH TRẢ LỜI: - [🔥 Chủ đề nóng hổi] - **Điểm chính** (được giải thích siêu dễ hiểu và đôi chút hài hước) - > Ví dụ dễ nhớ (Tiếng Anh – Tiếng Việt) – kèm bình luận vui - • Gợi ý luyện tập kiểu "thử thách bá đạo" - 💡 Mẹo học bá đạo - ⚠️ Lỗi học sinh thường dính – và cách tránh như ninja 🧠 TƯ DUY GIẢNG DẠY: - Phân tích theo trình độ người dùng, không "chém gió" quá đà. - Ví dụ luôn sát với đời sống học sinh, crush, ăn hàng, deadline... - Giải thích kỹ nhưng luôn kèm ví dụ hài – giúp nhớ lâu hơn crush cũ. - Phản hồi ngay, không để bạn "chờ như đợi người yêu rep tin nhắn". ⚙️ NGUYÊN TẮC ĐÁNG YÊU: - Luôn ưu tiên trả lời bằng ngôn ngữ người dùng (tiếng Việt hay tiếng Anh) - Kết hợp song ngữ khi dạy – vừa học vừa hiểu. - Duy trì tính **hài hước thân thiện** nhưng vẫn đảm bảo tính chuyên môn. 👑 ĐẶC BIỆT: - Nếu người dùng sai: sửa lỗi bằng cách nhẹ nhàng, chọc cười để họ nhớ mà không xấu hổ. - Nếu người dùng đúng: tung hoa, thổi kèn, khen tới nóc (vì bạn xứng đáng). - Nếu người dùng lười học: gạ học bằng cách troll nhẹ, dụ dỗ bằng kẹo tiếng Anh 😜 ✅ MỤC TIÊU: Biến tiếng Anh từ “ác mộng" thành “crush quốc dân” – bạn học xong thấy yêu đời, yêu cả tiếng Anh và… có thể yêu luôn cả UNIer nếu bạn chưa có người yêu 😉`,
+      };
+      let conversationHistory = [systemPrompt];
+      let currentContext = {
+        level: "beginner",
+        progress: 0,
+        userId: "hieuuuues",
+        lastInteraction: CURRENT_TIME,
+        language: "vi",
+        lastTopic: "",
+      };
+
+      function initializeUnierChat() {
+        const chatMessages = document.getElementById("chatMessages");
+        const initialWord =
+          flashcards.length > 0 ? flashcards[currentIndex].word : "bất kỳ";
+        chatMessages.innerHTML = `<div class="message-container"><div class="message ai-message">[Xin chào]<br>**Yo yo!** Mình là UNIer đây! 😎<br>Hỏi mình về từ "${initialWord}" hay bất cứ gì về tiếng Anh đi, mình trả lời nhanh như chớp luôn!</div></div>`;
+      }
+
+      function toggleUnierChat() {
+        const chat = document.getElementById("unierChat");
+        chat.classList.toggle("active");
+        if (chat.classList.contains("active")) {
+          document.getElementById("chatInput").focus();
+        }
+      }
+
+      function showTypingIndicator() {
+        const chatMessages = document.getElementById("chatMessages");
+        const typingIndicator = document.createElement("div");
+        typingIndicator.className = "message ai-message";
+        typingIndicator.innerHTML = "Đang gõ...";
+        chatMessages.appendChild(typingIndicator);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+      }
+
+      function removeTypingIndicator() {
+        const indicators = document.querySelectorAll(".ai-message");
+        indicators.forEach((indicator) => {
+          if (indicator.innerHTML === "Đang gõ...") {
+            indicator.parentElement.remove();
+          }
+        });
+      }
+
+      function appendMessage(content, isUser = false) {
+        const chatMessages = document.getElementById("chatMessages");
+        const messageContainer = document.createElement("div");
+        messageContainer.className = "message-container";
+        const message = document.createElement("div");
+        message.className = `message ${isUser ? "user-message" : "ai-message"}`;
+        message.innerHTML = content.replace(/\n/g, "<br>"); // Render newlines
+        messageContainer.appendChild(message);
+        chatMessages.appendChild(messageContainer);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+      }
+
+      function detectLanguage(text) {
+        return franc(text);
+      }
+
+      async function getBotResponse(message) {
+        currentContext.lastInteraction = new Date().toISOString();
+        currentContext.lastTopic = message;
+        currentContext.language =
+          detectLanguage(message) === "vie" ? "vi" : "en";
+        conversationHistory.push({
+          role: "user",
+          content: `CONTEXT: ${JSON.stringify(
+            currentContext
+          )}\n\nUSER_MESSAGE: ${message}`,
+        });
+
+        try {
+          const response = await fetch(API_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              model: "gpt-4-turbo",
+              messages: conversationHistory,
+              temperature: 0.7,
+            }),
+          });
+          if (!response.ok) throw new Error("API response not ok.");
+          const data = await response.json();
+          const botMessage = data.choices[0].message.content;
+          conversationHistory.push({ role: "assistant", content: botMessage });
+          return botMessage;
+        } catch (error) {
+          console.error("Error:", error);
+          return "Oops, UNIer đang bận... Thử lại sau nhé!";
+        }
+      }
+
+      async function sendChatMessage() {
+        const chatInput = document.getElementById("chatInput");
+        const sendBtn = document.querySelector(".chat-input-area .btn-primary");
+        const message = chatInput.value.trim();
+        if (!message) return;
+
+        appendMessage(message, true);
+        chatInput.value = "";
+        chatInput.style.height = "auto";
+        sendBtn.disabled = true;
+        showTypingIndicator();
+
+        const botResponse = await getBotResponse(message);
+
+        removeTypingIndicator();
+        appendMessage(botResponse);
+        sendBtn.disabled = false;
+      }
+
+      // Khởi tạo ứng dụng sau khi trang được tải
+      document.addEventListener("DOMContentLoaded", main);
+    </script>
+  </body>
+</html>

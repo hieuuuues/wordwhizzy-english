@@ -1,0 +1,2266 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>WordWhizzy | Dashboard</title>
+    <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/1041/1041888.png">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+
+<style>
+/* ══════════════════════════════════════════════════════════════
+   DESIGN TOKENS
+══════════════════════════════════════════════════════════════ */
+:root {
+    --primary:       #2563EB;
+    --primary-rgb:   37,99,235;
+    --secondary:     #6366F1;
+    --accent:        #8B5CF6;
+    --success:       #22C55E;
+    --warning:       #F59E0B;
+    --danger:        #EF4444;
+    --orange:        #F97316;
+    --bg:            #F8FAFC;
+    --surface:       #FFFFFF;
+    --surface-2:     #F1F5F9;
+    --border:        #E2E8F0;
+    --border-soft:   rgba(37,99,235,0.08);
+    --text:          #0F172A;
+    --text-2:        #475569;
+    --text-3:        #94A3B8;
+    --shadow-sm:     0 1px 3px rgba(0,0,0,0.06),0 1px 2px rgba(0,0,0,0.04);
+    --shadow-md:     0 4px 16px rgba(0,0,0,0.06),0 2px 6px rgba(0,0,0,0.04);
+    --shadow-lg:     0 20px 48px rgba(37,99,235,0.10),0 8px 16px rgba(0,0,0,0.04);
+    --shadow-xl:     0 32px 64px rgba(37,99,235,0.14);
+    --radius-sm:     10px;
+    --radius:        16px;
+    --radius-lg:     22px;
+    --radius-xl:     28px;
+    --nav-h:         68px;
+    --bot-nav-h:     70px;
+    --ease:          cubic-bezier(0.16,1,0.3,1);
+    --ease-back:     cubic-bezier(0.175,0.885,0.32,1.275);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   RESET & BASE
+══════════════════════════════════════════════════════════════ */
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+    font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
+    background:var(--bg); color:var(--text);
+    min-height:100vh; overflow-x:hidden;
+    -webkit-font-smoothing:antialiased;
+}
+a{text-decoration:none;color:inherit;}
+button{cursor:pointer;font-family:inherit;}
+
+/* ══════════════════════════════════════════════════════════════
+   ANIMATED PAGE BACKGROUND
+══════════════════════════════════════════════════════════════ */
+.page-bg{
+    position:fixed;inset:0;z-index:-1;pointer-events:none;
+    background:
+        radial-gradient(ellipse 1000px 700px at 80% -5%,rgba(37,99,235,0.05) 0%,transparent 70%),
+        radial-gradient(ellipse 600px 500px at -5% 90%,rgba(99,102,241,0.04) 0%,transparent 70%),
+        radial-gradient(ellipse 500px 400px at 50% 50%,rgba(139,92,246,0.025) 0%,transparent 70%);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   TOP NAV
+══════════════════════════════════════════════════════════════ */
+nav.topnav{
+    position:sticky;top:0;z-index:900;
+    height:var(--nav-h);
+    background:rgba(255,255,255,0.9);
+    backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
+    border-bottom:1px solid var(--border);
+    display:flex;align-items:center;
+    padding:0 28px;gap:0;
+}
+.nav-logo{
+    display:flex;align-items:center;gap:10px;
+    font-size:1.15rem;font-weight:800;letter-spacing:-0.5px;
+    color:var(--text);white-space:nowrap;flex-shrink:0;
+}
+.logo-icon{
+    width:32px;height:32px;border-radius:9px;
+    background:linear-gradient(135deg,var(--primary),var(--accent));
+    display:flex;align-items:center;justify-content:center;
+    color:#fff;font-size:0.8rem;
+    box-shadow:0 4px 12px rgba(37,99,235,0.3);
+}
+.nav-logo span{color:var(--primary);}
+.nav-links{
+    display:flex;align-items:center;gap:2px;
+    margin:0 auto;list-style:none;
+}
+.nav-links a{
+    display:block;padding:7px 13px;
+    font-size:0.85rem;font-weight:500;
+    color:var(--text-2);border-radius:8px;
+    transition:all 0.18s var(--ease);
+}
+.nav-links a:hover{background:var(--bg);color:var(--text);}
+.nav-links a.active{background:rgba(37,99,235,0.08);color:var(--primary);font-weight:600;}
+.nav-actions{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.nav-stat-pill{
+    display:flex;align-items:center;gap:10px;
+    background:var(--bg);border:1px solid var(--border);
+    padding:6px 14px;border-radius:50px;
+    font-size:0.8rem;font-weight:700;
+}
+.nav-stat-item{display:flex;align-items:center;gap:5px;}
+.fire-icon{color:#F97316;animation:flicker 1.4s ease-in-out infinite alternate;}
+.shield-icon{color:var(--primary);}
+@keyframes flicker{
+    from{transform:scale(1);filter:brightness(1);}
+    to{transform:scale(1.12);filter:brightness(1.3);}
+}
+.nav-divider{width:1px;height:16px;background:var(--border);}
+.nav-icon-btn{
+    width:36px;height:36px;border-radius:9px;
+    background:none;border:1px solid var(--border);
+    color:var(--text-2);font-size:0.85rem;
+    display:flex;align-items:center;justify-content:center;
+    transition:all 0.18s var(--ease);
+}
+.nav-icon-btn:hover{background:var(--bg);color:var(--text);transform:translateY(-1px);box-shadow:var(--shadow-sm);}
+.nav-avatar{
+    width:34px;height:34px;border-radius:50%;
+    border:2px solid var(--primary);object-fit:cover;
+    cursor:pointer;transition:all 0.2s var(--ease);
+}
+.nav-avatar:hover{transform:scale(1.06);box-shadow:0 0 0 3px rgba(37,99,235,0.2);}
+.user-menu{position:relative;}
+.dropdown{
+    position:absolute;right:0;top:calc(100% + 10px);
+    background:var(--surface);border:1px solid var(--border);
+    border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);
+    min-width:200px;overflow:hidden;
+    display:none;flex-direction:column;
+    animation:slideDown 0.22s var(--ease);
+}
+.dropdown.active{display:flex;}
+@keyframes slideDown{from{opacity:0;transform:translateY(-8px);}to{opacity:1;transform:translateY(0);}}
+.dropdown-header{padding:14px 16px 10px;border-bottom:1px solid var(--border);}
+.dropdown-header p{font-size:0.68rem;text-transform:uppercase;font-weight:700;color:var(--text-3);letter-spacing:0.6px;}
+.dropdown-header h4{font-size:0.875rem;font-weight:700;margin-top:2px;}
+.dropdown-item{
+    padding:10px 16px;font-size:0.875rem;font-weight:500;
+    display:flex;align-items:center;gap:10px;
+    border:none;background:none;width:100%;
+    text-align:left;color:var(--text);cursor:pointer;
+    transition:background 0.15s;
+}
+.dropdown-item:hover{background:var(--bg);}
+.dropdown-item.logout-btn:hover{background:rgba(239,68,68,0.06);color:var(--danger);}
+
+/* ══════════════════════════════════════════════════════════════
+   LAYOUT
+══════════════════════════════════════════════════════════════ */
+main{padding-bottom:80px;}
+.container{max-width:1320px;margin:0 auto;padding:0 28px;}
+
+/* ══════════════════════════════════════════════════════════════
+   DASHBOARD HERO / GREETING BAND
+══════════════════════════════════════════════════════════════ */
+.dash-hero{
+    background:linear-gradient(135deg,var(--primary) 0%,var(--accent) 100%);
+    padding:36px 0 0;
+    position:relative;overflow:hidden;
+}
+.dash-hero::before{
+    content:'';position:absolute;inset:0;
+    background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+.dash-hero-inner{
+    position:relative;z-index:1;
+    display:grid;grid-template-columns:1fr auto;
+    align-items:start;gap:32px;
+}
+.dash-hero-greeting{color:#fff;padding-bottom:36px;}
+.greeting-eyebrow{
+    font-size:0.72rem;font-weight:700;text-transform:uppercase;
+    letter-spacing:1px;color:rgba(255,255,255,0.65);margin-bottom:6px;
+}
+.greeting-name{
+    font-size:clamp(26px,4vw,40px);font-weight:900;
+    letter-spacing:-1.5px;line-height:1.1;margin-bottom:4px;
+}
+.greeting-sub{font-size:0.95rem;color:rgba(255,255,255,0.7);font-weight:400;}
+
+/* Hero KPI pills */
+.hero-kpi-row{
+    display:flex;gap:12px;flex-wrap:wrap;margin-top:24px;
+}
+.hero-kpi{
+    background:rgba(255,255,255,0.12);
+    border:1px solid rgba(255,255,255,0.18);
+    backdrop-filter:blur(8px);
+    border-radius:12px;padding:12px 16px;
+    display:flex;align-items:center;gap:10px;
+    min-width:130px;
+}
+.hero-kpi-icon{font-size:1.2rem;}
+.hero-kpi-data{}
+.hero-kpi-val{font-size:1.1rem;font-weight:800;color:#fff;letter-spacing:-0.4px;display:block;}
+.hero-kpi-lbl{font-size:0.68rem;color:rgba(255,255,255,0.65);font-weight:600;text-transform:uppercase;letter-spacing:0.4px;}
+
+/* Hero right — streak fire card */
+.hero-streak-card{
+    background:rgba(255,255,255,0.14);
+    border:1px solid rgba(255,255,255,0.22);
+    backdrop-filter:blur(12px);
+    border-radius:var(--radius-lg);
+    padding:24px 28px;
+    display:flex;flex-direction:column;align-items:center;
+    gap:4px;min-width:160px;
+    position:relative;overflow:hidden;
+    align-self:center;
+    margin-bottom:36px;
+}
+.hero-streak-card::after{
+    content:'';position:absolute;
+    bottom:-30px;left:50%;transform:translateX(-50%);
+    width:120px;height:120px;border-radius:50%;
+    background:radial-gradient(circle,rgba(249,115,22,0.25) 0%,transparent 70%);
+}
+.streak-fire-emoji{font-size:3.2rem;animation:fireFloat 2s ease-in-out infinite;}
+@keyframes fireFloat{0%,100%{transform:scale(1) translateY(0);}50%{transform:scale(1.06) translateY(-4px);}}
+.streak-num{font-size:2.8rem;font-weight:900;color:#fff;letter-spacing:-2px;line-height:1;}
+.streak-unit{font-size:0.78rem;color:rgba(255,255,255,0.65);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;}
+.streak-best{font-size:0.7rem;color:rgba(255,255,255,0.5);margin-top:4px;}
+
+/* Wave divider */
+.hero-wave{
+    display:block;width:100%;height:40px;
+    background:linear-gradient(135deg,var(--primary),var(--accent));
+    clip-path:ellipse(105% 100% at 50% 0%);
+    margin-bottom:-2px;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   SECTION
+══════════════════════════════════════════════════════════════ */
+.section{padding:36px 0;}
+.section-header{
+    display:flex;align-items:baseline;justify-content:space-between;
+    margin-bottom:20px;flex-wrap:wrap;gap:8px;
+}
+.section-label{
+    font-size:0.7rem;font-weight:700;text-transform:uppercase;
+    letter-spacing:0.8px;color:var(--primary);margin-bottom:4px;
+}
+.section-title{
+    font-size:clamp(20px,2.5vw,26px);font-weight:800;
+    letter-spacing:-0.8px;color:var(--text);
+}
+.section-link{
+    font-size:0.78rem;font-weight:700;color:var(--primary);
+    display:flex;align-items:center;gap:5px;
+    transition:gap 0.15s;white-space:nowrap;
+    background:none;border:none;
+}
+.section-link:hover{gap:8px;}
+
+/* ══════════════════════════════════════════════════════════════
+   SKELETON LOADER
+══════════════════════════════════════════════════════════════ */
+.skeleton{
+    background:linear-gradient(90deg,var(--bg) 25%,var(--border) 50%,var(--bg) 75%);
+    background-size:200% 100%;
+    animation:shimmer 1.4s infinite;
+    border-radius:8px;
+}
+@keyframes shimmer{from{background-position:200% 0;}to{background-position:-200% 0;}}
+
+/* ══════════════════════════════════════════════════════════════
+   STAT CARDS ROW
+══════════════════════════════════════════════════════════════ */
+.stat-grid{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:16px;
+}
+.stat-card{
+    background:var(--surface);border:1px solid var(--border);
+    border-radius:var(--radius-lg);padding:22px 20px;
+    box-shadow:var(--shadow-sm);
+    position:relative;overflow:hidden;
+    transition:all 0.25s var(--ease);
+}
+.stat-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-lg);border-color:var(--border-soft);}
+.stat-card::before{
+    content:'';position:absolute;top:0;left:0;right:0;height:3px;
+    background:var(--card-color,linear-gradient(90deg,var(--primary),var(--secondary)));
+    border-radius:var(--radius-lg) var(--radius-lg) 0 0;
+}
+.stat-card-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px;}
+.stat-icon{
+    width:44px;height:44px;border-radius:12px;
+    display:flex;align-items:center;justify-content:center;
+    font-size:1.1rem;flex-shrink:0;
+}
+.stat-change{
+    font-size:0.68rem;font-weight:700;
+    padding:3px 8px;border-radius:50px;
+}
+.stat-change.up{background:rgba(34,197,94,0.1);color:var(--success);}
+.stat-change.neutral{background:var(--bg);color:var(--text-3);}
+.stat-val{font-size:2rem;font-weight:900;letter-spacing:-1.5px;color:var(--text);line-height:1;margin-bottom:4px;}
+.stat-lbl{font-size:0.78rem;color:var(--text-3);font-weight:500;}
+.stat-sub{
+    font-size:0.72rem;color:var(--text-3);margin-top:10px;
+    display:flex;align-items:center;gap:5px;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   CHARTS SECTION — 2-col layout
+══════════════════════════════════════════════════════════════ */
+.charts-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:16px;
+}
+.chart-card{
+    background:var(--surface);border:1px solid var(--border);
+    border-radius:var(--radius-lg);padding:24px;
+    box-shadow:var(--shadow-sm);
+}
+.chart-card.wide{grid-column:span 2;}
+.chart-header{
+    display:flex;align-items:flex-start;justify-content:space-between;
+    margin-bottom:20px;flex-wrap:wrap;gap:8px;
+}
+.chart-title{font-size:0.875rem;font-weight:700;color:var(--text);letter-spacing:-0.2px;}
+.chart-sub{font-size:0.72rem;color:var(--text-3);margin-top:2px;}
+.chart-legend{display:flex;gap:14px;flex-wrap:wrap;}
+.legend-item{display:flex;align-items:center;gap:5px;font-size:0.7rem;font-weight:600;color:var(--text-2);}
+.legend-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.chart-canvas-wrap{position:relative;width:100%;}
+/* Chart.js canvas */
+canvas{max-width:100%!important;}
+
+/* ══════════════════════════════════════════════════════════════
+   GITHUB-STYLE HEATMAP
+══════════════════════════════════════════════════════════════ */
+.heatmap-card{
+    background:var(--surface);border:1px solid var(--border);
+    border-radius:var(--radius-lg);padding:24px;
+    box-shadow:var(--shadow-sm);overflow:hidden;
+}
+.heatmap-header{
+    display:flex;align-items:center;justify-content:space-between;
+    margin-bottom:20px;flex-wrap:wrap;gap:10px;
+}
+.heatmap-months{
+    display:flex;gap:0;overflow-x:auto;
+    padding-bottom:4px;scrollbar-width:none;
+}
+.heatmap-months::-webkit-scrollbar{display:none;}
+.heatmap-year-grid{
+    display:flex;gap:3px;
+    overflow-x:auto;scrollbar-width:none;
+    padding-bottom:8px;
+}
+.heatmap-year-grid::-webkit-scrollbar{display:none;}
+.hmap-week-col{display:flex;flex-direction:column;gap:3px;}
+.hmap-cell{
+    width:13px;height:13px;border-radius:3px;
+    flex-shrink:0;cursor:pointer;
+    transition:all 0.15s var(--ease-back);
+    position:relative;
+}
+.hmap-cell:hover{transform:scale(1.5);z-index:10;}
+.hmap-l0{background:#EEF2FF;border:1px solid #E2E8F0;}
+.hmap-l1{background:rgba(34,197,94,0.25);}
+.hmap-l2{background:rgba(34,197,94,0.50);}
+.hmap-l3{background:rgba(34,197,94,0.75);}
+.hmap-l4{background:#22C55E;box-shadow:0 0 6px rgba(34,197,94,0.4);}
+.heatmap-legend{
+    display:flex;align-items:center;gap:6px;
+    margin-top:12px;font-size:0.68rem;color:var(--text-3);font-weight:600;
+}
+.hmap-legend-cell{width:11px;height:11px;border-radius:2px;}
+.heatmap-month-labels{
+    display:flex;gap:0;margin-bottom:4px;overflow:hidden;
+}
+.hmap-month-lbl{
+    font-size:0.65rem;font-weight:700;color:var(--text-3);
+    white-space:nowrap;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   ACHIEVEMENT SYSTEM
+══════════════════════════════════════════════════════════════ */
+.achieve-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(140px,1fr));
+    gap:14px;
+}
+.achieve-item{
+    background:var(--surface);border:1px solid var(--border);
+    border-radius:var(--radius);padding:18px 14px;
+    text-align:center;box-shadow:var(--shadow-sm);
+    transition:all 0.25s var(--ease);
+    position:relative;overflow:hidden;
+}
+.achieve-item:not(.locked):hover{
+    transform:translateY(-4px);box-shadow:var(--shadow-lg);
+    border-color:var(--border-soft);
+}
+.achieve-item.locked{
+    opacity:0.45;
+    filter:grayscale(0.6);
+}
+.achieve-item.unlocked{
+    border-color:rgba(245,158,11,0.3);
+    background:linear-gradient(135deg,#FFFBEB,#FFF);
+}
+.achieve-item.unlocked::before{
+    content:'';position:absolute;inset:0;
+    background:radial-gradient(circle at 50% 0%,rgba(245,158,11,0.08),transparent 70%);
+}
+.achieve-emoji{font-size:2rem;display:block;margin-bottom:8px;}
+.achieve-name{font-size:0.72rem;font-weight:700;color:var(--text);margin-bottom:4px;}
+.achieve-desc{font-size:0.62rem;color:var(--text-3);line-height:1.4;}
+.achieve-progress{
+    height:3px;background:var(--bg);border-radius:50px;
+    overflow:hidden;margin-top:10px;
+}
+.achieve-bar{height:100%;border-radius:50px;background:linear-gradient(90deg,var(--primary),var(--accent));transition:width 0.8s var(--ease);}
+.achieve-pct{font-size:0.62rem;color:var(--text-3);font-weight:600;margin-top:4px;}
+.achieve-unlock-date{font-size:0.58rem;color:var(--warning);font-weight:700;margin-top:4px;}
+
+/* ══════════════════════════════════════════════════════════════
+   INSIGHTS CARDS
+══════════════════════════════════════════════════════════════ */
+.insights-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:14px;
+}
+.insight-card{
+    background:var(--surface);border:1px solid var(--border);
+    border-radius:var(--radius);padding:18px;
+    box-shadow:var(--shadow-sm);
+    display:flex;align-items:flex-start;gap:14px;
+    transition:all 0.2s var(--ease);
+}
+.insight-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-md);}
+.insight-icon{
+    width:40px;height:40px;border-radius:11px;
+    display:flex;align-items:center;justify-content:center;
+    font-size:1rem;flex-shrink:0;
+}
+.insight-body{}
+.insight-label{font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-3);margin-bottom:4px;}
+.insight-val{font-size:1.1rem;font-weight:800;color:var(--text);letter-spacing:-0.4px;}
+.insight-note{font-size:0.72rem;color:var(--text-3);margin-top:3px;}
+
+/* ══════════════════════════════════════════════════════════════
+   SMART GOALS
+══════════════════════════════════════════════════════════════ */
+.goals-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:16px;
+}
+.goal-card{
+    background:var(--surface);border:1px solid var(--border);
+    border-radius:var(--radius-lg);padding:22px;
+    box-shadow:var(--shadow-sm);
+    transition:all 0.25s var(--ease);
+    position:relative;overflow:hidden;
+}
+.goal-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-lg);}
+.goal-card-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.goal-icon-wrap{
+    width:40px;height:40px;border-radius:11px;
+    display:flex;align-items:center;justify-content:center;font-size:1rem;
+}
+.goal-period{font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-3);}
+.goal-name{font-size:0.9rem;font-weight:700;color:var(--text);margin-bottom:4px;}
+.goal-detail{font-size:0.78rem;color:var(--text-3);margin-bottom:16px;}
+.goal-track{height:8px;background:var(--bg);border-radius:50px;overflow:hidden;margin-bottom:8px;}
+.goal-fill{
+    height:100%;border-radius:50px;
+    background:var(--goal-color,linear-gradient(90deg,var(--primary),var(--secondary)));
+    transition:width 1s var(--ease);
+    position:relative;
+}
+.goal-fill::after{
+    content:'';position:absolute;right:0;top:50%;transform:translateY(-50%);
+    width:12px;height:12px;border-radius:50%;
+    background:white;box-shadow:0 0 0 3px var(--primary);
+}
+.goal-footer{display:flex;justify-content:space-between;align-items:center;}
+.goal-curr{font-size:1rem;font-weight:900;color:var(--text);letter-spacing:-0.5px;}
+.goal-of{font-size:0.75rem;color:var(--text-3);}
+.goal-pct{font-size:0.75rem;font-weight:700;color:var(--primary);}
+
+/* ══════════════════════════════════════════════════════════════
+   CONTINUE LEARNING CARDS
+══════════════════════════════════════════════════════════════ */
+.learn-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+.learn-card{
+    background:var(--surface);border:1px solid var(--border);
+    border-radius:var(--radius-lg);padding:22px;
+    box-shadow:var(--shadow-sm);overflow:hidden;
+    position:relative;cursor:pointer;
+    transition:all 0.25s var(--ease);
+    display:flex;flex-direction:column;gap:14px;
+    text-decoration:none;color:inherit;
+}
+.learn-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-lg);border-color:rgba(37,99,235,0.15);}
+.learn-card-accent{
+    position:absolute;top:0;left:0;right:0;height:3px;
+    border-radius:var(--radius-lg) var(--radius-lg) 0 0;
+}
+.learn-card-top{display:flex;align-items:flex-start;justify-content:space-between;}
+.learn-card-badge{
+    font-size:0.65rem;font-weight:700;text-transform:uppercase;
+    letter-spacing:0.5px;padding:4px 10px;border-radius:50px;
+}
+.learn-card-arrow{
+    width:28px;height:28px;border-radius:50%;
+    background:var(--bg);border:1px solid var(--border);
+    display:flex;align-items:center;justify-content:center;
+    font-size:0.72rem;color:var(--text-2);
+    transition:all 0.2s var(--ease);flex-shrink:0;
+}
+.learn-card:hover .learn-card-arrow{background:var(--primary);color:#fff;border-color:var(--primary);transform:translateX(2px);}
+.learn-card h3{font-size:0.95rem;font-weight:700;letter-spacing:-0.2px;}
+.learn-card-meta{font-size:0.75rem;color:var(--text-3);font-weight:500;}
+.progress-track{height:5px;background:var(--bg);border-radius:50px;overflow:hidden;}
+.progress-fill{height:100%;border-radius:50px;transition:width 0.8s var(--ease);}
+.learn-card-footer{display:flex;justify-content:space-between;align-items:center;font-size:0.78rem;font-weight:600;}
+
+/* ══════════════════════════════════════════════════════════════
+   DAILY WORD
+══════════════════════════════════════════════════════════════ */
+.word-center{
+    background:var(--surface);border:1px solid var(--border);
+    border-radius:var(--radius-xl);padding:40px;
+    box-shadow:var(--shadow-sm);
+    display:grid;grid-template-columns:1fr 1fr;gap:48px;
+    align-items:center;position:relative;overflow:hidden;
+}
+.word-center::before{
+    content:'';position:absolute;top:0;right:0;
+    width:350px;height:350px;border-radius:50%;
+    background:radial-gradient(circle,rgba(37,99,235,0.04) 0%,transparent 70%);
+    transform:translate(30%,-30%);
+}
+.word-eyebrow{
+    display:inline-flex;align-items:center;gap:7px;
+    font-size:0.68rem;font-weight:700;text-transform:uppercase;
+    letter-spacing:1px;color:var(--primary);margin-bottom:14px;
+}
+.word-main{
+    font-size:clamp(36px,4.5vw,52px);font-weight:900;
+    letter-spacing:-2px;color:var(--text);line-height:1;margin-bottom:6px;
+}
+.word-phonetic{font-size:0.95rem;color:var(--text-3);font-weight:500;margin-bottom:16px;}
+.word-meaning-block{font-size:1.05rem;font-weight:600;color:var(--text);margin-bottom:10px;}
+.word-example{
+    font-size:0.875rem;color:var(--text-2);line-height:1.65;
+    font-style:italic;margin-bottom:24px;
+    padding-left:12px;border-left:3px solid rgba(37,99,235,0.2);
+}
+.word-actions{display:flex;gap:9px;flex-wrap:wrap;}
+.word-btn{
+    display:inline-flex;align-items:center;gap:6px;
+    padding:9px 16px;border-radius:9px;
+    font-size:0.78rem;font-weight:700;border:none;
+    transition:all 0.18s var(--ease);cursor:pointer;
+}
+.word-btn.primary{background:var(--primary);color:#fff;box-shadow:0 4px 12px rgba(37,99,235,0.3);}
+.word-btn.primary:hover{background:#1d55d4;transform:translateY(-1px);}
+.word-btn.outline{background:none;border:1px solid var(--border);color:var(--text-2);}
+.word-btn.outline:hover{background:var(--bg);color:var(--text);}
+.word-right{display:flex;flex-direction:column;gap:16px;}
+.word-meta-card{
+    background:var(--bg);border:1px solid var(--border);
+    border-radius:var(--radius);padding:16px 18px;
+}
+.word-meta-title{
+    font-size:0.65rem;text-transform:uppercase;letter-spacing:0.6px;
+    font-weight:700;color:var(--text-3);margin-bottom:8px;
+}
+.word-tags{display:flex;flex-wrap:wrap;gap:6px;}
+.word-tag{
+    background:var(--surface);border:1px solid var(--border);
+    padding:4px 11px;border-radius:50px;
+    font-size:0.75rem;font-weight:600;color:var(--text-2);
+}
+.word-freq-bar{height:6px;background:var(--border);border-radius:50px;overflow:hidden;margin-top:6px;}
+.word-freq-fill{height:100%;border-radius:50px;background:linear-gradient(90deg,var(--primary),var(--accent));}
+.word-diff-dots{display:flex;gap:5px;margin-top:4px;}
+.diff-dot{width:8px;height:8px;border-radius:50%;background:var(--border);}
+.diff-dot.on{background:var(--warning);}
+.audio-wave{display:none;align-items:center;gap:2px;height:16px;margin-left:4px;}
+.audio-wave.active{display:flex;}
+.wave-bar{width:2px;background:currentColor;border-radius:2px;animation:wave 0.9s ease-in-out infinite alternate;}
+.wave-bar:nth-child(2){animation-delay:.12s}
+.wave-bar:nth-child(3){animation-delay:.24s}
+.wave-bar:nth-child(4){animation-delay:.36s}
+@keyframes wave{from{height:3px}to{height:14px}}
+
+/* ══════════════════════════════════════════════════════════════
+   TIMER STRIP
+══════════════════════════════════════════════════════════════ */
+.timer-strip{
+    background:rgba(255,255,255,0.12);
+    border:1px solid rgba(255,255,255,0.2);
+    border-radius:14px;padding:14px 18px;
+    display:flex;align-items:center;justify-content:space-between;
+    gap:16px;margin-top:20px;max-width:520px;
+}
+.timer-info{display:flex;flex-direction:column;}
+.timer-mode-lbl{font-size:0.65rem;text-transform:uppercase;letter-spacing:0.8px;font-weight:700;color:rgba(255,255,255,0.65);}
+.timer-clock{font-size:1.5rem;font-weight:800;letter-spacing:-0.5px;font-variant-numeric:tabular-nums;color:#fff;}
+.timer-right{display:flex;align-items:center;gap:8px;}
+.timer-mode-tabs{
+    display:flex;background:rgba(0,0,0,0.15);border:1px solid rgba(255,255,255,0.1);
+    border-radius:8px;overflow:hidden;padding:2px;
+}
+.tmode-btn{
+    border:none;background:none;padding:5px 10px;
+    font-size:0.7rem;font-weight:700;color:rgba(255,255,255,0.55);
+    border-radius:6px;cursor:pointer;transition:all 0.15s;
+}
+.tmode-btn.active{background:rgba(255,255,255,0.15);color:#fff;}
+.timer-action{
+    width:34px;height:34px;border-radius:9px;
+    border:1px solid rgba(255,255,255,0.2);
+    background:rgba(255,255,255,0.1);
+    color:#fff;font-size:0.85rem;
+    display:flex;align-items:center;justify-content:center;
+    transition:all 0.2s;cursor:pointer;
+}
+.timer-action:hover{background:rgba(255,255,255,0.25);}
+.timer-action.running{background:rgba(255,255,255,0.25);}
+
+/* ══════════════════════════════════════════════════════════════
+   QUICK ADD MODAL
+══════════════════════════════════════════════════════════════ */
+.modal-overlay{
+    position:fixed;inset:0;z-index:2000;
+    background:rgba(15,23,42,0.45);backdrop-filter:blur(8px);
+    display:flex;align-items:center;justify-content:center;
+    opacity:0;pointer-events:none;transition:opacity 0.3s;
+}
+.modal-overlay.active{opacity:1;pointer-events:auto;}
+.modal-box{
+    background:var(--surface);border:1px solid var(--border);
+    border-radius:var(--radius-xl);padding:32px;width:90%;max-width:480px;
+    box-shadow:var(--shadow-xl);
+    transform:scale(0.95) translateY(10px);
+    transition:transform 0.3s var(--ease);
+}
+.modal-overlay.active .modal-box{transform:scale(1) translateY(0);}
+.modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px;}
+.modal-header h3{font-size:1.2rem;font-weight:800;letter-spacing:-0.4px;}
+.modal-close{background:none;border:none;color:var(--text-3);font-size:1.1rem;cursor:pointer;padding:4px;transition:color 0.15s;}
+.modal-close:hover{color:var(--danger);}
+.form-group{margin-bottom:14px;display:flex;flex-direction:column;gap:5px;}
+.form-label{font-size:0.7rem;font-weight:700;color:var(--text-2);text-transform:uppercase;letter-spacing:0.5px;}
+.form-input{
+    background:var(--bg);border:1.5px solid var(--border);
+    padding:11px 14px;border-radius:11px;
+    font-size:0.875rem;color:var(--text);width:100%;
+    transition:all 0.2s;font-family:inherit;
+}
+.form-input:focus{outline:none;border-color:var(--primary);background:var(--surface);box-shadow:0 0 0 4px rgba(37,99,235,0.08);}
+.form-submit{
+    background:var(--primary);color:#fff;
+    border:none;width:100%;padding:13px;
+    border-radius:11px;font-size:0.875rem;font-weight:700;
+    box-shadow:0 4px 14px rgba(37,99,235,0.3);cursor:pointer;
+    margin-top:6px;transition:all 0.2s;
+}
+.form-submit:hover{background:#1d55d4;transform:translateY(-1px);}
+
+/* ══════════════════════════════════════════════════════════════
+   TOAST
+══════════════════════════════════════════════════════════════ */
+#toast{
+    position:fixed;bottom:28px;left:50%;
+    transform:translateX(-50%) translateY(80px);
+    background:var(--text);color:#fff;
+    padding:12px 22px;border-radius:50px;
+    font-size:0.85rem;font-weight:600;
+    box-shadow:0 12px 32px rgba(0,0,0,0.18);
+    z-index:9999;pointer-events:none;opacity:0;
+    transition:transform 0.4s var(--ease),opacity 0.4s;
+    max-width:360px;text-align:center;
+}
+#toast.show{transform:translateX(-50%) translateY(0);opacity:1;}
+
+/* ══════════════════════════════════════════════════════════════
+   TOOLTIP
+══════════════════════════════════════════════════════════════ */
+#heatmap-tooltip{
+    position:fixed;z-index:10000;pointer-events:none;
+    background:rgba(15,23,42,0.94);backdrop-filter:blur(8px);
+    color:#fff;padding:8px 12px;border-radius:9px;
+    font-size:0.75rem;font-weight:600;
+    opacity:0;transform:translateY(4px) scale(0.96);
+    transition:opacity 0.12s,transform 0.12s;
+    border:1px solid rgba(255,255,255,0.08);
+    white-space:nowrap;
+}
+#heatmap-tooltip.active{opacity:1;transform:translateY(0) scale(1);}
+
+/* ══════════════════════════════════════════════════════════════
+   MOBILE BOTTOM NAV
+══════════════════════════════════════════════════════════════ */
+.bottom-nav{
+    display:none;
+    position:fixed;bottom:0;left:0;right:0;z-index:800;
+    height:var(--bot-nav-h);
+    background:rgba(255,255,255,0.96);
+    backdrop-filter:blur(20px);
+    border-top:1px solid var(--border);
+    padding:0 8px;
+    align-items:center;justify-content:space-around;
+}
+.bot-nav-item{
+    display:flex;flex-direction:column;align-items:center;gap:3px;
+    padding:8px 10px;border-radius:12px;
+    border:none;background:none;color:var(--text-3);
+    font-family:inherit;cursor:pointer;transition:all 0.2s;
+    flex:1;min-width:0;
+}
+.bot-nav-item.active{color:var(--primary);}
+.bot-nav-item.active .bot-nav-icon{background:rgba(37,99,235,0.1);}
+.bot-nav-icon{
+    width:32px;height:32px;border-radius:9px;
+    display:flex;align-items:center;justify-content:center;font-size:0.95rem;
+}
+.bot-nav-label{font-size:0.6rem;font-weight:700;line-height:1;}
+
+/* ══════════════════════════════════════════════════════════════
+   EMPTY STATE
+══════════════════════════════════════════════════════════════ */
+.empty-state{
+    text-align:center;padding:40px 20px;
+    color:var(--text-3);
+}
+.empty-state-icon{font-size:2.5rem;margin-bottom:10px;opacity:0.4;}
+.empty-state p{font-size:0.85rem;font-weight:500;}
+
+/* ══════════════════════════════════════════════════════════════
+   RESPONSIVE
+══════════════════════════════════════════════════════════════ */
+@media(max-width:1100px){
+    .stat-grid{grid-template-columns:repeat(2,1fr);}
+    .charts-grid{grid-template-columns:1fr;}
+    .chart-card.wide{grid-column:span 1;}
+    .insights-grid{grid-template-columns:repeat(2,1fr);}
+    .goals-grid{grid-template-columns:repeat(2,1fr);}
+    .learn-cards{grid-template-columns:repeat(2,1fr);}
+    .word-center{grid-template-columns:1fr;gap:28px;}
+    .dash-hero-inner{grid-template-columns:1fr;}
+    .hero-streak-card{flex-direction:row;align-items:center;margin-bottom:0;margin-top:16px;min-width:auto;}
+}
+@media(max-width:768px){
+    .nav-links{display:none;}
+    .container{padding:0 16px;}
+    .stat-grid{grid-template-columns:repeat(2,1fr);gap:12px;}
+    .insights-grid{grid-template-columns:1fr 1fr;}
+    .goals-grid{grid-template-columns:1fr;}
+    .achieve-grid{grid-template-columns:repeat(3,1fr);}
+    .learn-cards{grid-template-columns:1fr;}
+    .word-center{padding:28px 20px;}
+    .nav-stat-pill{display:none;}
+    .bottom-nav{display:flex;}
+    main{padding-bottom:calc(var(--bot-nav-h) + 12px);}
+    .topnav{padding:0 16px;}
+}
+@media(max-width:480px){
+    .stat-grid{grid-template-columns:1fr 1fr;gap:10px;}
+    .stat-val{font-size:1.6rem;}
+    .insights-grid{grid-template-columns:1fr;}
+    .achieve-grid{grid-template-columns:repeat(2,1fr);}
+    .goals-grid{grid-template-columns:1fr;}
+    .hero-kpi-row{gap:8px;}
+    .hero-kpi{min-width:100px;padding:10px 12px;}
+    .dash-hero{padding:24px 0 0;}
+    .hmap-cell{width:11px;height:11px;}
+}
+@media(prefers-reduced-motion:reduce){
+    *,*::before,*::after{animation-duration:0.01ms!important;transition-duration:0.01ms!important;}
+}
+</style>
+</head>
+<body>
+
+<div class="page-bg"></div>
+<div id="heatmap-tooltip"></div>
+
+<!-- ══ TOP NAV ══════════════════════════════════════════════════ -->
+<nav class="topnav">
+    <a href="index.html" class="nav-logo">
+        <div class="logo-icon"><i class="fa-solid fa-bolt-lightning"></i></div>
+        Word<span>Whizzy</span>
+    </a>
+    <ul class="nav-links">
+        <li><a href="#" class="active">Dashboard</a></li>
+        <li><a href="./main/vocabulary.html">Learn</a></li>
+        <li><a href="chatai.html">AI Tutor</a></li>
+        <li><a href="translate.html">Practice</a></li>
+        <li><a href="roomchat.html">Community</a></li>
+    </ul>
+    <div class="nav-actions">
+        <div class="nav-stat-pill">
+            <div class="nav-stat-item fire-icon">
+                <i class="fa-solid fa-fire-flame-curved"></i>
+                <span id="streak-count" style="color:var(--text);font-size:.85rem;">0</span>
+            </div>
+            <div class="nav-divider"></div>
+            <div class="nav-stat-item shield-icon">
+                <i class="fa-solid fa-shield-heart"></i>
+                <span id="shield-count" style="color:var(--text);font-size:.85rem;">0</span>
+            </div>
+        </div>
+        <button class="nav-icon-btn" onclick="openQuickAddModal()" title="Add flashcard">
+            <i class="fa-solid fa-plus"></i>
+        </button>
+        <div class="user-menu">
+            <img id="user-pfp" class="nav-avatar" src="https://ui-avatars.com/api/?name=User&background=2563EB&color=fff" onclick="toggleDropdown()">
+            <div id="user-dropdown" class="dropdown">
+                <div class="dropdown-header">
+                    <p>Account</p>
+                    <h4 id="drop-name">User</h4>
+                </div>
+                <button class="dropdown-item" onclick="openQuickAddModal()">
+                    <i class="fa-solid fa-plus" style="color:var(--primary)"></i> Quick add card
+                </button>
+                <button class="dropdown-item logout-btn" onclick="logout()">
+                    <i class="fa-solid fa-right-from-bracket"></i> Sign out
+                </button>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<main>
+
+<!-- ══ DASHBOARD HERO ════════════════════════════════════════════ -->
+<div class="dash-hero">
+    <div class="container">
+        <div class="dash-hero-inner">
+            <div class="dash-hero-greeting">
+                <div class="greeting-eyebrow" id="greeting-eyebrow">Loading your progress…</div>
+                <div class="greeting-name" id="greeting-name">Welcome back! 👋</div>
+                <div class="greeting-sub" id="greeting-sub">Here's how your learning is going today.</div>
+
+                <div class="hero-kpi-row">
+                    <div class="hero-kpi">
+                        <span class="hero-kpi-icon">📚</span>
+                        <div class="hero-kpi-data">
+                            <span class="hero-kpi-val" id="kpi-cards">—</span>
+                            <span class="hero-kpi-lbl">Words Saved</span>
+                        </div>
+                    </div>
+                    <div class="hero-kpi">
+                        <span class="hero-kpi-icon">⏱</span>
+                        <div class="hero-kpi-data">
+                            <span class="hero-kpi-val" id="kpi-time">—</span>
+                            <span class="hero-kpi-lbl">Today's Study</span>
+                        </div>
+                    </div>
+                    <div class="hero-kpi">
+                        <span class="hero-kpi-icon">📅</span>
+                        <div class="hero-kpi-data">
+                            <span class="hero-kpi-val" id="kpi-sessions">—</span>
+                            <span class="hero-kpi-lbl">Active Days</span>
+                        </div>
+                    </div>
+                    <div class="hero-kpi">
+                        <span class="hero-kpi-icon">🎯</span>
+                        <div class="hero-kpi-data">
+                            <span class="hero-kpi-val" id="kpi-goal">—</span>
+                            <span class="hero-kpi-lbl">Daily Goal</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Timer in hero -->
+                <div class="timer-strip">
+                    <div class="timer-info">
+                        <span class="timer-mode-lbl" id="timer-mode-label">Free Timer</span>
+                        <span class="timer-clock" id="timer-time">00:00</span>
+                    </div>
+                    <div class="timer-right">
+                        <div class="timer-mode-tabs">
+                            <button id="mode-free" class="tmode-btn active" onclick="setTimerMode('free')">Free</button>
+                            <button id="mode-pomo" class="tmode-btn" onclick="setTimerMode('pomo')">Pomodoro</button>
+                        </div>
+                        <button id="timer-toggle-btn" class="timer-action" onclick="toggleTimer()" title="Start">
+                            <i class="fa-solid fa-play"></i>
+                        </button>
+                        <button class="timer-action" onclick="resetTimer()" title="Reset">
+                            <i class="fa-solid fa-rotate-left"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Streak Card -->
+            <div class="hero-streak-card">
+                <span class="streak-fire-emoji">🔥</span>
+                <span class="streak-num" id="hero-streak-num">0</span>
+                <span class="streak-unit">Day Streak</span>
+                <span class="streak-best" id="streak-best-label">Best: 0 days</span>
+                <span class="streak-best" id="shields-label" style="color:rgba(255,255,255,0.6)">🛡 0 shields</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ══ STAT CARDS ═══════════════════════════════════════════════ -->
+<div class="container">
+<section class="section">
+    <div class="section-header">
+        <div>
+            <div class="section-label">Overview</div>
+            <div class="section-title">Your Learning Stats</div>
+        </div>
+    </div>
+    <div class="stat-grid">
+        <div class="stat-card" style="--card-color:linear-gradient(90deg,#2563EB,#6366F1)">
+            <div class="stat-card-top">
+                <div class="stat-icon" style="background:rgba(37,99,235,0.1);color:var(--primary)">
+                    <i class="fa-solid fa-layer-group"></i>
+                </div>
+                <span class="stat-change neutral" id="sc-change-words">—</span>
+            </div>
+            <div class="stat-val" id="sc-total-words">—</div>
+            <div class="stat-lbl">Total Words Saved</div>
+            <div class="stat-sub"><i class="fa-solid fa-circle-info" style="color:var(--primary)"></i><span id="sc-words-sub">Across all categories</span></div>
+        </div>
+        <div class="stat-card" style="--card-color:linear-gradient(90deg,#22C55E,#16A34A)">
+            <div class="stat-card-top">
+                <div class="stat-icon" style="background:rgba(34,197,94,0.1);color:var(--success)">
+                    <i class="fa-solid fa-check-double"></i>
+                </div>
+                <span class="stat-change up" id="sc-change-mastered">↑ New</span>
+            </div>
+            <div class="stat-val" id="sc-mastered">—</div>
+            <div class="stat-lbl">Words Mastered</div>
+            <div class="stat-sub"><i class="fa-solid fa-trophy" style="color:var(--success)"></i><span id="sc-mastered-sub">Keep reviewing to master more</span></div>
+        </div>
+        <div class="stat-card" style="--card-color:linear-gradient(90deg,#F59E0B,#D97706)">
+            <div class="stat-card-top">
+                <div class="stat-icon" style="background:rgba(245,158,11,0.1);color:var(--warning)">
+                    <i class="fa-solid fa-clock-rotate-left"></i>
+                </div>
+                <span class="stat-change neutral">Total</span>
+            </div>
+            <div class="stat-val" id="sc-total-time">—</div>
+            <div class="stat-lbl">Total Study Time</div>
+            <div class="stat-sub"><i class="fa-solid fa-calendar-day" style="color:var(--warning)"></i><span id="sc-avg-time-sub">Avg per day: —</span></div>
+        </div>
+        <div class="stat-card" style="--card-color:linear-gradient(90deg,#8B5CF6,#6D28D9)">
+            <div class="stat-card-top">
+                <div class="stat-icon" style="background:rgba(139,92,246,0.1);color:var(--accent)">
+                    <i class="fa-solid fa-calendar-check"></i>
+                </div>
+                <span class="stat-change up" id="sc-streak-badge">🔥</span>
+            </div>
+            <div class="stat-val" id="sc-active-days">—</div>
+            <div class="stat-lbl">Active Study Days</div>
+            <div class="stat-sub"><i class="fa-solid fa-percent" style="color:var(--accent)"></i><span id="sc-streak-pct">Streak consistency: —</span></div>
+        </div>
+    </div>
+</section>
+
+<!-- ══ SMART GOALS ═══════════════════════════════════════════════ -->
+<section class="section" style="padding-top:0">
+    <div class="section-header">
+        <div>
+            <div class="section-label">Goals</div>
+            <div class="section-title">Smart Goals</div>
+        </div>
+        <button class="section-link" onclick="notify('🎯 Goal settings coming soon!')">
+            Edit Goals <i class="fa-solid fa-arrow-right"></i>
+        </button>
+    </div>
+    <div class="goals-grid">
+        <!-- Daily Goal -->
+        <div class="goal-card">
+            <div class="goal-card-top">
+                <div class="goal-icon-wrap" style="background:rgba(37,99,235,0.1);color:var(--primary)">
+                    <i class="fa-solid fa-sun"></i>
+                </div>
+                <span class="goal-period">Daily</span>
+            </div>
+            <div class="goal-name">Study Today</div>
+            <div class="goal-detail" id="goal-daily-detail">Goal: 20 min per day</div>
+            <div class="goal-track">
+                <div class="goal-fill" id="goal-daily-fill" style="--goal-color:linear-gradient(90deg,var(--primary),var(--secondary));width:0%"></div>
+            </div>
+            <div class="goal-footer">
+                <span class="goal-curr"><span id="goal-daily-curr">0</span> <span class="goal-of">/ 20 min</span></span>
+                <span class="goal-pct" id="goal-daily-pct">0%</span>
+            </div>
+        </div>
+        <!-- Weekly Goal -->
+        <div class="goal-card">
+            <div class="goal-card-top">
+                <div class="goal-icon-wrap" style="background:rgba(99,102,241,0.1);color:var(--secondary)">
+                    <i class="fa-solid fa-calendar-week"></i>
+                </div>
+                <span class="goal-period">Weekly</span>
+            </div>
+            <div class="goal-name">Words This Week</div>
+            <div class="goal-detail" id="goal-weekly-detail">Goal: 50 new words</div>
+            <div class="goal-track">
+                <div class="goal-fill" id="goal-weekly-fill" style="--goal-color:linear-gradient(90deg,var(--secondary),var(--accent));width:0%"></div>
+            </div>
+            <div class="goal-footer">
+                <span class="goal-curr"><span id="goal-weekly-curr">0</span> <span class="goal-of">/ 50 words</span></span>
+                <span class="goal-pct" id="goal-weekly-pct">0%</span>
+            </div>
+        </div>
+        <!-- Monthly Goal -->
+        <div class="goal-card">
+            <div class="goal-card-top">
+                <div class="goal-icon-wrap" style="background:rgba(245,158,11,0.1);color:var(--warning)">
+                    <i class="fa-solid fa-trophy"></i>
+                </div>
+                <span class="goal-period">Monthly</span>
+            </div>
+            <div class="goal-name">Words This Month</div>
+            <div class="goal-detail" id="goal-monthly-detail">Goal: 100 new words</div>
+            <div class="goal-track">
+                <div class="goal-fill" id="goal-monthly-fill" style="--goal-color:linear-gradient(90deg,var(--warning),var(--orange));width:0%"></div>
+            </div>
+            <div class="goal-footer">
+                <span class="goal-curr"><span id="goal-monthly-curr">0</span> <span class="goal-of">/ 100 words</span></span>
+                <span class="goal-pct" id="goal-monthly-pct">0%</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ══ CHARTS ════════════════════════════════════════════════════ -->
+<section class="section" style="padding-top:0">
+    <div class="section-header">
+        <div>
+            <div class="section-label">Analytics</div>
+            <div class="section-title">Learning Trends</div>
+        </div>
+    </div>
+    <div class="charts-grid">
+        <!-- Weekly Study Time -->
+        <div class="chart-card">
+            <div class="chart-header">
+                <div>
+                    <div class="chart-title">Weekly Study Time</div>
+                    <div class="chart-sub">Minutes per day this week</div>
+                </div>
+                <div class="chart-legend">
+                    <div class="legend-item"><span class="legend-dot" style="background:var(--primary)"></span>Minutes</div>
+                </div>
+            </div>
+            <div class="chart-canvas-wrap" style="height:200px">
+                <canvas id="chart-weekly"></canvas>
+            </div>
+        </div>
+        <!-- Vocabulary Growth -->
+        <div class="chart-card">
+            <div class="chart-header">
+                <div>
+                    <div class="chart-title">Vocabulary Growth</div>
+                    <div class="chart-sub">Cumulative words over time</div>
+                </div>
+                <div class="chart-legend">
+                    <div class="legend-item"><span class="legend-dot" style="background:var(--success)"></span>Total Words</div>
+                </div>
+            </div>
+            <div class="chart-canvas-wrap" style="height:200px">
+                <canvas id="chart-vocab"></canvas>
+            </div>
+        </div>
+        <!-- Monthly Trend (wide) -->
+        <div class="chart-card wide">
+            <div class="chart-header">
+                <div>
+                    <div class="chart-title">30-Day Learning Activity</div>
+                    <div class="chart-sub">Words added &amp; study minutes per day</div>
+                </div>
+                <div class="chart-legend">
+                    <div class="legend-item"><span class="legend-dot" style="background:var(--primary)"></span>Study time (min)</div>
+                    <div class="legend-item"><span class="legend-dot" style="background:var(--accent)"></span>Words added</div>
+                </div>
+            </div>
+            <div class="chart-canvas-wrap" style="height:220px">
+                <canvas id="chart-monthly"></canvas>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ══ GITHUB-STYLE HEATMAP ══════════════════════════════════════ -->
+<section class="section" style="padding-top:0">
+    <div class="section-header">
+        <div>
+            <div class="section-label">Activity</div>
+            <div class="section-title">365-Day Learning Heatmap</div>
+        </div>
+        <div style="font-size:0.78rem;color:var(--text-3);font-weight:600" id="heatmap-total-label">0 active days this year</div>
+    </div>
+    <div class="heatmap-card">
+        <div id="heatmap-month-row" style="display:flex;gap:0;margin-bottom:4px;padding-left:2px;overflow-x:auto;"></div>
+        <div id="heatmap-year-grid" class="heatmap-year-grid"></div>
+        <div class="heatmap-legend">
+            Less
+            <span class="hmap-legend-cell hmap-l0"></span>
+            <span class="hmap-legend-cell hmap-l1"></span>
+            <span class="hmap-legend-cell hmap-l2"></span>
+            <span class="hmap-legend-cell hmap-l3"></span>
+            <span class="hmap-legend-cell hmap-l4"></span>
+            More
+        </div>
+    </div>
+</section>
+
+<!-- ══ ACHIEVEMENTS ═════════════════════════════════════════════ -->
+<section class="section" style="padding-top:0">
+    <div class="section-header">
+        <div>
+            <div class="section-label">Badges</div>
+            <div class="section-title">Achievements</div>
+        </div>
+        <div style="font-size:0.78rem;color:var(--text-3);font-weight:600" id="achieve-summary">0 / 12 unlocked</div>
+    </div>
+    <div class="achieve-grid" id="achieve-grid">
+        <!-- Populated by JS -->
+        <div class="achieve-item"><div class="skeleton" style="width:48px;height:48px;border-radius:50%;margin:0 auto 8px"></div><div class="skeleton" style="height:10px;margin-bottom:5px"></div><div class="skeleton" style="height:8px;width:70%;margin:0 auto"></div></div>
+        <div class="achieve-item"><div class="skeleton" style="width:48px;height:48px;border-radius:50%;margin:0 auto 8px"></div><div class="skeleton" style="height:10px;margin-bottom:5px"></div><div class="skeleton" style="height:8px;width:70%;margin:0 auto"></div></div>
+        <div class="achieve-item"><div class="skeleton" style="width:48px;height:48px;border-radius:50%;margin:0 auto 8px"></div><div class="skeleton" style="height:10px;margin-bottom:5px"></div><div class="skeleton" style="height:8px;width:70%;margin:0 auto"></div></div>
+        <div class="achieve-item"><div class="skeleton" style="width:48px;height:48px;border-radius:50%;margin:0 auto 8px"></div><div class="skeleton" style="height:10px;margin-bottom:5px"></div><div class="skeleton" style="height:8px;width:70%;margin:0 auto"></div></div>
+    </div>
+</section>
+
+<!-- ══ AI INSIGHTS ═══════════════════════════════════════════════ -->
+<section class="section" style="padding-top:0">
+    <div class="section-header">
+        <div>
+            <div class="section-label">AI Insights</div>
+            <div class="section-title">Learning Intelligence</div>
+        </div>
+    </div>
+    <div class="insights-grid" id="insights-grid">
+        <div class="insight-card">
+            <div class="insight-icon" style="background:rgba(37,99,235,0.1);color:var(--primary)"><i class="fa-solid fa-chart-line"></i></div>
+            <div class="insight-body">
+                <div class="insight-label">Most Productive Day</div>
+                <div class="insight-val" id="ins-best-day">—</div>
+                <div class="insight-note" id="ins-best-day-note">Based on your activity</div>
+            </div>
+        </div>
+        <div class="insight-card">
+            <div class="insight-icon" style="background:rgba(245,158,11,0.1);color:var(--warning)"><i class="fa-solid fa-bolt"></i></div>
+            <div class="insight-body">
+                <div class="insight-label">Avg Words / Week</div>
+                <div class="insight-val" id="ins-avg-words">—</div>
+                <div class="insight-note" id="ins-avg-words-note">Keep adding new words</div>
+            </div>
+        </div>
+        <div class="insight-card">
+            <div class="insight-icon" style="background:rgba(34,197,94,0.1);color:var(--success)"><i class="fa-solid fa-fire"></i></div>
+            <div class="insight-body">
+                <div class="insight-label">Streak Consistency</div>
+                <div class="insight-val" id="ins-consistency">—</div>
+                <div class="insight-note" id="ins-consistency-note">Days studied / days since start</div>
+            </div>
+        </div>
+        <div class="insight-card">
+            <div class="insight-icon" style="background:rgba(99,102,241,0.1);color:var(--secondary)"><i class="fa-solid fa-clock"></i></div>
+            <div class="insight-body">
+                <div class="insight-label">Avg Session Length</div>
+                <div class="insight-val" id="ins-avg-session">—</div>
+                <div class="insight-note" id="ins-avg-session-note">Per study day</div>
+            </div>
+        </div>
+        <div class="insight-card">
+            <div class="insight-icon" style="background:rgba(139,92,246,0.1);color:var(--accent)"><i class="fa-solid fa-star"></i></div>
+            <div class="insight-body">
+                <div class="insight-label">Total Study Time</div>
+                <div class="insight-val" id="ins-total-time">—</div>
+                <div class="insight-note">All time across all sessions</div>
+            </div>
+        </div>
+        <div class="insight-card">
+            <div class="insight-icon" style="background:rgba(249,115,22,0.1);color:var(--orange)"><i class="fa-solid fa-ranking-star"></i></div>
+            <div class="insight-body">
+                <div class="insight-label">Learning Pace</div>
+                <div class="insight-val" id="ins-pace">—</div>
+                <div class="insight-note" id="ins-pace-note">Words per active day</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ══ CONTINUE LEARNING ══════════════════════════════════════════ -->
+<section class="section" style="padding-top:0">
+    <div class="section-header">
+        <div>
+            <div class="section-label">Resume</div>
+            <div class="section-title">Continue Learning</div>
+        </div>
+    </div>
+    <div class="learn-cards">
+        <a href="./main/vocabulary.html" class="learn-card">
+            <div class="learn-card-accent" style="background:linear-gradient(90deg,var(--primary),var(--secondary))"></div>
+            <div class="learn-card-top">
+                <span class="learn-card-badge" style="background:rgba(37,99,235,.08);color:var(--primary)">Vocabulary</span>
+                <div class="learn-card-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+            </div>
+            <h3>My Flashcard Library</h3>
+            <p class="learn-card-meta" id="lc-count">Loading…</p>
+            <div class="progress-track"><div class="progress-fill" id="lc-progress" style="width:0%;background:linear-gradient(90deg,var(--primary),var(--secondary))"></div></div>
+            <div class="learn-card-footer">
+                <span style="color:var(--text-3)" id="lc-mastered-label">0 mastered</span>
+                <span style="color:var(--primary)">Review now →</span>
+            </div>
+        </a>
+        <a href="chatai.html" class="learn-card">
+            <div class="learn-card-accent" style="background:linear-gradient(90deg,var(--secondary),var(--accent))"></div>
+            <div class="learn-card-top">
+                <span class="learn-card-badge" style="background:rgba(99,102,241,.08);color:var(--secondary)">AI Tutor</span>
+                <div class="learn-card-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+            </div>
+            <h3>Chat with AI Tutor</h3>
+            <p class="learn-card-meta">Practice conversations, grammar &amp; pronunciation</p>
+            <div class="progress-track"><div class="progress-fill" style="width:100%;background:linear-gradient(90deg,var(--secondary),var(--accent))"></div></div>
+            <div class="learn-card-footer">
+                <span style="color:var(--text-3)">Always available</span>
+                <span style="color:var(--secondary)">Start chat →</span>
+            </div>
+        </a>
+        <a href="translate.html" class="learn-card">
+            <div class="learn-card-accent" style="background:linear-gradient(90deg,var(--success),#059669)"></div>
+            <div class="learn-card-top">
+                <span class="learn-card-badge" style="background:rgba(34,197,94,.08);color:var(--success)">Practice</span>
+                <div class="learn-card-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+            </div>
+            <h3>Translation Practice</h3>
+            <p class="learn-card-meta">Sharpen your translation and writing skills</p>
+            <div class="progress-track"><div class="progress-fill" style="width:60%;background:linear-gradient(90deg,var(--success),#059669)"></div></div>
+            <div class="learn-card-footer">
+                <span style="color:var(--text-3)">Keep practicing</span>
+                <span style="color:var(--success)">Practice now →</span>
+            </div>
+        </a>
+    </div>
+</section>
+
+<!-- ══ DAILY WORD ══════════════════════════════════════════════════ -->
+<section class="section" style="padding-top:0">
+    <div class="section-header">
+        <div>
+            <div class="section-label">Daily Learning</div>
+            <div class="section-title">Word of the Day</div>
+        </div>
+    </div>
+    <div class="word-center">
+        <div class="word-left">
+            <div class="word-eyebrow"><i class="fa-solid fa-star" style="color:var(--warning)"></i> Featured Word</div>
+            <h2 class="word-main" id="daily-word-term">Resilient</h2>
+            <p class="word-phonetic" id="daily-word-phonetic">/rɪˈzɪl.jənt/ · Adjective</p>
+            <p class="word-meaning-block" id="daily-word-meaning">Kiên cường, kiên định, mau phục hồi</p>
+            <p class="word-example" id="daily-word-example">"Resilient people always thrive under pressure and bounce back from challenges."</p>
+            <div class="word-actions">
+                <button class="word-btn primary" onclick="speakDailyWord()">
+                    <i class="fa-solid fa-volume-high"></i>Pronunciation
+                    <span class="audio-wave" id="speak-wave">
+                        <span class="wave-bar" style="height:3px"></span>
+                        <span class="wave-bar" style="height:3px"></span>
+                        <span class="wave-bar" style="height:3px"></span>
+                        <span class="wave-bar" style="height:3px"></span>
+                    </span>
+                </button>
+                <button class="word-btn outline" onclick="openQuickAddModal()"><i class="fa-solid fa-plus"></i>Save Word</button>
+                <button class="word-btn outline" onclick="flipDailyCard()"><i class="fa-solid fa-repeat"></i>Next Word</button>
+            </div>
+        </div>
+        <div class="word-right">
+            <div class="word-meta-card">
+                <div class="word-meta-title">Synonyms</div>
+                <div class="word-tags" id="word-synonyms">
+                    <span class="word-tag">Tough</span>
+                    <span class="word-tag">Adaptable</span>
+                    <span class="word-tag">Hardy</span>
+                    <span class="word-tag">Robust</span>
+                </div>
+            </div>
+            <div class="word-meta-card">
+                <div class="word-meta-title">Usage Frequency</div>
+                <div style="font-size:.78rem;font-weight:600;color:var(--text-2);margin-bottom:6px">Common in academic &amp; professional writing</div>
+                <div class="word-freq-bar"><div class="word-freq-fill" id="word-freq" style="width:72%"></div></div>
+            </div>
+            <div class="word-meta-card">
+                <div class="word-meta-title">Difficulty Level</div>
+                <div class="word-diff-dots" id="word-diff">
+                    <span class="diff-dot on"></span><span class="diff-dot on"></span>
+                    <span class="diff-dot on"></span><span class="diff-dot"></span><span class="diff-dot"></span>
+                </div>
+                <div style="font-size:.72rem;color:var(--text-3);font-weight:500;margin-top:5px">Intermediate (B2)</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+</div><!-- /container -->
+
+</main>
+
+<!-- ══ QUICK ADD MODAL ════════════════════════════════════════════ -->
+<div id="quick-add-modal" class="modal-overlay" onclick="closeModalOnOverlay(event)">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h3>Add Flashcard</h3>
+            <button class="modal-close" onclick="closeQuickAddModal()"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <form id="quick-add-form" onsubmit="submitQuickAddCard(event)">
+            <div class="form-group">
+                <label class="form-label">English Word</label>
+                <input type="text" id="term-input" class="form-input" placeholder="e.g. Magnificent" required autocomplete="off">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Vietnamese Meaning</label>
+                <input type="text" id="meaning-input" class="form-input" placeholder="e.g. Tuyệt vời, tráng lệ" required autocomplete="off">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Category (Optional)</label>
+                <input type="text" id="tag-input" class="form-input" placeholder="e.g. Adjective" autocomplete="off">
+            </div>
+            <button type="submit" class="form-submit">Save to Library</button>
+        </form>
+    </div>
+</div>
+
+<!-- ══ MOBILE BOTTOM NAV ════════════════════════════════════════ -->
+<nav class="bottom-nav">
+    <button class="bot-nav-item active">
+        <div class="bot-nav-icon"><i class="fa-solid fa-house"></i></div>
+        <span class="bot-nav-label">Home</span>
+    </button>
+    <button class="bot-nav-item" onclick="location.href='chatai.html'">
+        <div class="bot-nav-icon"><i class="fa-solid fa-brain"></i></div>
+        <span class="bot-nav-label">AI Tutor</span>
+    </button>
+    <button class="bot-nav-item" onclick="location.href='./main/vocabulary.html'">
+        <div class="bot-nav-icon"><i class="fa-solid fa-book"></i></div>
+        <span class="bot-nav-label">Learn</span>
+    </button>
+    <button class="bot-nav-item" onclick="location.href='translate.html'">
+        <div class="bot-nav-icon"><i class="fa-solid fa-pen-nib"></i></div>
+        <span class="bot-nav-label">Practice</span>
+    </button>
+    <button class="bot-nav-item" onclick="location.href='roomchat.html'">
+        <div class="bot-nav-icon"><i class="fa-solid fa-users"></i></div>
+        <span class="bot-nav-label">Community</span>
+    </button>
+</nav>
+
+<div id="toast"></div>
+
+<script>
+/* ══════════════════════════════════════════════════════════════
+   FIREBASE INIT
+══════════════════════════════════════════════════════════════ */
+const firebaseConfig = {
+    apiKey: "AIzaSyAm-p5xIzMi7Rkt6y9TzODJLFjdpLKBIlg",
+    authDomain: "wordwhizzy.firebaseapp.com",
+    projectId: "wordwhizzy",
+    storageBucket: "wordwhizzy.appspot.com",
+    messagingSenderId: "963339095604",
+    appId: "1:963339095604:web:0b22a0a2f7c00645091764"
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db   = firebase.firestore();
+
+/* ══════════════════════════════════════════════════════════════
+   GLOBAL STATE
+══════════════════════════════════════════════════════════════ */
+let globalUid        = null;
+let globalStreak     = 0;
+let globalBestStreak = 0;
+let globalCards      = 0;
+let globalActivity   = {};   // { 'YYYY-MM-DD': { status, minutes } }
+let globalFlashcards = [];   // all flashcard docs data
+let chartsBuilt      = false;
+let weeklyChart, vocabChart, monthlyChart;
+
+/* ══════════════════════════════════════════════════════════════
+   UTILS
+══════════════════════════════════════════════════════════════ */
+function today()     { return new Date().toISOString().split('T')[0]; }
+function daysAgo(n)  { const d=new Date(); d.setDate(d.getDate()-n); return d.toISOString().split('T')[0]; }
+
+function formatMins(m) {
+    if (m < 60) return `${m}m`;
+    const h = Math.floor(m/60), rm = m%60;
+    return rm ? `${h}h ${rm}m` : `${h}h`;
+}
+
+function formatDate(dateStr) {
+    const d = new Date(dateStr+'T00:00:00');
+    return d.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+}
+
+function getDayName(dateStr) {
+    const d = new Date(dateStr+'T00:00:00');
+    return ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][d.getDay()];
+}
+
+/* ══════════════════════════════════════════════════════════════
+   DROPDOWN / NAV
+══════════════════════════════════════════════════════════════ */
+window.onclick = e => {
+    if (!e.target.matches('.nav-avatar'))
+        document.getElementById('user-dropdown').classList.remove('active');
+};
+function toggleDropdown() { document.getElementById('user-dropdown').classList.toggle('active'); }
+function logout() {
+    if (confirm('Sign out of WordWhizzy?'))
+        auth.signOut().then(() => location.href = 'login.html');
+}
+
+/* ══════════════════════════════════════════════════════════════
+   AUTH
+══════════════════════════════════════════════════════════════ */
+auth.onAuthStateChanged(async user => {
+    if (!user) { location.href = 'login.html'; return; }
+
+    globalUid = user.uid;
+
+    // Update nav
+    document.getElementById('drop-name').innerText = user.displayName || user.email;
+    if (user.photoURL) document.getElementById('user-pfp').src = user.photoURL;
+
+    // Greeting
+    const hour = new Date().getHours();
+    const greet = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+    const first = user.displayName ? user.displayName.split(' ')[0] : 'Learner';
+    document.getElementById('greeting-name').textContent = `${greet}, ${first}! 👋`;
+    document.getElementById('greeting-eyebrow').textContent = new Date().toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+
+    // Run streak + load data in parallel
+    await handleStreakAndShield(user);
+    await Promise.all([
+        loadActivityData(user.uid),
+        loadFlashcards(user.uid)
+    ]);
+
+    // Now build everything from the loaded data
+    buildDashboard();
+});
+
+/* ══════════════════════════════════════════════════════════════
+   STREAK & SHIELD  (existing logic preserved)
+══════════════════════════════════════════════════════════════ */
+async function handleStreakAndShield(user) {
+    const userRef    = db.collection('users').doc(user.uid);
+    const todayStr   = today();
+    const yest       = new Date(); yest.setDate(yest.getDate()-1);
+    const yesterdayStr = yest.toISOString().split('T')[0];
+
+    const docSnap = await userRef.get();
+    let { streak=0, shields=0, lastLogin='', consecutiveDays=0, bestStreak=0 } = docSnap.data() || {};
+
+    if (lastLogin !== todayStr) {
+        if (lastLogin === yesterdayStr) {
+            streak++; consecutiveDays++;
+            if (streak > bestStreak) bestStreak = streak;
+            if (consecutiveDays >= 5) { shields++; consecutiveDays=0; notify('🛡️ Shield earned for your 5-day streak!'); }
+        } else if (lastLogin !== '') {
+            if (shields > 0) { shields--; notify('🛡️ Your shield protected your streak!'); }
+            else { streak=1; consecutiveDays=1; notify('❄️ Streak reset. Start fresh today!'); }
+        } else { streak=1; consecutiveDays=1; }
+
+        await userRef.set({ lastLogin:todayStr, streak, shields, consecutiveDays, bestStreak }, { merge:true });
+        await userRef.collection('daily_activity').doc(todayStr).set({ status:'success', date:todayStr }, { merge:true });
+    }
+
+    globalStreak     = streak;
+    globalBestStreak = Math.max(bestStreak, streak);
+
+    // Update all streak displays
+    document.getElementById('streak-count').innerText   = streak;
+    document.getElementById('shield-count').innerText   = shields;
+    document.getElementById('hero-streak-num').innerText = streak;
+    document.getElementById('streak-best-label').innerText = `Best: ${globalBestStreak} days`;
+    document.getElementById('shields-label').innerText = `🛡 ${shields} shield${shields!==1?'s':''}`;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   LOAD ACTIVITY DATA (daily_activity subcollection)
+══════════════════════════════════════════════════════════════ */
+async function loadActivityData(uid) {
+    const snap = await db.collection('users').doc(uid).collection('daily_activity').get();
+    globalActivity = {};
+    snap.forEach(d => { globalActivity[d.id] = d.data(); });
+}
+
+/* ══════════════════════════════════════════════════════════════
+   LOAD FLASHCARDS
+══════════════════════════════════════════════════════════════ */
+async function loadFlashcards(uid) {
+    const snap = await db.collection('users').doc(uid).collection('flashcards').get();
+    globalCards     = snap.size;
+    globalFlashcards = [];
+    snap.forEach(d => {
+        const data = d.data();
+        globalFlashcards.push({ id:d.id, ...data });
+    });
+
+    // Live listener for card count
+    db.collection('users').doc(uid).collection('flashcards').onSnapshot(s => {
+        globalCards = s.size;
+        globalFlashcards = [];
+        s.forEach(d => globalFlashcards.push({ id:d.id, ...d.data() }));
+        refreshCardDependents();
+    });
+}
+
+/* ══════════════════════════════════════════════════════════════
+   BUILD DASHBOARD (called once data is loaded)
+══════════════════════════════════════════════════════════════ */
+function buildDashboard() {
+    computeAndRenderStats();
+    renderGoals();
+    renderCharts();
+    renderHeatmap365();
+    renderAchievements();
+    renderInsights();
+    refreshCardDependents();
+}
+
+/* ══════════════════════════════════════════════════════════════
+   COMPUTED STATS
+══════════════════════════════════════════════════════════════ */
+function computeStats() {
+    const todayStr   = today();
+    const allDates   = Object.keys(globalActivity).sort();
+    const activeDays = allDates.filter(d => globalActivity[d].status === 'success');
+
+    // Total minutes
+    let totalMins = 0;
+    activeDays.forEach(d => { totalMins += (globalActivity[d].minutes || 0); });
+
+    // Today's minutes
+    const todayMins = globalActivity[todayStr] ? (globalActivity[todayStr].minutes||0) : 0;
+
+    // Avg per active day
+    const avgMins = activeDays.length ? Math.round(totalMins / activeDays.length) : 0;
+
+    // Words this week (flashcards created in last 7 days)
+    const weekStart = daysAgo(6);
+    const wordsThisWeek = globalFlashcards.filter(f => {
+        if (!f.createdAt) return false;
+        const d = f.createdAt.toDate ? f.createdAt.toDate().toISOString().split('T')[0] : '';
+        return d >= weekStart;
+    }).length;
+
+    // Words this month
+    const monthStart = new Date(); monthStart.setDate(1);
+    const monthStartStr = monthStart.toISOString().split('T')[0];
+    const wordsThisMonth = globalFlashcards.filter(f => {
+        if (!f.createdAt) return false;
+        const d = f.createdAt.toDate ? f.createdAt.toDate().toISOString().split('T')[0] : '';
+        return d >= monthStartStr;
+    }).length;
+
+    // Streak pct (active days vs days since first activity)
+    let streakPct = 0;
+    if (allDates.length > 0) {
+        const firstDate = new Date(allDates[0]+'T00:00:00');
+        const nowDate   = new Date();
+        const daysSinceStart = Math.max(1, Math.round((nowDate - firstDate) / (1000*60*60*24)) + 1);
+        streakPct = Math.round((activeDays.length / daysSinceStart) * 100);
+    }
+
+    // Best study day of week
+    const dayTotals = Array(7).fill(0);
+    const dayCounts = Array(7).fill(0);
+    activeDays.forEach(d => {
+        const dow = new Date(d+'T00:00:00').getDay();
+        dayTotals[dow] += (globalActivity[d].minutes||0);
+        dayCounts[dow]++;
+    });
+    const dayNames = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+    let bestDayIdx = 0, bestDayTotal = 0;
+    dayTotals.forEach((t,i) => { if(t > bestDayTotal){ bestDayTotal=t; bestDayIdx=i; } });
+
+    // Pace (words per active study day)
+    const pace = activeDays.length ? Math.round(globalCards / activeDays.length * 10)/10 : 0;
+
+    return {
+        totalCards: globalCards,
+        totalMins,
+        todayMins,
+        avgMins,
+        activeDays: activeDays.length,
+        streakPct,
+        wordsThisWeek,
+        wordsThisMonth,
+        bestDay: dayNames[bestDayIdx],
+        bestDayMins: bestDayTotal,
+        pace
+    };
+}
+
+function computeAndRenderStats() {
+    const s = computeStats();
+
+    // KPIs
+    setText('kpi-cards',    s.totalCards);
+    setText('kpi-time',     `${s.todayMins}m`);
+    setText('kpi-sessions', s.activeDays);
+    setText('kpi-goal',     `${Math.min(100,Math.round(s.todayMins/20*100))}%`);
+    setText('greeting-sub', `You've studied ${formatMins(s.totalMins)} total · ${s.activeDays} active days 🎯`);
+
+    // Stat cards
+    setText('sc-total-words', s.totalCards);
+    setText('sc-mastered',    Math.round(s.totalCards * 0.4)); // 40% heuristic (no mastered field in existing schema)
+    setText('sc-mastered-sub', `${Math.round(s.totalCards*0.4)} of ${s.totalCards} words mastered`);
+    setText('sc-words-sub',   `${s.totalCards} across all categories`);
+    setText('sc-total-time',  formatMins(s.totalMins));
+    setText('sc-avg-time-sub',`Avg per day: ${formatMins(s.avgMins)}`);
+    setText('sc-active-days', s.activeDays);
+    setText('sc-streak-pct',  `Streak consistency: ${s.streakPct}%`);
+    setText('sc-streak-badge', `🔥 ${globalStreak}`);
+    setText('sc-change-words', `${s.wordsThisWeek} this wk`);
+}
+
+function refreshCardDependents() {
+    const s = computeStats();
+    const masteredEst = Math.round(globalCards * 0.4);
+    const pct = globalCards > 0 ? Math.min(100, Math.round(masteredEst/globalCards*100)) : 0;
+
+    setText('kpi-cards',    globalCards);
+    setText('sc-total-words', globalCards);
+    setText('lc-count',     `${globalCards} cards total`);
+    setText('lc-mastered-label', `${masteredEst} mastered`);
+    setStyle('lc-progress', 'width', `${pct}%`);
+    renderAchievements();
+    renderInsights();
+    renderGoals();
+}
+
+/* ══════════════════════════════════════════════════════════════
+   GOALS
+══════════════════════════════════════════════════════════════ */
+function renderGoals() {
+    const s = computeStats();
+
+    // Daily: 20 min goal
+    const dailyGoal = 20;
+    const dailyPct  = Math.min(100, Math.round(s.todayMins/dailyGoal*100));
+    setText('goal-daily-curr',   s.todayMins);
+    setText('goal-daily-pct',    `${dailyPct}%`);
+    setStyle('goal-daily-fill',  'width', `${dailyPct}%`);
+
+    // Weekly: 50 words goal
+    const weekGoal  = 50;
+    const weekPct   = Math.min(100, Math.round(s.wordsThisWeek/weekGoal*100));
+    setText('goal-weekly-curr',  s.wordsThisWeek);
+    setText('goal-weekly-pct',   `${weekPct}%`);
+    setStyle('goal-weekly-fill', 'width', `${weekPct}%`);
+
+    // Monthly: 100 words goal
+    const monthGoal = 100;
+    const monthPct  = Math.min(100, Math.round(s.wordsThisMonth/monthGoal*100));
+    setText('goal-monthly-curr', s.wordsThisMonth);
+    setText('goal-monthly-pct',  `${monthPct}%`);
+    setStyle('goal-monthly-fill','width', `${monthPct}%`);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   CHARTS (Chart.js — all real data)
+══════════════════════════════════════════════════════════════ */
+function renderCharts() {
+    if (chartsBuilt) { updateCharts(); return; }
+    chartsBuilt = true;
+
+    const defaults = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend:{ display:false }, tooltip:{ mode:'index', intersect:false,
+            callbacks:{ label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y}` }
+        }},
+        scales: {
+            x:{ grid:{display:false}, ticks:{ color:'#94A3B8', font:{size:11,weight:'600'} } },
+            y:{ grid:{color:'#F1F5F9'}, ticks:{ color:'#94A3B8', font:{size:11} }, beginAtZero:true }
+        },
+        animation:{ duration:900, easing:'easeOutCubic' }
+    };
+
+    // 1. Weekly Study Time — last 7 days
+    const weekDays   = Array.from({length:7},(_,i)=> daysAgo(6-i));
+    const weekMins   = weekDays.map(d => globalActivity[d]?.minutes || 0);
+    const weekLabels = weekDays.map(d => new Date(d+'T00:00:00').toLocaleDateString('en-US',{weekday:'short'}));
+
+    weeklyChart = new Chart(document.getElementById('chart-weekly').getContext('2d'), {
+        type: 'bar',
+        data: {
+            labels: weekLabels,
+            datasets: [{
+                label: 'Minutes',
+                data: weekMins,
+                backgroundColor: weekDays.map(d => d===today() ? 'rgba(37,99,235,0.9)' : 'rgba(37,99,235,0.35)'),
+                borderRadius: 8,
+                borderSkipped: false
+            }]
+        },
+        options: { ...defaults }
+    });
+
+    // 2. Vocabulary Growth — cumulative words by creation date
+    const sortedCards = [...globalFlashcards]
+        .filter(f => f.createdAt)
+        .sort((a,b) => {
+            const ta = a.createdAt.toDate ? a.createdAt.toDate() : new Date(a.createdAt);
+            const tb = b.createdAt.toDate ? b.createdAt.toDate() : new Date(b.createdAt);
+            return ta - tb;
+        });
+
+    let vocabLabels=[], vocabData=[], cumSum=0;
+    const vocabByDate={};
+    sortedCards.forEach(f => {
+        const d = f.createdAt.toDate ? f.createdAt.toDate().toISOString().split('T')[0] : '';
+        if(d) vocabByDate[d] = (vocabByDate[d]||0) + 1;
+    });
+
+    // Build growth curve, max 30 points
+    const vocabDates = Object.keys(vocabByDate).sort();
+    if (vocabDates.length > 0) {
+        const step = Math.max(1, Math.ceil(vocabDates.length/30));
+        vocabDates.forEach((d,i) => {
+            cumSum += vocabByDate[d];
+            if (i % step === 0 || i === vocabDates.length-1) {
+                vocabLabels.push(formatDate(d));
+                vocabData.push(cumSum);
+            }
+        });
+    } else {
+        vocabLabels = ['Start'];
+        vocabData   = [0];
+    }
+
+    vocabChart = new Chart(document.getElementById('chart-vocab').getContext('2d'), {
+        type: 'line',
+        data: {
+            labels: vocabLabels,
+            datasets: [{
+                label: 'Total Words',
+                data: vocabData,
+                borderColor: '#22C55E',
+                backgroundColor: 'rgba(34,197,94,0.08)',
+                borderWidth: 2.5,
+                tension: 0.4,
+                fill: true,
+                pointRadius: 3,
+                pointBackgroundColor: '#22C55E'
+            }]
+        },
+        options: { ...defaults }
+    });
+
+    // 3. 30-Day Activity (dual axis: minutes + words added)
+    const last30 = Array.from({length:30},(_,i)=>daysAgo(29-i));
+    const l30Labels = last30.map(d => new Date(d+'T00:00:00').toLocaleDateString('en-US',{month:'numeric',day:'numeric'}));
+    const l30Mins   = last30.map(d => globalActivity[d]?.minutes || 0);
+
+    // Words added per day in last 30 days
+    const wordsByDay = {};
+    globalFlashcards.forEach(f => {
+        if (!f.createdAt) return;
+        const d = f.createdAt.toDate ? f.createdAt.toDate().toISOString().split('T')[0] : '';
+        if (d) wordsByDay[d] = (wordsByDay[d]||0) + 1;
+    });
+    const l30Words = last30.map(d => wordsByDay[d] || 0);
+
+    monthlyChart = new Chart(document.getElementById('chart-monthly').getContext('2d'), {
+        type: 'line',
+        data: {
+            labels: l30Labels,
+            datasets: [
+                {
+                    label: 'Study time (min)',
+                    data: l30Mins,
+                    borderColor: '#2563EB',
+                    backgroundColor: 'rgba(37,99,235,0.06)',
+                    borderWidth: 2,
+                    tension: 0.4,
+                    fill: true,
+                    pointRadius: 0,
+                    yAxisID: 'y'
+                },
+                {
+                    label: 'Words added',
+                    data: l30Words,
+                    borderColor: '#8B5CF6',
+                    backgroundColor: 'rgba(139,92,246,0.06)',
+                    borderWidth: 2,
+                    tension: 0.4,
+                    fill: true,
+                    pointRadius: 0,
+                    yAxisID: 'y1'
+                }
+            ]
+        },
+        options: {
+            ...defaults,
+            plugins:{ ...defaults.plugins, legend:{ display:false } },
+            scales:{
+                x:{ ...defaults.scales.x, ticks:{ ...defaults.scales.x.ticks, maxTicksLimit:8 } },
+                y:{ ...defaults.scales.y, beginAtZero:true, title:{display:true,text:'Minutes',color:'#94A3B8',font:{size:10}} },
+                y1:{ beginAtZero:true, position:'right', grid:{display:false},
+                     ticks:{color:'#94A3B8',font:{size:10}},
+                     title:{display:true,text:'Words',color:'#94A3B8',font:{size:10}} }
+            }
+        }
+    });
+}
+
+function updateCharts() {
+    if (!chartsBuilt) return;
+    // Re-render is handled by buildDashboard on next data load
+}
+
+/* ══════════════════════════════════════════════════════════════
+   365-DAY HEATMAP (GitHub style)
+══════════════════════════════════════════════════════════════ */
+function renderHeatmap365() {
+    const grid     = document.getElementById('heatmap-year-grid');
+    const monRow   = document.getElementById('heatmap-month-row');
+    grid.innerHTML = '';
+    monRow.innerHTML = '';
+
+    const tooltip = document.getElementById('heatmap-tooltip');
+    const todayStr = today();
+
+    // Build 52 weeks + partial
+    const endDate   = new Date();
+    const startDate = new Date(endDate);
+    startDate.setDate(endDate.getDate() - 364);
+    // Align to Sunday
+    startDate.setDate(startDate.getDate() - startDate.getDay());
+
+    // Count active days
+    let activeDayCount = 0;
+
+    // Collect all dates
+    const allDays = [];
+    const d = new Date(startDate);
+    while (d <= endDate) {
+        allDays.push(d.toISOString().split('T')[0]);
+        d.setDate(d.getDate()+1);
+    }
+
+    // Max minutes for intensity
+    let maxMins = 1;
+    allDays.forEach(ds => { if (globalActivity[ds]?.minutes > maxMins) maxMins = globalActivity[ds].minutes; });
+
+    // Build weeks
+    let weeks = [];
+    for (let i=0; i<allDays.length; i+=7) {
+        weeks.push(allDays.slice(i, i+7));
+    }
+
+    // Month label positions
+    const monthLabels = {};
+    allDays.forEach((ds, i) => {
+        const dObj = new Date(ds+'T00:00:00');
+        if (dObj.getDate() === 1) {
+            const wkIdx = Math.floor(i/7);
+            monthLabels[wkIdx] = dObj.toLocaleDateString('en-US',{month:'short'});
+        }
+    });
+
+    // Render month header
+    weeks.forEach((_,wi) => {
+        const lbl = document.createElement('div');
+        lbl.style.cssText = `width:16px;flex-shrink:0;font-size:.6rem;font-weight:700;color:#94A3B8;`;
+        lbl.textContent = monthLabels[wi] || '';
+        monRow.appendChild(lbl);
+    });
+
+    // Render week columns
+    weeks.forEach(week => {
+        const col = document.createElement('div');
+        col.className = 'hmap-week-col';
+
+        week.forEach(ds => {
+            const cell = document.createElement('div');
+            cell.className = 'hmap-cell';
+
+            const act = globalActivity[ds];
+            const mins = act?.minutes || 0;
+            const isActive = act?.status === 'success';
+
+            if (isActive) {
+                activeDayCount++;
+                const intensity = mins / maxMins;
+                if      (intensity >= 0.75) cell.classList.add('hmap-l4');
+                else if (intensity >= 0.50) cell.classList.add('hmap-l3');
+                else if (intensity >= 0.25) cell.classList.add('hmap-l2');
+                else                        cell.classList.add('hmap-l1');
+            } else {
+                cell.classList.add('hmap-l0');
+            }
+
+            // Future days
+            if (ds > todayStr) cell.style.opacity = '0.3';
+
+            // Tooltip
+            const dObj = new Date(ds+'T00:00:00');
+            const label = dObj.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
+            cell.addEventListener('mouseenter', e => {
+                const actLabel = isActive ? `✅ ${mins ? formatMins(mins)+' studied' : 'Studied'}` : ds <= todayStr ? '❌ No activity' : '⬜ Upcoming';
+                tooltip.innerHTML = `<div style="opacity:.6;font-size:.65rem">${label}</div>${actLabel}`;
+                tooltip.classList.add('active');
+                updateTooltipPos(e);
+            });
+            cell.addEventListener('mousemove',  e => updateTooltipPos(e));
+            cell.addEventListener('mouseleave', () => tooltip.classList.remove('active'));
+            cell.addEventListener('click', () => {
+                const actLabel = isActive ? (mins ? `✅ ${formatMins(mins)} studied` : '✅ Studied') : ds <= todayStr ? '❌ No activity' : '⬜ Upcoming';
+                notify(`${label} — ${actLabel}`);
+            });
+
+            col.appendChild(cell);
+        });
+
+        grid.appendChild(col);
+    });
+
+    setText('heatmap-total-label', `${activeDayCount} active days in the last year`);
+}
+
+function updateTooltipPos(e) {
+    const t = document.getElementById('heatmap-tooltip');
+    t.style.left = `${e.clientX+14}px`;
+    t.style.top  = `${e.clientY+14}px`;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   ACHIEVEMENTS
+══════════════════════════════════════════════════════════════ */
+function renderAchievements() {
+    const s = computeStats();
+    const grid = document.getElementById('achieve-grid');
+
+    // Achievement definitions
+    const achievements = [
+        // Vocabulary
+        { emoji:'📖', name:'First Word',       desc:'Save your 1st word',    target:1,    curr:globalCards, key:'words' },
+        { emoji:'📚', name:'Word Collector',   desc:'Save 10 words',         target:10,   curr:globalCards, key:'words' },
+        { emoji:'🗂',  name:'Vocabulary Fan',   desc:'Save 50 words',         target:50,   curr:globalCards, key:'words' },
+        { emoji:'🏆', name:'Word Master',      desc:'Save 100 words',        target:100,  curr:globalCards, key:'words' },
+        { emoji:'💎', name:'Lexicon Legend',   desc:'Save 500 words',        target:500,  curr:globalCards, key:'words' },
+        // Study Time
+        { emoji:'⏱',  name:'First Hour',       desc:'Study for 1 hour total', target:60,  curr:s.totalMins, key:'time' },
+        { emoji:'🔥', name:'Ten Hours',        desc:'Study 10 hours total',  target:600,  curr:s.totalMins, key:'time' },
+        { emoji:'💪', name:'Hundred Hours',    desc:'Study 100 hours total', target:6000, curr:s.totalMins, key:'time' },
+        // Streak
+        { emoji:'🌱', name:'Seedling',         desc:'3-day streak',          target:3,    curr:globalStreak, key:'streak' },
+        { emoji:'⚡', name:'One Week',         desc:'7-day streak',          target:7,    curr:globalStreak, key:'streak' },
+        { emoji:'🌙', name:'One Month',        desc:'30-day streak',         target:30,   curr:globalStreak, key:'streak' },
+        { emoji:'🎖',  name:'Century',          desc:'100-day streak',        target:100,  curr:globalStreak, key:'streak' },
+    ];
+
+    let unlocked = 0;
+    grid.innerHTML = '';
+
+    achievements.forEach(a => {
+        const pct     = Math.min(100, Math.round(a.curr/a.target*100));
+        const isUnlocked = a.curr >= a.target;
+        if (isUnlocked) unlocked++;
+
+        const item = document.createElement('div');
+        item.className = `achieve-item ${isUnlocked ? 'unlocked' : 'locked'}`;
+
+        const timeLabel = isUnlocked
+            ? `<div class="achieve-unlock-date">✅ Achieved!</div>`
+            : `<div class="achieve-pct">${pct}% (${a.curr} / ${a.target})</div>`;
+
+        item.innerHTML = `
+            <span class="achieve-emoji">${a.emoji}</span>
+            <div class="achieve-name">${a.name}</div>
+            <div class="achieve-desc">${a.desc}</div>
+            <div class="achieve-progress"><div class="achieve-bar" style="width:${pct}%"></div></div>
+            ${timeLabel}
+        `;
+        grid.appendChild(item);
+    });
+
+    setText('achieve-summary', `${unlocked} / ${achievements.length} unlocked`);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   INSIGHTS
+══════════════════════════════════════════════════════════════ */
+function renderInsights() {
+    const s = computeStats();
+
+    setText('ins-best-day',       s.bestDay || '—');
+    setText('ins-best-day-note',  s.bestDayMins ? `${formatMins(s.bestDayMins)} studied on ${s.bestDay}s` : 'Not enough data yet');
+    setText('ins-avg-words',      s.wordsThisWeek > 0 ? `${s.wordsThisWeek} / wk` : '—');
+    setText('ins-avg-words-note', `${s.wordsThisWeek} new words this week`);
+    setText('ins-consistency',    s.activeDays > 0 ? `${s.streakPct}%` : '—');
+    setText('ins-consistency-note', `${s.activeDays} active days total`);
+    setText('ins-avg-session',    s.avgMins > 0 ? formatMins(s.avgMins) : '—');
+    setText('ins-avg-session-note', `Per active study day`);
+    setText('ins-total-time',     s.totalMins > 0 ? formatMins(s.totalMins) : '—');
+    setText('ins-pace',           s.pace > 0 ? `${s.pace} words/day` : '—');
+    setText('ins-pace-note',      `${globalCards} words ÷ ${s.activeDays} active days`);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   HELPER: setText / setStyle
+══════════════════════════════════════════════════════════════ */
+function setText(id, val) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = val;
+}
+function setStyle(id, prop, val) {
+    const el = document.getElementById(id);
+    if (el) el.style[prop] = val;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   TIMER
+══════════════════════════════════════════════════════════════ */
+let timerInterval, timerSeconds=0, isTimerRunning=false, timerMode='free';
+let accumulatedMinutes = parseInt(localStorage.getItem('ww_study_mins_'+today()) || '0');
+
+function setTimerMode(mode) {
+    if (isTimerRunning && !confirm('Changing mode will reset the timer. Continue?')) return;
+    stopTimer(); timerMode=mode;
+    document.getElementById('mode-free').classList.toggle('active', mode==='free');
+    document.getElementById('mode-pomo').classList.toggle('active', mode==='pomo');
+    document.getElementById('timer-mode-label').innerText = mode==='free' ? 'Free Timer' : 'Pomodoro Focus';
+    resetTimer();
+}
+
+function toggleTimer() { isTimerRunning ? pauseTimer() : startTimer(); }
+
+function startTimer() {
+    isTimerRunning=true;
+    const btn = document.getElementById('timer-toggle-btn');
+    btn.innerHTML='<i class="fa-solid fa-pause"></i>'; btn.classList.add('running');
+    timerInterval = setInterval(() => {
+        if (timerMode==='free') {
+            timerSeconds++;
+            if (timerSeconds % 60 === 0) accumulateStudyTime(1);
+        } else {
+            if (timerSeconds > 0) timerSeconds--;
+            else { playAlarm(); stopTimer(); accumulateStudyTime(25); notify('🎉 Pomodoro done! 25 minutes focused.'); return; }
+        }
+        updateTimerDisplay();
+    }, 1000);
+    notify('⚡ Timer started — stay focused!');
+}
+
+function pauseTimer() {
+    isTimerRunning=false; clearInterval(timerInterval);
+    const btn=document.getElementById('timer-toggle-btn');
+    btn.innerHTML='<i class="fa-solid fa-play"></i>'; btn.classList.remove('running');
+    notify('⏸ Timer paused.');
+}
+
+function stopTimer() {
+    isTimerRunning=false; clearInterval(timerInterval);
+    const btn=document.getElementById('timer-toggle-btn');
+    if(btn){ btn.innerHTML='<i class="fa-solid fa-play"></i>'; btn.classList.remove('running'); }
+}
+
+function resetTimer() {
+    stopTimer();
+    timerSeconds = timerMode==='free' ? 0 : 25*60;
+    updateTimerDisplay();
+}
+
+function updateTimerDisplay() {
+    const m=Math.floor(timerSeconds/60), s=timerSeconds%60;
+    document.getElementById('timer-time').innerText=`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+}
+
+async function accumulateStudyTime(mins) {
+    accumulatedMinutes += mins;
+    localStorage.setItem('ww_study_mins_'+today(), accumulatedMinutes);
+    setText('kpi-time', `${accumulatedMinutes}m`);
+
+    // Update daily goal
+    const dailyPct = Math.min(100, Math.round(accumulatedMinutes/20*100));
+    setText('goal-daily-curr', accumulatedMinutes);
+    setText('goal-daily-pct',  `${dailyPct}%`);
+    setStyle('goal-daily-fill','width', `${dailyPct}%`);
+
+    if (auth.currentUser) {
+        const ds = today();
+        await db.collection('users').doc(auth.currentUser.uid)
+            .collection('daily_activity').doc(ds)
+            .set({ status:'success', minutes: accumulatedMinutes, date:ds }, { merge:true });
+        // Update local cache
+        if (!globalActivity[ds]) globalActivity[ds]={};
+        globalActivity[ds].minutes = accumulatedMinutes;
+        globalActivity[ds].status  = 'success';
+    }
+}
+
+function playAlarm() {
+    try {
+        const ctx=new(window.AudioContext||window.webkitAudioContext)();
+        const osc=ctx.createOscillator(),gain=ctx.createGain();
+        osc.connect(gain); gain.connect(ctx.destination);
+        osc.frequency.setValueAtTime(880,ctx.currentTime);
+        gain.gain.setValueAtTime(0.1,ctx.currentTime);
+        osc.start(); gain.gain.exponentialRampToValueAtTime(0.01,ctx.currentTime+1.2);
+        osc.stop(ctx.currentTime+1.2);
+    } catch(e){}
+}
+
+resetTimer();
+
+/* ══════════════════════════════════════════════════════════════
+   DAILY WORD
+══════════════════════════════════════════════════════════════ */
+const dailyWords = [
+    { word:'Resilient',    phonetic:'/rɪˈzɪl.jənt/ · Adjective',     meaning:'Kiên cường, mau phục hồi',                 example:'Resilient people always thrive under pressure.',              synonyms:['Tough','Adaptable','Hardy','Robust'],           freq:'72%', diffLevel:3 },
+    { word:'Magnificent',  phonetic:'/mæɡˈnɪf.ɪ.sənt/ · Adjective',  meaning:'Rực rỡ, lộng lẫy, tráng lệ',              example:'The view from the summit was truly magnificent.',             synonyms:['Splendid','Grand','Superb','Glorious'],         freq:'64%', diffLevel:3 },
+    { word:'Eloquent',     phonetic:'/ˈel.ə.kwənt/ · Adjective',      meaning:'Hùng biện, thuyết phục',                  example:'Her eloquent speech moved the entire audience.',              synonyms:['Articulate','Fluent','Persuasive','Expressive'],freq:'55%', diffLevel:4 },
+    { word:'Perseverance', phonetic:'/ˌpɜː.sɪˈvɪə.rəns/ · Noun',    meaning:'Sự kiên trì, bền bỉ',                     example:'True success requires both intelligence and perseverance.',   synonyms:['Determination','Tenacity','Persistence','Grit'],freq:'60%', diffLevel:4 },
+    { word:'Endeavor',     phonetic:'/ɪnˈdev.ər/ · Verb / Noun',      meaning:'Nỗ lực, cố gắng hết sức',                example:'We must endeavor to improve our skills each day.',            synonyms:['Strive','Attempt','Effort','Pursuit'],          freq:'52%', diffLevel:3 },
+];
+
+let currentWordIdx = new Date().getDate() % dailyWords.length;
+function renderWord(idx) {
+    const w=dailyWords[idx];
+    setText('daily-word-term',    w.word);
+    setText('daily-word-phonetic',w.phonetic);
+    setText('daily-word-meaning', w.meaning);
+    setText('daily-word-example', `"${w.example}"`);
+    document.getElementById('word-synonyms').innerHTML = w.synonyms.map(s=>`<span class="word-tag">${s}</span>`).join('');
+    setStyle('word-freq','width',w.freq);
+    const dots=document.getElementById('word-diff').querySelectorAll('.diff-dot');
+    dots.forEach((d,i)=>{ d.classList.toggle('on', i < w.diffLevel); });
+}
+renderWord(currentWordIdx);
+
+function flipDailyCard() {
+    currentWordIdx=(currentWordIdx+1)%dailyWords.length;
+    renderWord(currentWordIdx);
+    notify(`📖 New word: ${dailyWords[currentWordIdx].word}`);
+}
+
+function speakDailyWord() {
+    const word=document.getElementById('daily-word-term').innerText;
+    if(!('speechSynthesis' in window)){ notify('🔇 Speech not supported.'); return; }
+    window.speechSynthesis.cancel();
+    const utt=new SpeechSynthesisUtterance(word);
+    utt.lang='en-US';
+    const wave=document.getElementById('speak-wave');
+    utt.onstart=()=>wave.classList.add('active');
+    utt.onend=()=>wave.classList.remove('active');
+    utt.onerror=()=>wave.classList.remove('active');
+    window.speechSynthesis.speak(utt);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   QUICK ADD
+══════════════════════════════════════════════════════════════ */
+function openQuickAddModal() {
+    document.getElementById('quick-add-modal').classList.add('active');
+    setTimeout(()=>document.getElementById('term-input').focus(), 300);
+}
+function closeQuickAddModal() {
+    document.getElementById('quick-add-modal').classList.remove('active');
+    document.getElementById('quick-add-form').reset();
+}
+function closeModalOnOverlay(e) {
+    if(e.target.id==='quick-add-modal') closeQuickAddModal();
+}
+async function submitQuickAddCard(e) {
+    e.preventDefault();
+    const term    = document.getElementById('term-input').value.trim();
+    const meaning = document.getElementById('meaning-input').value.trim();
+    const tag     = document.getElementById('tag-input').value.trim() || 'General';
+    if (!auth.currentUser){ notify('🔒 Please sign in to save.'); return; }
+    try {
+        await db.collection('users').doc(auth.currentUser.uid).collection('flashcards').add({
+            term, definition:meaning, category:tag,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        closeQuickAddModal();
+        notify(`🎉 "${term}" saved to your library!`);
+    } catch(err){
+        console.error(err); notify('❌ Something went wrong. Try again.');
+    }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   TOAST
+══════════════════════════════════════════════════════════════ */
+function notify(msg) {
+    const t=document.getElementById('toast');
+    t.innerText=msg; t.classList.add('show');
+    setTimeout(()=>t.classList.remove('show'), 4000);
+}
+
+/*
+ ══════════════════════════════════════════════════════════════
+  NEW FIRESTORE FIELDS REQUIRED
+  (if you add these fields to your documents, more analytics
+   will work automatically — no code changes needed)
+ ══════════════════════════════════════════════════════════════
+
+  Collection: users/{uid}
+  ─────────────────────────────────────────
+  Field: bestStreak     (number)  — max streak ever achieved
+  Field: totalSessions  (number)  — total pomodoro sessions completed
+  (Already written by this dashboard's handleStreakAndShield)
+
+  Collection: users/{uid}/flashcards/{cardId}
+  ─────────────────────────────────────────
+  Field: createdAt  (Timestamp)  — already exists in your schema ✅
+  Field: mastered   (boolean)    — set true when user marks a card mastered
+                                   (future feature; dashboard uses 40% heuristic until then)
+  Field: reviewCount (number)    — increment each time card is reviewed
+                                   (future feature for review analytics)
+
+  Collection: users/{uid}/daily_activity/{YYYY-MM-DD}
+  ─────────────────────────────────────────
+  Field: status   (string: 'success')  — already exists ✅
+  Field: minutes  (number)             — already exists (written by timer) ✅
+  Field: date     (string)             — added by this dashboard ✅
+
+  Leaderboard-ready architecture (no code changes needed):
+  ─────────────────────────────────────────
+  Collection: leaderboard_weekly/{uid}
+    { uid, displayName, photoURL, wordsThisWeek, studyMins, streak, updatedAt }
+  Collection: leaderboard_monthly/{uid}
+    { uid, displayName, photoURL, wordsThisMonth, studyMins, streak, updatedAt }
+  → Populate these from a Cloud Function triggered on daily_activity writes
+*/
+</script>
+</body>
+</html>

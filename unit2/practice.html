@@ -1,0 +1,600 @@
+
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bài tập trắc nghiệm - Giao diện mới</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+      integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+
+    <style>
+      :root {
+        --bg: #ffffff;
+        --bg-soft: #f4f7fc;
+        --text-color: #334155;
+        --text-light: #64748b;
+        --accent-color: #3b82f6;
+        --accent-dark: #2563eb;
+        --correct-color: #16a34a;
+        --wrong-color: #dc2626;
+        --border-color: #e2e8f0;
+        --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1),
+          0 2px 4px -2px rgb(0 0 0 / 0.1);
+        --radius: 14px;
+        --transition-speed: 0.3s;
+      }
+
+      * {
+        box-sizing: border-box;
+        font-family: "Inter", sans-serif;
+      }
+
+      body {
+        background-color: var(--bg-soft);
+        display: flex;
+        flex-direction: column; /* SỬA ĐỔI: Thay đổi hướng flex */
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        margin: 0;
+        padding: 1.5rem;
+        color: var(--text-color);
+      }
+
+      /* SỬA ĐỔI: Thêm kiểu cho top-controls và icon-btn */
+      .top-controls {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1.5rem;
+        width: 100%;
+        max-width: 700px;
+      }
+
+      .icon-btn {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        background: var(--bg);
+        color: var(--text-light);
+        text-decoration: none;
+        font-size: 1.1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: var(--shadow);
+        transition: all 0.3s ease;
+        border: 1px solid var(--border-color);
+        cursor: pointer;
+      }
+
+      .icon-btn:hover {
+        background: var(--accent-color);
+        color: var(--bg);
+        transform: scale(1.05);
+      }
+
+      .container {
+        background-color: var(--bg);
+        padding: 32px;
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        width: 100%;
+        max-width: 700px;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .header {
+        text-align: center;
+        margin-bottom: 24px;
+      }
+
+      .title-icon {
+        font-size: 2.5em;
+        color: var(--accent-color);
+        margin-bottom: 8px;
+      }
+
+      h1 {
+        font-size: 2em;
+        font-weight: 700;
+        margin: 0;
+      }
+
+      #progress-container {
+        width: 100%;
+        background-color: var(--border-color);
+        border-radius: 8px;
+        margin-bottom: 12px;
+      }
+
+      #progress-bar {
+        width: 0%;
+        height: 8px;
+        background-color: var(--accent-color);
+        border-radius: 8px;
+        transition: width var(--transition-speed) ease-in-out;
+      }
+
+      #progress-text {
+        font-size: 0.9em;
+        font-weight: 500;
+        color: var(--text-light);
+        text-align: center;
+        margin-bottom: 24px;
+      }
+
+      #question-text {
+        font-size: 1.5em;
+        font-weight: 600;
+        margin-bottom: 32px;
+        line-height: 1.5;
+        text-align: center;
+      }
+
+      .answer-options {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
+
+      .answer-btn {
+        background-color: var(--bg);
+        border: 1px solid var(--border-color);
+        padding: 16px;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all var(--transition-speed) ease;
+        user-select: none;
+        font-size: 1.05em;
+        text-align: left;
+        font-family: "Inter", sans-serif;
+        color: var(--text-color);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .answer-btn .answer-text {
+        flex-grow: 1;
+      }
+
+      .answer-btn .icon {
+        opacity: 0;
+        transform: scale(0.5);
+        transition: all var(--transition-speed) ease;
+        font-size: 1.2em;
+        margin-left: 16px;
+      }
+
+      .answer-btn:hover:not(.disabled) {
+        border-color: var(--accent-color);
+        background-color: #f0f9ff;
+      }
+
+      .answer-btn.correct {
+        border-color: var(--correct-color);
+        background-color: #f0fdf4;
+        color: var(--correct-color);
+        font-weight: 600;
+      }
+
+      .answer-btn.incorrect {
+        border-color: var(--wrong-color);
+        background-color: #fef2f2;
+        color: var(--wrong-color);
+        font-weight: 600;
+      }
+
+      .answer-btn.correct .icon,
+      .answer-btn.incorrect .icon {
+        opacity: 1;
+        transform: scale(1);
+      }
+
+      .answer-btn.disabled {
+        cursor: not-allowed;
+        opacity: 0.7;
+      }
+
+      .navigation-controls {
+        margin-top: 32px;
+        text-align: center;
+      }
+
+      .quiz-btn {
+        background-color: var(--accent-color);
+        color: white;
+        border: none;
+        padding: 14px 32px;
+        border-radius: 8px;
+        font-size: 1.1em;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color var(--transition-speed) ease,
+          transform var(--transition-speed) ease,
+          box-shadow var(--transition-speed) ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        min-width: 180px;
+        justify-content: center;
+      }
+
+      .quiz-btn:hover {
+        background-color: var(--accent-dark);
+        transform: translateY(-2px);
+        box-shadow: 0 7px 20px rgba(59, 130, 246, 0.2);
+      }
+
+      #results-container {
+        text-align: center;
+      }
+
+      .score-text {
+        font-size: 1.8em;
+        font-weight: 700;
+        margin-bottom: 16px;
+      }
+
+      .score-subtext {
+        font-size: 1.1em;
+        color: var(--text-light);
+        margin-bottom: 32px;
+      }
+
+      .results-list {
+        text-align: left;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        margin-bottom: 32px;
+      }
+
+      .result-item {
+        background-color: var(--bg-soft);
+        border: 1px solid var(--border-color);
+        border-radius: 10px;
+        padding: 16px;
+      }
+
+      .result-question {
+        font-weight: 600;
+        font-size: 1.1em;
+        margin-bottom: 12px;
+      }
+
+      .result-answer-line {
+        display: block;
+        margin-bottom: 8px;
+        font-size: 1em;
+      }
+
+      .user-answer {
+        padding: 4px 8px;
+        border-radius: 6px;
+        font-weight: 500;
+        display: inline-block;
+      }
+
+      .user-answer.correct {
+        background-color: #dcfce7;
+        color: var(--correct-color);
+      }
+
+      .user-answer.incorrect {
+        background-color: #fee2e2;
+        color: var(--wrong-color);
+      }
+
+      .explanation {
+        margin-top: 12px;
+        font-size: 0.95em;
+        color: var(--text-light);
+        background-color: var(--bg);
+        padding: 12px;
+        border-radius: 8px;
+        border-left: 4px solid var(--accent-color);
+      }
+
+      .explanation strong {
+        color: var(--text-color);
+      }
+
+      .hidden {
+        display: none;
+      }
+
+      @media (max-width: 600px) {
+        body {
+          padding: 8px;
+        }
+        .container {
+          padding: 20px;
+        }
+        h1 {
+          font-size: 1.8em;
+        }
+        #question-text {
+          font-size: 1.2em;
+        }
+        .quiz-btn {
+          width: 100%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="top-controls">
+      <a href="study-options.html" class="icon-btn" aria-label="Quay lại">
+        <i class="fa-solid fa-arrow-left"></i>
+      </a>
+      <span style="visibility: hidden"></span>
+    </div>
+
+    <div class="container">
+      <div class="header">
+        <i class="fa-solid fa-list-check title-icon"></i>
+        <h1>Bài Tập Trắc Nghiệm</h1>
+      </div>
+
+      <div id="quiz-section">
+        <div id="progress-container">
+          <div id="progress-bar"></div>
+        </div>
+        <p id="progress-text"></p>
+        <div class="quiz-body">
+          <h2 id="question-text"></h2>
+          <div id="answer-buttons" class="answer-options"></div>
+        </div>
+        <div class="navigation-controls">
+          <button id="next-btn" class="quiz-btn hidden">
+            <span id="next-btn-text">Câu tiếp theo</span>
+            <i id="next-btn-icon" class="fa-solid fa-arrow-right"></i>
+          </button>
+        </div>
+      </div>
+
+      <div id="results-container" class="hidden">
+        <h2 class="score-text" id="score-text"></h2>
+        <p class="score-subtext" id="score-subtext"></p>
+        <div class="results-list" id="results-list"></div>
+        <div class="navigation-controls">
+          <button id="reset-button" class="quiz-btn">
+            <i class="fa-solid fa-arrows-rotate"></i> Làm lại
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Nội dung JavaScript giữ nguyên
+      document.addEventListener("DOMContentLoaded", function () {
+        const questions = [
+          {
+    "question": "1. Điền vào chỗ trống: I ___ a fever.",
+    "answers": [
+      { "text": "a) have", "correct": true },
+      { "text": "b) is", "correct": false },
+      { "text": "c) am", "correct": false }
+    ],
+    "explanation": "Để diễn tả việc bị một bệnh nào đó (ví dụ: sốt), ta dùng động từ 'have' với chủ ngữ 'I'. Cấu trúc: 'I have + [tên bệnh]'."
+  },
+  {
+    "question": "2. Điền vào chỗ trống: She ___ sick.",
+    "answers": [
+      { "text": "a) are", "correct": false },
+      { "text": "b) is", "correct": true },
+      { "text": "c) am", "correct": false }
+    ],
+    "explanation": "Chủ ngữ là 'She' (ngôi thứ 3 số ít), vì vậy động từ 'to be' phải được chia là 'is'."
+  },
+  {
+    "question": "3. Hoàn thành hội thoại: What’s the matter? – I ___ a cough.",
+    "answers": [
+      { "text": "a) have", "correct": true },
+      { "text": "b) am", "correct": false },
+      { "text": "c) is", "correct": false }
+    ],
+    "explanation": "Tương tự như 'have a fever', để diễn tả việc bị ho, ta dùng cấu trúc 'I have a cough'."
+  },
+  {
+    "question": "4. Hoàn thành hội thoại: How do you feel? – I feel ___.",
+    "answers": [
+      { "text": "a) doctor", "correct": false },
+      { "text": "b) tired", "correct": true },
+      { "text": "c) hospital", "correct": false }
+    ],
+    "explanation": "Câu hỏi 'How do you feel?' hỏi về cảm giác. 'Tired' (mệt mỏi) là một tính từ chỉ cảm giác, phù hợp với cấu trúc 'I feel + [tính từ]'."
+  },
+  {
+    "question": "5. Điền vào chỗ trống: He is in the ___.",
+    "answers": [
+      { "text": "a) hospital", "correct": true },
+      { "text": "b) teacher", "correct": false },
+      { "text": "c) hand", "correct": false }
+    ],
+    "explanation": "Câu này cần một danh từ chỉ địa điểm. 'Hospital' (bệnh viện) là một nơi chốn phù hợp với ngữ cảnh."
+  }
+        ];
+
+        const quizSection = document.getElementById("quiz-section");
+        const resultsContainer = document.getElementById("results-container");
+        const questionTextElement = document.getElementById("question-text");
+        const answerButtonsElement = document.getElementById("answer-buttons");
+        const progressTextElement = document.getElementById("progress-text");
+        const progressBar = document.getElementById("progress-bar");
+        const nextButton = document.getElementById("next-btn");
+        const resetButton = document.getElementById("reset-button");
+        const resultsList = document.getElementById("results-list");
+        const scoreTextElement = document.getElementById("score-text");
+        const scoreSubtextElement = document.getElementById("score-subtext");
+
+        let currentQuestionIndex = 0;
+        let userSelections = new Array(questions.length).fill(null);
+
+        function startQuiz() {
+          currentQuestionIndex = 0;
+          userSelections.fill(null);
+          quizSection.classList.remove("hidden");
+          resultsContainer.classList.add("hidden");
+          nextButton.classList.add("hidden");
+          showQuestion();
+        }
+
+        function showQuestion() {
+          resetState();
+          const currentQuestion = questions[currentQuestionIndex];
+          const progress =
+            ((currentQuestionIndex + 1) / questions.length) * 100;
+
+          questionTextElement.innerText = currentQuestion.question;
+          progressTextElement.innerText = `Câu hỏi ${
+            currentQuestionIndex + 1
+          } trên ${questions.length}`;
+          progressBar.style.width = `${progress}%`;
+
+          currentQuestion.answers.forEach((answer, index) => {
+            const button = document.createElement("button");
+            button.innerHTML = `
+                <span class="answer-text">${answer.text}</span>
+                <span class="icon"></span>`;
+            button.classList.add("answer-btn");
+            button.dataset.correct = answer.correct;
+            button.addEventListener("click", () => selectAnswer(answer));
+            answerButtonsElement.appendChild(button);
+          });
+
+          // Update next button text
+          const nextBtnText = document.getElementById("next-btn-text");
+          const nextBtnIcon = document.getElementById("next-btn-icon");
+          if (currentQuestionIndex === questions.length - 1) {
+            nextBtnText.textContent = "Xem kết quả";
+            nextBtnIcon.className = "fa-solid fa-check-double";
+          } else {
+            nextBtnText.textContent = "Câu tiếp theo";
+            nextBtnIcon.className = "fa-solid fa-arrow-right";
+          }
+        }
+
+        function resetState() {
+          nextButton.classList.add("hidden");
+          while (answerButtonsElement.firstChild) {
+            answerButtonsElement.removeChild(answerButtonsElement.firstChild);
+          }
+        }
+
+        function selectAnswer(selectedAnswer) {
+          userSelections[currentQuestionIndex] = selectedAnswer.text;
+          const buttons = Array.from(answerButtonsElement.children);
+          const correctAnswer = questions[currentQuestionIndex].answers.find(
+            (ans) => ans.correct
+          );
+
+          buttons.forEach((button) => {
+            button.classList.add("disabled"); // Disable all buttons
+            const iconSpan = button.querySelector(".icon");
+
+            if (button.dataset.correct === "true") {
+              button.classList.add("correct");
+              iconSpan.innerHTML = '<i class="fa-solid fa-check"></i>';
+            } else if (
+              button.querySelector(".answer-text").innerText ===
+              selectedAnswer.text
+            ) {
+              button.classList.add("incorrect");
+              iconSpan.innerHTML = '<i class="fa-solid fa-xmark"></i>';
+            }
+          });
+
+          nextButton.classList.remove("hidden");
+        }
+
+        function handleNextButtonClick() {
+          if (currentQuestionIndex < questions.length - 1) {
+            currentQuestionIndex++;
+            showQuestion();
+          } else {
+            showResults();
+          }
+        }
+
+        function showResults() {
+          quizSection.classList.add("hidden");
+          resultsContainer.classList.remove("hidden");
+          resultsList.innerHTML = "";
+          let correctAnswersCount = 0;
+
+          questions.forEach((question, index) => {
+            const userChoice = userSelections[index];
+            const correctAnswerObj = question.answers.find(
+              (ans) => ans.correct
+            );
+            const isCorrect = userChoice === correctAnswerObj.text;
+
+            if (isCorrect) correctAnswersCount++;
+
+            const resultItem = document.createElement("div");
+            resultItem.classList.add("result-item");
+            const answerClass = isCorrect ? "correct" : "incorrect";
+
+            resultItem.innerHTML = `
+                <p class="result-question">${question.question}</p>
+                <span class="result-answer-line">
+                    <strong>Bạn chọn: </strong>
+                    <span class="user-answer ${answerClass}">${
+              userChoice || "<em>Chưa trả lời</em>"
+            }</span>
+                </span>
+                ${
+                  !isCorrect
+                    ? `
+                <span class="result-answer-line">
+                    <strong>Đáp án đúng: </strong>
+                    <span class="user-answer correct">${correctAnswerObj.text}</span>
+                </span>`
+                    : ""
+                }
+                <div class="explanation">
+                    <i class="fa-solid fa-lightbulb"></i> 
+                    <strong>Giải thích:</strong> ${question.explanation}
+                </div>
+            `;
+            resultsList.appendChild(resultItem);
+          });
+
+          let subtext = "";
+          if (correctAnswersCount === questions.length) {
+            subtext = "Tuyệt vời! Bạn đã nắm vững kiến thức.";
+          } else if (correctAnswersCount >= questions.length / 2) {
+            subtext = "Làm tốt lắm! Hãy xem lại những câu sai nhé.";
+          } else {
+            subtext = "Cố gắng hơn nhé! Ôn lại bài sẽ giúp bạn cải thiện.";
+          }
+
+          scoreTextElement.innerHTML = `<i class="fa-solid fa-graduation-cap"></i> Bạn đã đúng ${correctAnswersCount}/${questions.length} câu!`;
+          scoreSubtextElement.innerText = subtext;
+        }
+
+        nextButton.addEventListener("click", handleNextButtonClick);
+        resetButton.addEventListener("click", startQuiz);
+
+        startQuiz();
+      });
+    </script>
+  </body>
+</html>

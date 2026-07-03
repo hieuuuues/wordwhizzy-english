@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Luyện Tập Cột Từ Vựng | Vocabulary Master</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --text: #0f172a;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --radius: 16px;
+      --radius-sm: 12px;
+      --accent: #4f6ef7;
+      --accent-light: #eef1ff;
+      --success: #10b981;
+      --success-light: #ecfdf5;
+      --error: #ef4444;
+      --error-light: #fef2f2;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.05);
+      --shadow: 0 10px 30px rgba(79,110,247,0.08), 0 1px 8px rgba(0,0,0,0.04);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding-bottom: 5rem;
+    }
+
+    /* ── HEADER ── */
+    .header {
+      position: sticky;
+      top: 0;
+      z-index: 200;
+      background: rgba(255,255,255,0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+      padding: 0.9rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .header-left { display: flex; align-items: center; gap: 1rem; }
+    .header h1 { font-size: 1.2rem; font-weight: 700; color: var(--text); letter-spacing: -0.4px; }
+    
+    .icon-btn {
+      width: 40px; height: 40px;
+      border-radius: var(--radius-sm);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      display: inline-flex; align-items: center; justify-content: center;
+      cursor: pointer; font-size: 0.95rem;
+      transition: all 0.2s ease;
+      text-decoration: none;
+    }
+    .icon-btn:hover { background: var(--accent-light); color: var(--accent); border-color: var(--accent); }
+
+    /* ── CONTAINER ── */
+    .container { max-width: 900px; margin: 0 auto; padding: 2rem 1.2rem; }
+
+    /* ── DASHBOARD CONTROLS ── */
+    .dashboard {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.25rem;
+      margin-bottom: 2rem;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .mode-selector {
+      display: flex;
+      background: var(--bg);
+      padding: 4px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+    }
+    .mode-tab {
+      padding: 8px 16px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      border-radius: 8px;
+      transition: all 0.2s;
+    }
+    .mode-tab.active {
+      background: var(--surface);
+      color: var(--accent);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .phase-badges { display: flex; gap: 0.75rem; }
+    .phase-badge {
+      padding: 8px 14px;
+      border-radius: var(--radius-sm);
+      font-size: 0.85rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid var(--border);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .phase-badge.p1 { background: #eff6ff; color: #1d4ed8; border-color: #bfdbfe; }
+    .phase-badge.p2 { background: #fff7ed; color: #c2410c; border-color: #ffedd5; }
+    .phase-badge.active {
+      transform: scale(1.04);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      border-width: 1.5px;
+    }
+    .phase-badge.p1.active { border-color: #2563eb; }
+    .phase-badge.p2.active { border-color: #ea580c; }
+
+    /* ── TWIN COLUMNS SYSTEM ── */
+    .column-header {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      padding: 0 1rem 0.75rem 1rem;
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+    }
+
+    .cards-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .word-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      align-items: center;
+      animation: slideUp 0.3s ease-out;
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .col-pane {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 1.1rem 1.3rem;
+      min-height: 60px;
+      display: flex;
+      align-items: center;
+      box-shadow: var(--shadow-sm);
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+    }
+
+    .col-pane.prompt {
+      background: #f8fafc;
+      font-weight: 600;
+      font-size: 1.05rem;
+    }
+    .col-pane.prompt .ipa {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      font-weight: 400;
+      margin-left: 8px;
+    }
+
+    .col-pane.input-pane {
+      padding: 0;
+      overflow: hidden;
+    }
+    .col-pane input {
+      width: 100%; height: 100%;
+      border: none; padding: 1.1rem 1.3rem;
+      font-size: 1.05rem; font-weight: 500;
+      background: transparent; outline: none;
+      color: var(--text);
+    }
+
+    /* States for Verification */
+    .col-pane.success-state {
+      background: var(--success-light);
+      border-color: var(--success);
+      color: #065f46;
+    }
+    .col-pane.error-state {
+      background: var(--error-light);
+      border-color: var(--error);
+      color: #991b1b;
+      animation: shake 0.35s ease-in-out;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-6px); }
+      40%, 80% { transform: translateX(6px); }
+    }
+
+    .feedback-icon {
+      position: absolute; right: 1.2rem;
+      font-size: 1.1rem;
+      display: none;
+    }
+    .success-state .feedback-icon.correct { display: block; color: var(--success); }
+    .error-state .feedback-icon.wrong { display: block; color: var(--error); }
+
+    .correct-answer-tip {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--error);
+      position: absolute;
+      bottom: 2px; left: 1.3rem;
+      opacity: 0.9;
+    }
+
+    /* ── EMPTY STATE ── */
+    .empty-state {
+      text-align: center; padding: 4rem 2rem;
+      background: var(--surface); border: 1px dashed var(--border);
+      border-radius: var(--radius); display: none;
+    }
+    .empty-state i { font-size: 3rem; color: #cbd5e1; margin-bottom: 1rem; }
+    .empty-state h3 { font-size: 1.1rem; font-weight: 600; margin-bottom: 0.3rem; }
+    .empty-state p { color: var(--text-muted); font-size: 0.9rem; }
+
+    /* ── NOTIFICATION ── */
+    .notification {
+      position: fixed; bottom: 1.5rem; right: 1.5rem;
+      padding: 12px 20px; border-radius: var(--radius-sm);
+      color: #fff; font-weight: 500; font-size: 0.9rem;
+      display: flex; align-items: center; gap: 10px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+      z-index: 3000; opacity: 0; transform: translateY(20px);
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      pointer-events: none;
+    }
+    .notification.show { opacity: 1; transform: translateY(0); }
+    .notification.success { background: var(--success); }
+    .notification.info { background: var(--accent); }
+
+    @media (max-width: 640px) {
+      .word-row { grid-template-columns: 1fr; gap: 0.4rem; margin-bottom: 0.5rem; }
+      .column-header { display: none; }
+      .dashboard { flex-direction: column; align-items: stretch; }
+    }
+  </style>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-left">
+    <a href="javascript:history.back()" class="icon-btn" title="Quay lại">
+      <i class="fas fa-arrow-left"></i>
+    </a>
+    <h1 id="folderTitle">Đang tải bộ từ vựng...</h1>
+  </div>
+</header>
+
+<div class="container">
+  <section class="dashboard">
+    <div class="mode-selector">
+      <button class="mode-tab active" onclick="switchMode('en_vi', this)">EN → VI</button>
+      <button class="mode-tab" onclick="switchMode('vi_en', this)">VI → EN</button>
+    </div>
+
+    <div class="phase-badges">
+      <div class="phase-badge p1 active" id="badgeP1" onclick="switchPhase(1)">
+        <i class="fas fa-layer-group"></i> Giai đoạn 1: <span id="countP1">0</span>
+      </div>
+      <div class="phase-badge p2" id="badgeP2" onclick="switchPhase(2)">
+        <i class="fas fa-exclamation-circle"></i> Giai đoạn 2 (Sai): <span id="countP2">0</span>
+      </div>
+    </div>
+  </section>
+
+  <div class="column-header">
+    <div id="colLabelLeft">Tiếng Anh</div>
+    <div id="colLabelRight">Nhập Tiếng Việt (Ấn Enter để kiểm tra)</div>
+  </div>
+
+  <main class="cards-list" id="cardsContainer"></main>
+
+  <div class="empty-state" id="emptyState">
+    <i class="fas fa-check-circle" id="emptyIcon"></i>
+    <h3 id="emptyTitle">Tuyệt vời!</h3>
+    <p id="emptyDesc">Không có từ nào ở giai đoạn này.</p>
+  </div>
+</div>
+
+<div id="notification" class="notification"></div>
+
+<script>
+/* =========================================================
+   CONFIG & STATE MANAGEMENT
+   ========================================================= */
+let db, auth, currentUser;
+let currentFolderId = null;
+
+let dataset = [];     // Gốc từ Firebase
+let phase1 = [];      // Danh sách từ đang học chuẩn
+let phase2 = [];      // Sổ tay từ hay nhập sai
+let currentPhase = 1; // 1 hoặc 2
+let testMode = 'en_vi'; // 'en_vi' hoặc 'vi_en'
+
+/* =========================================================
+   BOOTSTRAP FIREBASE
+   ========================================================= */
+const FB_SCRIPTS = [
+  "https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js",
+  "https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js",
+  "https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"
+];
+let fbLoaded = 0;
+FB_SCRIPTS.forEach(src => {
+  const s = document.createElement('script');
+  s.src = src; s.async = false;
+  s.onload = () => { if (++fbLoaded === FB_SCRIPTS.length) initApp(); };
+  document.head.appendChild(s);
+});
+
+function initApp() {
+  const cfg = {
+    apiKey: "AIzaSyAm-p5xIzMi7Rkt6y9TzODJLFjdpLKBIlg",
+    authDomain: "wordwhizzy.firebaseapp.com",
+    projectId: "wordwhizzy",
+    storageBucket: "wordwhizzy.appspot.com",
+    messagingSenderId: "179575783469",
+    appId: "1:179575783469:web:30d0ae652af3cfda4bb8a4"
+  };
+  if (!firebase.apps.length) firebase.initializeApp(cfg);
+  db   = firebase.firestore();
+  auth = firebase.auth();
+  auth.onAuthStateChanged(user => {
+    if (user) { currentUser = user; main(); }
+    else window.location.href = 'login.html';
+  });
+}
+
+/* =========================================================
+   CORE LOGIC
+   ========================================================= */
+async function main() {
+  const params = new URLSearchParams(window.location.search);
+  currentFolderId = params.get("id");
+  if (!currentFolderId) {
+    showNotification("Không tìm thấy ID thư mục dữ liệu!", "error");
+    return;
+  }
+
+  try {
+    // Tải thông tin tiêu đề thư mục gốc trước
+    const userDoc = await db.collection('users').doc(currentUser.uid).get();
+    if (userDoc.exists && userDoc.data().folders) {
+      const folders = userDoc.data().folders;
+      for (const key in folders) {
+        const found = folders[key].find(f => f.id == currentFolderId);
+        if (found) {
+          document.getElementById('folderTitle').textContent = `Luyện tập: ${found.name}`;
+          break;
+        }
+      }
+    }
+
+    // Tải thẻ từ vựng
+    const doc = await db.collection('users').doc(currentUser.uid).collection('flashcards').doc(currentFolderId).get();
+    if (doc.exists && doc.data().words) {
+      dataset = doc.data().words;
+      phase1 = [...dataset]; // Khởi tạo ban đầu toàn bộ ở Phase 1
+      renderDashboard();
+    } else {
+      document.getElementById('folderTitle').textContent = "Thư mục trống";
+      updateEmptyState();
+    }
+  } catch (err) {
+    console.error(err);
+    showNotification("Lỗi đồng bộ dữ liệu hệ thống.", "error");
+  }
+}
+
+/* =========================================================
+   UI RENDERING
+   ========================================================= */
+function renderDashboard() {
+  document.getElementById('countP1').textContent = phase1.length;
+  document.getElementById('countP2').textContent = phase2.length;
+  
+  // Cập nhật nhãn cột tương ứng với chế độ học
+  if (testMode === 'en_vi') {
+    document.getElementById('colLabelLeft').textContent = "Tiếng Anh (EN)";
+    document.getElementById('colLabelRight').textContent = "Nhập Tiếng Việt (VI) + Enter";
+  } else {
+    document.getElementById('colLabelLeft').textContent = "Tiếng Việt (VI)";
+    document.getElementById('colLabelRight').textContent = "Nhập Tiếng Anh (EN) + Enter";
+  }
+
+  const container = document.getElementById('cardsContainer');
+  container.innerHTML = '';
+
+  const activeList = currentPhase === 1 ? phase1 : phase2;
+
+  if (activeList.length === 0) {
+    updateEmptyState(true);
+    return;
+  }
+  updateEmptyState(false);
+
+  activeList.forEach((item) => {
+    const row = document.createElement('div');
+    row.className = 'word-row';
+    row.id = `row_${item.id}`;
+
+    // Xác định nội dung hiển thị ở cột Gốc (Trái)
+    let promptHTML = '';
+    if (testMode === 'en_vi') {
+      promptHTML = `${escapeHtml(item.word)} ${item.ipa ? `<span class="ipa">${escapeHtml(item.ipa)}</span>` : ''}`;
+    } else {
+      promptHTML = `${escapeHtml(item.meaning)}`;
+    }
+
+    row.innerHTML = `
+      <div class="col-pane prompt">${promptHTML}</div>
+      <div class="col-pane input-pane" id="inputWrapper_${item.id}">
+        <input type="text" placeholder="..." id="field_${item.id}" 
+               onkeydown="handleCheckAnswer(event, '${item.id}')" autocomplete="off" />
+        <i class="fas fa-check-circle feedback-icon correct"></i>
+        <i class="fas fa-times-circle feedback-icon wrong"></i>
+        <span class="correct-answer-tip" id="tip_${item.id}" style="display:none;"></span>
+      </div>
+    `;
+    container.appendChild(row);
+  });
+}
+
+function updateEmptyState(isEmpty) {
+  const view = document.getElementById('emptyState');
+  if (isEmpty) {
+    view.style.display = 'block';
+    if (currentPhase === 1) {
+      document.getElementById('emptyIcon').className = "fas fa-star-twinkle";
+      document.getElementById('emptyTitle').textContent = "Chúc mừng bạn đã hoàn tất!";
+      document.getElementById('emptyDesc').textContent = "Hãy kiểm tra Giai đoạn 2 nếu có từ lỗi.";
+    } else {
+      document.getElementById('emptyIcon').className = "fas fa-check-circle";
+      document.getElementById('emptyTitle').textContent = "Sạch bóng lỗi sai!";
+      document.getElementById('emptyDesc').textContent = "Tuyệt đỉnh, không còn từ vựng nào nằm trong vùng nguy hiểm.";
+    }
+  } else {
+    view.style.display = 'none';
+  }
+}
+
+/* =========================================================
+   CONTROLLER INTERACTIONS
+   ========================================================= */
+function switchMode(mode, btn) {
+  if (testMode === mode) return;
+  testMode = mode;
+  document.querySelectorAll('.mode-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  renderDashboard();
+}
+
+function switchPhase(phaseNum) {
+  if (currentPhase === phaseNum) return;
+  currentPhase = phaseNum;
+  document.getElementById('badgeP1').classList.toggle('active', phaseNum === 1);
+  document.getElementById('badgeP2').classList.toggle('active', phaseNum === 2);
+  renderDashboard();
+}
+
+/* =========================================================
+   CHECK ANSWER LOGIC (PHASE ENGINE)
+   ========================================================= */
+function handleCheckAnswer(event, id) {
+  if (event.key !== 'Enter') return;
+
+  const inputField = event.target;
+  const userAns = inputField.value.trim().toLowerCase();
+  const wrapper = document.getElementById(`inputWrapper_${id}`);
+  const tipEl = document.getElementById(`tip_${id}`);
+
+  // Tìm thông tin từ vựng trong danh sách gốc
+  const wordObj = dataset.find(w => w.id === id);
+  if (!wordObj) return;
+
+  // Xác định đáp án đúng chuẩn dựa trên chế độ test
+  const targetAns = (testMode === 'en_vi' ? wordObj.meaning : wordObj.word).trim().toLowerCase();
+  
+  // Vô hiệu hóa input tạm thời sau khi ấn Enter
+  inputField.disabled = true;
+
+  // Xử lý so khớp tương đối (loại bỏ ký tự dư thừa nếu có)
+  if (userAns === targetAns || cleanString(userAns) === cleanString(targetAns)) {
+    /* ── ĐÁP ÁN ĐÚNG ── */
+    wrapper.className = "col-pane input-pane success-state";
+
+    setTimeout(() => {
+      if (currentPhase === 1) {
+        // Đúng ở Phase 1: Giữ nguyên vị trí hoặc đánh dấu xong
+      } else {
+        // Đúng ở Phase 2: Chuyển ngược về lại Phase 1
+        phase2 = phase2.filter(w => w.id !== id);
+        if (!phase1.some(w => w.id === id)) phase1.push(wordObj);
+        showNotification("Đã sửa sai! Từ vựng quay lại Giai đoạn 1.", "success");
+      }
+      renderDashboard();
+    }, 1100);
+
+  } else {
+    /* ── ĐÁP ÁN SAI ── */
+    wrapper.className = "col-pane input-pane error-state";
+    
+    // Hiện đáp án đúng ngay dưới ô nhập liệu để ghi nhớ nhanh
+    tipEl.style.display = 'block';
+    tipEl.textContent = `Đáp án đúng: ${testMode === 'en_vi' ? wordObj.meaning : wordObj.word}`;
+
+    setTimeout(() => {
+      if (currentPhase === 1) {
+        // Sai ở Phase 1: Tách từ này chuyển sang Phase 2 (Lỗi sai)
+        phase1 = phase1.filter(w => w.id !== id);
+        if (!phase2.some(w => w.id === id)) phase2.push(wordObj);
+        showNotification("Nhập sai! Đã chuyển xuống Giai đoạn 2.", "info");
+      } else {
+        // Sai ở Phase 2: Giữ nguyên tại Phase 2, reset lại ô nhập để nhập lại
+        wrapper.className = "col-pane input-pane";
+        tipEl.style.display = 'none';
+        inputField.disabled = false;
+        inputField.value = '';
+        inputField.focus();
+        return;
+      }
+      renderDashboard();
+    }, 2400);
+  }
+}
+
+/* =========================================================
+   UTILITIES
+   ========================================================= */
+function cleanString(str) {
+  return str.replace(/[^a-zA-Z0-9\sàáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễđìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹ]/g, '').trim();
+}
+
+function escapeHtml(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+let toastTimer;
+function showNotification(msg, type = 'success') {
+  const el = document.getElementById('notification');
+  el.className = `notification ${type} show`;
+  el.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : 'info-circle'}"></i> ${msg}`;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 3000);
+}
+</script>
+</body>
+</html>

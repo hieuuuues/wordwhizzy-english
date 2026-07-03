@@ -1,0 +1,685 @@
+
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Nối Từ Với Nghĩa | WordWhizzy</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+    />
+    <style>
+      :root {
+        --bg: #ffffff;
+        --bg-soft: #f0f8ff; /* A very light blue */
+        --text: #343a40;
+        --text-muted: #6c757d;
+        --border: #e9ecef;
+        --radius: 14px;
+        --shadow: 0 8px 24px rgba(16, 16, 16, 0.05);
+        --accent: #007bff; /* Main blue color */
+        --accent-dark: #0056b3; /* A darker blue for hover */
+        --success: #28a745;
+        --error: #dc3545;
+        --warning: #ffc107;
+        --matched-bg: #e0eaff; /* SỬA LỖI: Thêm màu nền cho cặp đã nối */
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Inter", sans-serif;
+      }
+
+      body {
+        background: var(--bg-soft);
+        min-height: 100vh;
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        animation: fadeIn 0.5s ease-out;
+        justify-content: center;
+      }
+
+      .container {
+        width: 100%;
+        max-width: 900px;
+        background: var(--bg);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        border: 1px solid var(--border);
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+      }
+
+      .top-controls {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1.5rem;
+        width: 100%;
+        max-width: 900px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      .icon-btn {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        background: var(--bg);
+        color: var(--text-muted);
+        text-decoration: none;
+        font-size: 1.1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: var(--shadow);
+        transition: all 0.3s ease;
+        border: 1px solid var(--border);
+        cursor: pointer;
+      }
+
+      .icon-btn:hover {
+        background: var(--accent);
+        color: var(--bg);
+        transform: scale(1.05);
+      }
+
+      .header {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1.5rem;
+        text-align: center;
+      }
+
+      .title-icon {
+        font-size: 2em;
+        margin-right: 15px;
+        color: var(--accent);
+      }
+
+      h1 {
+        font-size: 1.8em;
+        font-weight: 700;
+        margin: 0;
+        color: var(--text);
+      }
+
+      .matching-area {
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem; /* SỬA LỖI: Giảm gap một chút */
+        position: relative;
+        padding: 1rem 0;
+      }
+
+      .column {
+        width: 48%;
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        z-index: 2;
+      }
+
+      .item {
+        background-color: var(--bg-soft);
+        border: 1px solid var(--border);
+        padding: 1rem;
+        border-radius: 12px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        transition: all 0.2s ease;
+        user-select: none;
+        position: relative;
+      }
+
+      .item .icon {
+        margin-right: 15px;
+        font-size: 1.4em;
+        width: 25px;
+        text-align: center;
+        color: var(--text-muted);
+      }
+
+      .item .text {
+        flex-grow: 1;
+        font-size: 1em;
+        font-weight: 500;
+        color: var(--text);
+      }
+
+      .item:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+        border-color: var(--accent);
+      }
+
+      .item.selected {
+        background-color: var(--accent);
+        color: white;
+        font-weight: 600;
+        box-shadow: 0 0 10px rgba(0, 123, 255, 0.4);
+        border-color: var(--accent);
+      }
+
+      .item.selected .icon,
+      .item.selected .text {
+        color: white;
+      }
+
+      /* SỬA LỖI: Thêm style rõ ràng cho item đã được nối */
+      .item.matched {
+        background-color: var(--matched-bg);
+        border-color: var(--accent);
+      }
+
+      .item.correct {
+        background-color: var(--success);
+        border-color: var(--success);
+        color: white;
+        animation: pulse 0.5s;
+        pointer-events: none;
+      }
+
+      .item.correct .icon,
+      .item.correct .text {
+        color: white;
+      }
+
+      .item.wrong {
+        background-color: var(--error);
+        border-color: var(--error);
+        color: white;
+        animation: shake 0.5s;
+        pointer-events: none;
+      }
+
+      .item.wrong .icon,
+      .item.wrong .text {
+        color: white;
+      }
+
+      .item.disabled {
+        pointer-events: none;
+        opacity: 0.6;
+      }
+
+      .status-area {
+        margin-top: 1.5rem;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+      }
+
+      .status-buttons {
+        display: flex;
+        gap: 0.75rem;
+        justify-content: center;
+        width: 100%;
+        flex-wrap: wrap;
+      }
+
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 12px 20px;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 15px;
+        border: 1px solid var(--border);
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-decoration: none;
+      }
+      .btn:disabled {
+        cursor: not-allowed;
+        opacity: 0.5;
+      }
+      .btn-primary {
+        background: var(--accent);
+        color: #fff;
+        border-color: var(--accent);
+      }
+      .btn-primary:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        background: var(--accent-dark);
+      }
+      .btn-secondary {
+        background: var(--bg);
+        color: var(--text);
+      }
+      .btn-secondary:hover {
+        background: var(--bg-soft);
+        border-color: #ddd;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      }
+
+      #completion-message {
+        font-size: 1.25em;
+        color: var(--success);
+        font-weight: 700;
+        display: none;
+        animation: fadeIn 1s;
+        margin-bottom: 1rem;
+        width: 100%;
+      }
+
+      #completion-message i {
+        margin-right: 10px;
+      }
+
+      #connection-canvas {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 1;
+      }
+
+      @keyframes shake {
+        0%,
+        100% {
+          transform: translateX(0);
+        }
+        10%,
+        30%,
+        50%,
+        70%,
+        90% {
+          transform: translateX(-5px);
+        }
+        20%,
+        40%,
+        60%,
+        80% {
+          transform: translateX(5px);
+        }
+      }
+
+      @keyframes pulse {
+        0% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.02);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+
+      @media (max-width: 768px) {
+        body {
+          padding: 1rem;
+        }
+        .top-controls {
+          margin-bottom: 1rem;
+        }
+        .container {
+          padding: 1rem;
+        }
+        h1 {
+          font-size: 1.5em;
+        }
+        /* SỬA LỖI: Xóa bỏ các quy tắc làm vỡ layout 2 cột trên điện thoại */
+        .matching-area {
+          gap: 0.5rem;
+        }
+        .item .text {
+          font-size: 0.9em;
+        }
+        .btn {
+          padding: 10px 16px;
+          font-size: 14px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="top-controls">
+      <a href="study-options.html" class="icon-btn" aria-label="Quay lại">
+        <i class="fa-solid fa-arrow-left"></i>
+      </a>
+      <span style="visibility: hidden"></span>
+    </div>
+
+    <div class="container">
+      <div class="header">
+        <i class="fa-solid fa-puzzle-piece title-icon"></i>
+        <h1>Bài Tập Nối Từ</h1>
+      </div>
+
+      <div class="matching-area">
+        <div class="column" id="words-column"></div>
+        <div class="column" id="meanings-column"></div>
+        <canvas id="connection-canvas"></canvas>
+      </div>
+
+      <div class="status-area">
+        <p id="completion-message">
+          <i class="fa-solid fa-party-horn"></i> Hoàn thành xuất sắc!
+        </p>
+        <div class="status-buttons">
+          <button
+            id="prev-button"
+            class="btn btn-secondary"
+            style="display: none"
+          >
+            <i class="fas fa-chevron-left"></i> Phần trước
+          </button>
+          <button id="check-button" class="btn btn-primary">
+            <i class="fa-solid fa-check-double"></i> Kiểm tra
+          </button>
+          <button id="next-button" class="btn btn-primary">
+            <i class="fas fa-chevron-right"></i> Phần tiếp theo
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const fullData = [
+         { "id": 30, "word": "head", "meaning": "cái đầu", "icon": "fa-brain" },
+    { "id": 31, "word": "eye", "meaning": "mắt", "icon": "fa-eye" },
+    { "id": 32, "word": "ear", "meaning": "tai", "icon": "fa-ear-listen" },
+    { "id": 33, "word": "nose", "meaning": "mũi", "icon": "fa-head-side-mask" },
+    { "id": 34, "word": "mouth", "meaning": "miệng", "icon": "fa-face-smile" },
+    { "id": 35, "word": "hand", "meaning": "bàn tay", "icon": "fa-hand" },
+    { "id": 36, "word": "leg", "meaning": "chân", "icon": "fa-shoe-prints" },
+    { "id": 37, "word": "sick", "meaning": "ốm", "icon": "fa-head-side-virus" },
+    { "id": 38, "word": "tired", "meaning": "mệt mỏi", "icon": "fa-face-tired" },
+    { "id": 39, "word": "hungry", "meaning": "đói", "icon": "fa-utensils" },
+    { "id": 40, "word": "thirsty", "meaning": "khát", "icon": "fa-glass-water" },
+    { "id": 41, "word": "pain", "meaning": "đau", "icon": "fa-band-aid" },
+    { "id": 42, "word": "fever", "meaning": "sốt", "icon": "fa-temperature-high" },
+    { "id": 43, "word": "cough", "meaning": "ho", "icon": "fa-head-side-cough" },
+    { "id": 44, "word": "doctor", "meaning": "bác sĩ", "icon": "fa-user-doctor" },
+    { "id": 45, "word": "hospital", "meaning": "bệnh viện", "icon": "fa-hospital" },
+    { "id": 46, "word": "medicine", "meaning": "thuốc", "icon": "fa-pills" }
+        ];
+
+        const wordsColumn = document.getElementById("words-column");
+        const meaningsColumn = document.getElementById("meanings-column");
+        const checkButton = document.getElementById("check-button");
+        const prevButton = document.getElementById("prev-button");
+        const nextButton = document.getElementById("next-button");
+        const completionMessage = document.getElementById("completion-message");
+        const canvas = document.getElementById("connection-canvas");
+        const ctx = canvas.getContext("2d");
+
+        const itemsPerPage = 10;
+        let currentPage = 0;
+        let currentData = [];
+        let selectedWordElement = null;
+        let currentMatches = new Map();
+
+        function shuffle(array) {
+          for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+          }
+          return array;
+        }
+
+        function initGame(page) {
+          currentPage = page;
+          const startIndex = currentPage * itemsPerPage;
+          const endIndex = startIndex + itemsPerPage;
+          currentData = fullData.slice(startIndex, endIndex);
+
+          wordsColumn.innerHTML = "";
+          meaningsColumn.innerHTML = "";
+          completionMessage.style.display = "none";
+          checkButton.style.display = "inline-flex";
+          nextButton.style.display =
+            currentPage < fullData.length / itemsPerPage - 1
+              ? "inline-flex"
+              : "none";
+          prevButton.style.display = currentPage > 0 ? "inline-flex" : "none";
+
+          currentMatches.clear();
+          clearCanvas();
+
+          const shuffledMeanings = shuffle([...currentData]);
+
+          currentData.forEach((item) => {
+            wordsColumn.innerHTML += `
+              <div class="item word-item" data-id="${item.id}">
+                <i class="icon fa-solid ${item.icon}"></i>
+                <span class="text">${item.word}</span>
+              </div>
+            `;
+          });
+
+          shuffledMeanings.forEach((item) => {
+            meaningsColumn.innerHTML += `
+              <div class="item meaning-item" data-id="${item.id}">
+                <i class="icon fa-solid fa-language"></i>
+                <span class="text">${item.meaning}</span>
+              </div>
+            `;
+          });
+
+          document
+            .querySelectorAll(".item")
+            .forEach((el) =>
+              el.classList.remove(
+                "disabled",
+                "correct",
+                "wrong",
+                "selected",
+                "matched"
+              )
+            );
+          addEventListeners();
+          updateCanvasSize();
+          updateCheckButtonState(); // Cập nhật trạng thái nút lúc bắt đầu
+        }
+
+        function updateCanvasSize() {
+          const matchingArea = document.querySelector(".matching-area");
+          // Dùng setTimeout để đảm bảo DOM đã render xong trước khi lấy kích thước
+          setTimeout(() => {
+            canvas.width = matchingArea.offsetWidth;
+            canvas.height = matchingArea.offsetHeight;
+            drawConnections();
+          }, 100);
+        }
+
+        function addEventListeners() {
+          document.querySelectorAll(".word-item").forEach((item) => {
+            item.addEventListener("click", handleWordSelect);
+          });
+
+          document.querySelectorAll(".meaning-item").forEach((item) => {
+            item.addEventListener("click", handleMeaningSelect);
+          });
+        }
+
+        function getItemCenter(element) {
+          const rect = element.getBoundingClientRect();
+          const containerRect = document
+            .querySelector(".matching-area")
+            .getBoundingClientRect();
+          const isWord = element.classList.contains("word-item");
+          const x = isWord
+            ? rect.right - containerRect.left
+            : rect.left - containerRect.left;
+          return {
+            x: x,
+            y: rect.top + rect.height / 2 - containerRect.top,
+          };
+        }
+
+        function clearCanvas() {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+
+        function drawConnections(checking = false) {
+          clearCanvas();
+          ctx.lineWidth = 3; // Tăng độ dày đường kẻ
+          ctx.lineCap = "round";
+
+          currentMatches.forEach((meaningEl, wordEl) => {
+            let color = getComputedStyle(document.documentElement)
+              .getPropertyValue("--accent")
+              .trim();
+            if (checking) {
+              const isCorrect = wordEl.dataset.id === meaningEl.dataset.id;
+              color = isCorrect
+                ? getComputedStyle(document.documentElement)
+                    .getPropertyValue("--success")
+                    .trim()
+                : getComputedStyle(document.documentElement)
+                    .getPropertyValue("--error")
+                    .trim();
+            }
+            ctx.strokeStyle = color;
+
+            const start = getItemCenter(wordEl);
+            const end = getItemCenter(meaningEl);
+
+            ctx.beginPath();
+            ctx.moveTo(start.x, start.y);
+            ctx.lineTo(end.x, end.y);
+            ctx.stroke();
+          });
+        }
+
+        function handleWordSelect(event) {
+          const currentItem = event.currentTarget;
+          if (
+            currentItem.classList.contains("disabled") ||
+            currentItem.classList.contains("matched")
+          )
+            return;
+
+          if (selectedWordElement) {
+            selectedWordElement.classList.remove("selected");
+          }
+
+          if (selectedWordElement === currentItem) {
+            selectedWordElement = null; // Bỏ chọn nếu bấm lại
+          } else {
+            selectedWordElement = currentItem;
+            selectedWordElement.classList.add("selected");
+          }
+        }
+
+        function handleMeaningSelect(event) {
+          // SỬA LỖI: Luôn dùng event.currentTarget
+          const currentItem = event.currentTarget;
+          if (
+            currentItem.classList.contains("disabled") ||
+            currentItem.classList.contains("matched")
+          )
+            return;
+
+          if (selectedWordElement) {
+            // Xóa cặp nối cũ của TỪ được chọn (nếu có)
+            if (currentMatches.has(selectedWordElement)) {
+              const oldMeaning = currentMatches.get(selectedWordElement);
+              oldMeaning.classList.remove("matched");
+            }
+
+            // Xóa cặp nối cũ của NGHĨA được chọn (nếu có)
+            let wordToRemove = null;
+            for (const [word, meaning] of currentMatches.entries()) {
+              if (meaning === currentItem) {
+                wordToRemove = word;
+                break;
+              }
+            }
+            if (wordToRemove) {
+              wordToRemove.classList.remove("matched");
+              currentMatches.delete(wordToRemove);
+            }
+
+            currentMatches.set(selectedWordElement, currentItem);
+            selectedWordElement.classList.add("matched");
+            currentItem.classList.add("matched");
+
+            selectedWordElement.classList.remove("selected");
+            selectedWordElement = null;
+
+            drawConnections();
+            updateCheckButtonState();
+          }
+        }
+
+        function updateCheckButtonState() {
+          // SỬA LỖI: Chỉ bật nút kiểm tra khi đã nối đủ cặp
+          checkButton.disabled = currentMatches.size !== itemsPerPage;
+        }
+
+        function checkAnswers() {
+          if (currentMatches.size !== itemsPerPage) return;
+
+          let allCorrect = true;
+
+          document.querySelectorAll(".item").forEach((item) => {
+            item.classList.remove("selected", "matched");
+          });
+
+          currentMatches.forEach((meaningEl, wordEl) => {
+            const isCorrect = wordEl.dataset.id === meaningEl.dataset.id;
+            const resultClass = isCorrect ? "correct" : "wrong";
+            wordEl.classList.add(resultClass);
+            meaningEl.classList.add(resultClass);
+            if (!isCorrect) {
+              allCorrect = false;
+            }
+          });
+
+          drawConnections(true);
+
+          document
+            .querySelectorAll(".item")
+            .forEach((el) => el.classList.add("disabled"));
+          checkButton.disabled = true;
+
+          if (allCorrect) {
+            completionMessage.style.display = "block";
+          }
+        }
+
+        window.addEventListener("resize", updateCanvasSize);
+        checkButton.addEventListener("click", checkAnswers);
+        prevButton.addEventListener("click", () => initGame(currentPage - 1));
+        nextButton.addEventListener("click", () => initGame(currentPage + 1));
+
+        initGame(0);
+      });
+    </script>
+  </body>
+</html>

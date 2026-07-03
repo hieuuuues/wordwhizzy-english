@@ -1,0 +1,1321 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Flashcards | WordWhizzy</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+    <style>
+      @media (pointer: coarse) {
+        * {
+          -webkit-tap-highlight-color: transparent;
+          -webkit-touch-callout: none;
+        }
+      }
+
+      :root {
+        --bg: #ffffff;
+        --bg-soft: #f7f8fa;
+        --text: #111318;
+        --text-muted: #8a8f9e;
+        --border: #e8eaed;
+        --radius: 16px;
+        --shadow: 0 2px 12px rgba(0,0,0,0.06);
+        --shadow-card: 0 4px 24px rgba(0,0,0,0.08);
+        --accent: #2563eb;
+        --accent-dark: #1d4ed8;
+        --success: #16a34a;
+        --error: #dc2626;
+        --warning: #d97706;
+      }
+
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to   { opacity: 1; transform: translateY(0); }
+      }
+
+      * { margin: 0; padding: 0; box-sizing: border-box; font-family: "Inter", sans-serif; }
+
+      body {
+        background: var(--bg-soft);
+        min-height: 100vh;
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        animation: fadeIn 0.4s ease-out;
+      }
+
+      .container { width: 100%; max-width: 1200px; }
+
+      .top-controls {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1.5rem;
+        width: 100%;
+        max-width: 900px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      .icon-btn {
+        width: 40px; height: 40px;
+        border-radius: 10px;
+        background: var(--bg);
+        color: var(--text-muted);
+        text-decoration: none;
+        font-size: 1rem;
+        display: flex; align-items: center; justify-content: center;
+        transition: background 0.15s, color 0.15s;
+        border: 1px solid var(--border);
+        cursor: pointer;
+      }
+      .icon-btn:hover { background: var(--text); color: var(--bg); }
+
+      .main-content {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        gap: 2rem;
+      }
+
+      /* ===== CARD STACK ===== */
+      .flashcard-container {
+        position: relative;
+        width: 100%;
+        max-width: 900px;
+        height: 550px;
+        perspective: 1200px;
+      }
+
+      /* Next card sits underneath, always visible */
+      .flashcard-next {
+        position: absolute;
+        width: 100%; height: 100%;
+        border-radius: var(--radius);
+        box-shadow: var(--shadow-card);
+        border: 1px solid var(--border);
+        background: var(--bg);
+        z-index: 1;
+        transform-style: preserve-3d;
+      }
+      .flashcard-next .card-face {
+        position: absolute;
+        width: 100%; height: 100%;
+        backface-visibility: hidden;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background: var(--bg);
+        border-radius: var(--radius);
+        padding: 1.5rem;
+        overflow: hidden;
+        word-break: break-word;
+      }
+
+      .flashcard {
+        position: absolute;
+        width: 100%; height: 100%;
+        transform-style: preserve-3d;
+        cursor: pointer;
+        border-radius: var(--radius);
+        box-shadow: var(--shadow-card);
+        border: 1px solid var(--border);
+        z-index: 5;
+        will-change: transform;
+        transition: none;
+      }
+
+      .flashcard.can-flip {
+        transition: transform 0.5s ease-in-out;
+      }
+
+      .flashcard.flipped {
+        transform: rotateY(180deg);
+      }
+
+      .card-face {
+        position: absolute;
+        width: 100%; height: 100%;
+        backface-visibility: hidden;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background: var(--bg);
+        border-radius: var(--radius);
+        padding: 1.5rem;
+        overflow: hidden;
+        word-break: break-word;
+      }
+
+      .card-back { transform: rotateY(180deg); background: #fafbfc; }
+
+      .shortcuts-info {
+        width: 190px;
+        padding: 1.25rem;
+        background: var(--bg);
+        border-radius: var(--radius);
+        border: 1px solid var(--border);
+      }
+      .shortcuts-info h3 { color: var(--text); margin-bottom: 0.875rem; font-size: 0.875rem; font-weight: 600; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; }
+      .shortcuts-info ul { list-style: none; padding: 0; }
+      .shortcuts-info li { display: flex; justify-content: space-between; font-size: 0.82rem; color: var(--text-muted); margin-bottom: 0.6rem; }
+      .shortcuts-info kbd { padding: 0.15rem 0.45rem; border-radius: 5px; background: var(--bg-soft); color: var(--text); font-family: monospace; font-weight: 600; border: 1px solid var(--border); font-size: 0.78rem; }
+
+      .card-word { font-size: 2rem; font-weight: 600; color: var(--text); margin-bottom: 0.75rem; text-align: center; }
+      .card-phonetic { font-size: 1rem; color: var(--text-muted); margin-bottom: 0.75rem; }
+      .card-image { max-width: 280px; max-height: 180px; object-fit: contain; margin-bottom: 1rem; border-radius: 8px; }
+
+      .card-counter { position: absolute; top: 1rem; left: 1.5rem; font-size: 0.875rem; font-weight: 500; color: var(--text-muted); z-index: 2; }
+
+      .card-controls {
+        margin-top: 1.5rem;
+        display: flex;
+        gap: 0.75rem;
+        justify-content: center;
+        flex-wrap: wrap;
+        width: 100%;
+        max-width: 900px;
+      }
+
+      .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 10px 18px; border-radius: 10px; font-weight: 500; font-size: 14px; border: 1px solid var(--border); cursor: pointer; transition: background 0.15s, color 0.15s, border-color 0.15s; text-decoration: none; }
+      .btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+      .btn-primary:hover { background: var(--accent-dark); border-color: var(--accent-dark); }
+      .btn-secondary { background: var(--bg); color: var(--text); }
+      .btn-secondary:hover { background: var(--bg-soft); }
+      .btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+      .action-buttons { position: absolute; top: 1rem; right: 1.5rem; display: flex; gap: 0.75rem; z-index: 10; }
+
+      .options-menu {
+        display: none;
+        position: absolute;
+        top: calc(1rem + 48px);
+        right: 1.5rem;
+        background-color: var(--bg);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        border: 1px solid var(--border);
+        z-index: 1050;
+        padding: 0.5rem;
+        animation: fadeIn 0.2s ease-out;
+        list-style: none;
+        min-width: 220px;
+      }
+      .options-menu.active { display: block; }
+      .options-menu-item { padding: 0.75rem 1rem; cursor: pointer; display: flex; align-items: center; gap: 0.75rem; font-size: 0.9rem; color: var(--text); background: none; border: none; width: 100%; text-align: left; border-radius: 8px; }
+      .options-menu-item:hover { background-color: var(--bg-soft); }
+      .options-menu-item i { color: var(--text-muted); width: 20px; text-align: center; }
+
+      .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(10,10,10,0.4); backdrop-filter: blur(5px); z-index: 999; }
+      .modal-overlay.active { display: block; }
+
+      .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 90%; max-width: 500px; background: var(--bg); border-radius: var(--radius); border: 1px solid var(--border); box-shadow: 0 10px 40px rgba(0,0,0,0.2); max-height: 85vh; overflow-y: auto; z-index: 1000; }
+      .modal.active { display: flex; flex-direction: column; }
+      .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.5rem; border-bottom: 1px solid var(--border); }
+      .modal-header h2 { font-size: 1.25rem; font-weight: 600; color: var(--text); }
+      .close-btn { background: none; border: none; font-size: 1.5rem; color: var(--text-muted); cursor: pointer; }
+      .modal-content { padding: 1.5rem; }
+
+      .edit-form label { display: block; font-size: 0.95rem; color: var(--text); margin-bottom: 0.5rem; font-weight: 500; }
+      .edit-form input, .edit-form textarea, .edit-form select { width: 100%; padding: 12px; margin-bottom: 1rem; border: 1px solid var(--border); border-radius: 10px; font-size: 15px; background: var(--bg); transition: all 0.3s ease; }
+      .edit-form input:focus, .edit-form textarea:focus, .edit-form select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(0,123,255,0.1); }
+      .edit-form textarea { resize: vertical; min-height: 100px; }
+
+      .progress-bar { position: fixed; top: 0; left: 0; width: 100%; height: 4px; background: var(--border); z-index: 2000; }
+      .progress { height: 100%; background: var(--accent); transition: width 0.3s ease; }
+
+      @media (max-width: 1200px) { .shortcuts-info { display: none; } }
+      @media (max-width: 768px) {
+        body { padding: 1rem; }
+        .main-content { flex-direction: column; align-items: center; }
+        .flashcard-container { max-width: 100%; height: 500px; }
+      }
+      @media (max-width: 480px) {
+        .flashcard-container { height: 450px; }
+        .card-word { font-size: 1.5rem; }
+      }
+
+      /* ===== HOME SCREEN ===== */
+      #homeScreen { display: none; width: 100%; max-width: 700px; margin: 0 auto; animation: fadeIn 0.4s ease-out; }
+      #homeScreen.active { display: block; }
+
+      .home-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 2rem; }
+      .home-title { font-size: 1.5rem; font-weight: 700; color: var(--text); }
+      .home-subtitle { font-size: 0.9rem; color: var(--text-muted); margin-top: 0.25rem; }
+
+      .category-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+
+      .category-card { background: var(--bg); border: 1.5px solid var(--border); border-radius: 14px; padding: 1.5rem 1.25rem; cursor: pointer; transition: border-color 0.15s, background 0.15s; display: flex; flex-direction: column; gap: 0.5rem; position: relative; overflow: hidden; }
+      .category-card:hover { background: var(--bg-soft); }
+      .category-card:active { opacity: 0.85; }
+
+      .category-card.unknown { border-color: #fca5a5; }
+      .category-card.unknown .cat-icon { background: #fee2e2; color: #dc2626; }
+      .category-card.unknown .cat-count { color: #dc2626; }
+
+      .category-card.known { border-color: #86efac; }
+      .category-card.known .cat-icon { background: #dcfce7; color: #16a34a; }
+      .category-card.known .cat-count { color: #16a34a; }
+
+      .category-card.review { border-color: #fde68a; }
+      .category-card.review .cat-icon { background: #fef9c3; color: #ca8a04; }
+      .category-card.review .cat-count { color: #ca8a04; }
+
+      .category-card.all { border-color: #bfdbfe; }
+      .category-card.all .cat-icon { background: #dbeafe; color: #2563eb; }
+      .category-card.all .cat-count { color: #2563eb; }
+
+      .cat-icon { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; margin-bottom: 0.25rem; }
+      .cat-label { font-size: 1.1rem; font-weight: 700; color: var(--text); }
+      .cat-desc { font-size: 0.8rem; color: var(--text-muted); }
+      .cat-count { font-size: 2rem; font-weight: 700; margin-top: 0.5rem; line-height: 1; }
+      .cat-count span { font-size: 0.9rem; font-weight: 500; color: var(--text-muted); }
+
+      @media (max-width: 480px) {
+        .category-grid { grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+        .category-card { padding: 1.25rem 1rem; }
+        .cat-count { font-size: 1.6rem; }
+      }
+
+      /* ===== STUDY SCREEN ===== */
+      #studyScreen { display: none; }
+      #studyScreen.active { display: block; }
+
+      /* ===== SWIPE SYSTEM ===== */
+      .swipe-glow { position: fixed; inset: 0; pointer-events: none; z-index: 500; opacity: 0; transition: opacity 0.06s linear; }
+      .swipe-glow-right { background: linear-gradient(to left,  rgba(34,197,94,0.18) 0%, transparent 60%); }
+      .swipe-glow-left  { background: linear-gradient(to right, rgba(239,68,68,0.18) 0%, transparent 60%); }
+      .swipe-glow-down  { background: linear-gradient(to top,   rgba(234,179,8,0.18) 0%, transparent 60%); }
+
+      .swipe-indicator { position: absolute; pointer-events: none; z-index: 10; opacity: 0; display: flex; align-items: center; gap: 0.3rem; padding: 0.35rem 0.9rem; border-radius: 8px; font-size: 0.85rem; font-weight: 700; letter-spacing: 0.03em; border: 1.5px solid; white-space: nowrap; transition: opacity 0.06s linear; }
+      #indKnown   { top: 1.25rem; right: 1.25rem; color: #15803d; border-color: #22c55e; background: rgba(240,253,244,0.95); }
+      #indUnknown { top: 1.25rem; left: 1.25rem;  color: #b91c1c; border-color: #f87171; background: rgba(254,242,242,0.95); }
+      #indReview  { bottom: 1.25rem; left: 50%; transform: translateX(-50%); color: #92400e; border-color: #fbbf24; background: rgba(255,251,235,0.95); }
+
+      .swipe-hint { display: flex; gap: 2rem; justify-content: center; margin-top: 1rem; flex-wrap: wrap; }
+      .swipe-hint-item { display: flex; align-items: center; gap: 0.4rem; font-size: 0.8rem; color: var(--text-muted); }
+      .swipe-hint-dot { width: 10px; height: 10px; border-radius: 50%; }
+
+      .mode-badge { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.8rem; font-weight: 600; }
+      .mode-badge.unknown { background: #fee2e2; color: #dc2626; }
+      .mode-badge.known   { background: #dcfce7; color: #16a34a; }
+      .mode-badge.review  { background: #fef9c3; color: #ca8a04; }
+      .mode-badge.all     { background: #dbeafe; color: #2563eb; }
+
+      .study-top-left { display: flex; align-items: center; gap: 0.75rem; }
+    </style>
+  </head>
+  <body>
+    <div class="progress-bar"><div class="progress" id="progress"></div></div>
+
+    <div class="modal-overlay" id="modalOverlay"></div>
+
+    <div class="swipe-glow swipe-glow-right" id="glowRight"></div>
+    <div class="swipe-glow swipe-glow-left"  id="glowLeft"></div>
+    <div class="swipe-glow swipe-glow-down"  id="glowDown"></div>
+
+    <div class="container">
+
+      <!-- ===== HOME SCREEN ===== -->
+      <div id="homeScreen">
+        <div class="home-header">
+          <div>
+            <div class="home-title">Chọn chế độ học</div>
+            <div class="home-subtitle" id="homeFolderName">Đang tải...</div>
+          </div>
+          <a href="#" class="icon-btn" id="backButtonHome">
+            <i class="fas fa-arrow-left"></i>
+          </a>
+        </div>
+
+        <div class="category-grid">
+          <div class="category-card unknown" onclick="startStudy('unknown')">
+            <div class="cat-icon"><i class="fas fa-times"></i></div>
+            <div class="cat-label">Chưa biết</div>
+            <div class="cat-desc">Từ cần học lại</div>
+            <div class="cat-count" id="countUnknown">–<span> từ</span></div>
+          </div>
+          <div class="category-card known" onclick="startStudy('known')">
+            <div class="cat-icon"><i class="fas fa-check"></i></div>
+            <div class="cat-label">Đã biết</div>
+            <div class="cat-desc">Từ đã nắm vững</div>
+            <div class="cat-count" id="countKnown">–<span> từ</span></div>
+          </div>
+          <div class="category-card review" onclick="startStudy('review')">
+            <div class="cat-icon"><i class="fas fa-circle-half-stroke"></i></div>
+            <div class="cat-label">50/50</div>
+            <div class="cat-desc">Chưa hoàn toàn chắc</div>
+            <div class="cat-count" id="countReview">–<span> từ</span></div>
+          </div>
+          <div class="category-card all" onclick="startStudy('all')">
+            <div class="cat-icon"><i class="fas fa-layer-group"></i></div>
+            <div class="cat-label">Tất cả</div>
+            <div class="cat-desc">Học toàn bộ từ vựng</div>
+            <div class="cat-count" id="countAll">–<span> từ</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== STUDY SCREEN ===== -->
+      <div id="studyScreen">
+        <div class="top-controls">
+          <div class="study-top-left">
+            <button class="icon-btn" id="backToHomeBtn" onclick="goBackToHome()">
+              <i class="fas fa-arrow-left"></i>
+            </button>
+            <span class="mode-badge" id="modeBadge"></span>
+          </div>
+        </div>
+
+        <div class="main-content">
+          <div class="flashcard-container" id="flashcardContainer">
+            <!-- Next card (underneath) -->
+            <div class="flashcard-next" id="flashcardNext">
+              <div class="card-face card-front" id="nextFront"></div>
+            </div>
+            <!-- Current card (on top, draggable) -->
+            <div class="flashcard" id="flashcard">
+              <div class="card-face card-front" id="currentFront"></div>
+              <div class="card-face card-back" id="currentBack"></div>
+            </div>
+            <div class="swipe-indicator" id="indKnown">✓ Đã biết</div>
+            <div class="swipe-indicator" id="indUnknown">✗ Chưa biết</div>
+            <div class="swipe-indicator" id="indReview">● 50/50</div>
+
+            <ul class="options-menu" id="optionsMenu">
+              <li><button class="options-menu-item" onclick="openModal(event, 'dictionaryModal')"><i class="fas fa-book"></i> Từ điển</button></li>
+              <li><button class="options-menu-item" onclick="openModal(event, 'editModal')"><i class="fas fa-edit"></i> Sửa thẻ</button></li>
+              <li><button class="options-menu-item" onclick="openModal(event, 'sentenceModal')"><i class="fas fa-comment-dots"></i> Tạo câu ví dụ</button></li>
+              <li><button class="options-menu-item" onclick="openModal(event, 'synAntModal')"><i class="fas fa-exchange-alt"></i> Đồng nghĩa &amp; Trái nghĩa</button></li>
+              <li><button class="options-menu-item" onclick="openModal(event, 'settingsModal')"><i class="fas fa-sliders-h"></i> Cài đặt</button></li>
+            </ul>
+          </div>
+
+          <div class="shortcuts-info">
+            <h3>Phím tắt</h3>
+            <ul id="shortcutsInfoList"></ul>
+          </div>
+        </div>
+
+        <div class="swipe-hint">
+          <div class="swipe-hint-item"><div class="swipe-hint-dot" style="background:#ef4444"></div>Trái = Chưa biết</div>
+          <div class="swipe-hint-item"><div class="swipe-hint-dot" style="background:#22c55e"></div>Phải = Đã biết</div>
+          <div class="swipe-hint-item"><div class="swipe-hint-dot" style="background:#eab308"></div>Xuống = 50/50</div>
+        </div>
+
+        <div class="card-controls">
+          <button class="btn btn-secondary" onclick="previousCard()"><i class="fas fa-chevron-left"></i> Trước</button>
+          <button class="btn btn-secondary" onclick="randomCard()"><i class="fas fa-random"></i> Ngẫu nhiên</button>
+          <button class="btn btn-secondary" onclick="toggleAutoPlay()"><i class="fas fa-play" id="autoPlayIcon"></i> Tự động</button>
+          <button class="btn btn-primary" onclick="nextCard()">Tiếp <i class="fas fa-chevron-right"></i></button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Modals -->
+    <div class="modal" id="dictionaryModal">
+      <div class="modal-header">
+        <h2>Từ điển</h2>
+        <button class="close-btn" onclick="closeAllModals(event)"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="modal-content" id="dictionaryContent"></div>
+    </div>
+
+    <div class="modal" id="editModal">
+      <div class="modal-header">
+        <h2>Sửa Flashcard</h2>
+        <button class="close-btn" onclick="closeAllModals(event)"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="modal-content">
+        <form class="edit-form" onsubmit="saveEdit(event)">
+          <label for="editWord">Từ vựng:</label>
+          <input type="text" id="editWord" required />
+          <label for="editIPA">Phiên âm (IPA):</label>
+          <input type="text" id="editIPA" />
+          <label for="editMeaning">Nghĩa:</label>
+          <textarea id="editMeaning" required></textarea>
+          <label for="editImage">URL hình ảnh (nếu có):</label>
+          <input type="url" id="editImage" />
+          <button class="btn btn-primary" type="submit">Lưu thay đổi</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="modal" id="sentenceModal">
+      <div class="modal-header">
+        <h2>Câu Ví Dụ</h2>
+        <button class="close-btn" onclick="closeAllModals(event)"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="modal-content">
+        <div id="sentenceContent"></div>
+        <div id="sentenceTranslation" style="color: var(--text-muted); margin-top: 1rem;"></div>
+        <button class="btn btn-secondary" onclick="generateSentence(event)" style="margin-top: 1rem; width: 100%;">
+          <i class="fas fa-sync-alt"></i> Tạo câu ví dụ
+        </button>
+      </div>
+    </div>
+
+    <div class="modal" id="synAntModal">
+      <div class="modal-header">
+        <h2>Từ Đồng Nghĩa &amp; Trái Nghĩa</h2>
+        <button class="close-btn" onclick="closeAllModals(event)"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="modal-content" id="synAntContent"></div>
+    </div>
+
+    <div class="modal" id="settingsModal">
+      <div class="modal-header">
+        <h2>Cài đặt</h2>
+        <button class="close-btn" onclick="closeAllModals(event)"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="modal-content">
+        <label for="voiceSelect">Giọng đọc:</label>
+        <select id="voiceSelect" class="edit-form"></select>
+        <h3 style="margin-top: 1.5rem;">Phím tắt</h3>
+        <ul id="shortcutsList"></ul>
+      </div>
+    </div>
+
+    <script>
+      // ===== FIREBASE BOOTSTRAP =====
+      const firebaseScripts = [
+        "https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js",
+        "https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js",
+        "https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"
+      ];
+      let scriptLoadedCount = 0;
+      firebaseScripts.forEach(src => {
+        const script = document.createElement('script');
+        script.src = src;
+        script.async = false;
+        script.onload = () => { if (++scriptLoadedCount === firebaseScripts.length) initializeApp(); };
+        document.head.appendChild(script);
+      });
+
+      let db, auth, currentUser, currentFolderId;
+
+      function initializeApp() {
+        const firebaseConfig = {
+          apiKey: "AIzaSyAm-p5xIzMi7Rkt6y9TzODJLFjdpLKBIlg",
+          authDomain: "wordwhizzy.firebaseapp.com",
+          projectId: "wordwhizzy",
+          storageBucket: "wordwhizzy.appspot.com",
+          messagingSenderId: "179575783469",
+          appId: "1:179575783469:web:30d0ae652af3cfda4bb8a4",
+          measurementId: "G-XPFQ8PCTRE"
+        };
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+        db = firebase.firestore();
+        auth = firebase.auth();
+        auth.onAuthStateChanged(user => {
+          if (user) { currentUser = user; main(); }
+          else window.location.href = 'login.html';
+        });
+      }
+
+      // ===== STATE =====
+      let currentIndex = 0;
+      let flashcards = [];
+      let studyList = [];
+      let studyMode = 'all';
+      let autoPlayInterval = null;
+      let isFlipped = false; // track flip state explicitly
+
+      const modalOverlay = document.getElementById("modalOverlay");
+      const optionsMenu  = document.getElementById("optionsMenu");
+      const allModals    = document.querySelectorAll(".modal");
+      const voiceSelect  = document.getElementById("voiceSelect");
+      let voices = [];
+      let userSettings = {};
+      let keybindings = {};
+      const defaultKeybindings = { flip: " ", next: "ArrowRight", prev: "ArrowLeft", audio: "Control" };
+
+      // ===== MAIN =====
+      async function main() {
+        loadUserSettings();
+        const urlParams = new URLSearchParams(window.location.search);
+        currentFolderId = urlParams.get("id");
+
+        if (!currentFolderId) {
+          alert("Không tìm thấy thông tin thư mục!");
+          window.location.href = "vocabulary.html";
+          return;
+        }
+
+        document.getElementById("backButtonHome").href = `study-options.html?id=${currentFolderId}`;
+
+        const flashcardsRef = db.collection('users').doc(currentUser.uid).collection('flashcards').doc(currentFolderId);
+        const doc = await flashcardsRef.get();
+
+        if (doc.exists) {
+          flashcards = doc.data().words || [];
+          let needsSave = false;
+          flashcards.forEach(card => {
+            if (!card.status) { card.status = 'unknown'; needsSave = true; }
+          });
+          if (needsSave) await saveFlashcardsToFirestore();
+
+          const folderName = doc.data().name || doc.data().title || 'Bộ thẻ';
+          document.getElementById('homeFolderName').textContent = folderName;
+
+          updateHomeCounts();
+          showHomeScreen();
+          populateVoiceList();
+          if (speechSynthesis.onvoiceschanged !== undefined) {
+            speechSynthesis.onvoiceschanged = populateVoiceList;
+          }
+        } else {
+          alert("Không tìm thấy dữ liệu bộ thẻ. Vui lòng tạo bộ thẻ trước.");
+          window.location.href = `vocabulary-input.html?id=${currentFolderId}`;
+        }
+
+        modalOverlay.addEventListener("click", closeAllModals);
+        voiceSelect.addEventListener("change", handleVoiceChange);
+        document.addEventListener("keydown", handleGlobalKeyDown);
+        document.addEventListener("click", (e) => {
+          if (!optionsMenu.contains(e.target) && !e.target.closest(".action-buttons")) {
+            optionsMenu.classList.remove("active");
+          }
+        });
+      }
+
+      // ===== HOME SCREEN =====
+      function updateHomeCounts() {
+        const counts = { unknown: 0, known: 0, review: 0, all: flashcards.length };
+        flashcards.forEach(c => {
+          if (c.status === 'known') counts.known++;
+          else if (c.status === 'review') counts.review++;
+          else counts.unknown++;
+        });
+        document.getElementById('countUnknown').innerHTML = `${counts.unknown}<span> từ</span>`;
+        document.getElementById('countKnown').innerHTML   = `${counts.known}<span> từ</span>`;
+        document.getElementById('countReview').innerHTML  = `${counts.review}<span> từ</span>`;
+        document.getElementById('countAll').innerHTML     = `${counts.all}<span> từ</span>`;
+      }
+
+      function showHomeScreen() {
+        document.getElementById('homeScreen').classList.add('active');
+        document.getElementById('studyScreen').classList.remove('active');
+        document.getElementById('progress').style.width = '0%';
+      }
+
+      function goBackToHome() {
+        if (autoPlayInterval) { clearInterval(autoPlayInterval); autoPlayInterval = null; }
+        updateHomeCounts();
+        showHomeScreen();
+      }
+
+      function startStudy(mode) {
+        studyMode = mode;
+
+        if (mode === 'all')          studyList = [...flashcards];
+        else if (mode === 'unknown') studyList = flashcards.filter(c => c.status === 'unknown' || !c.status);
+        else if (mode === 'known')   studyList = flashcards.filter(c => c.status === 'known');
+        else if (mode === 'review')  studyList = flashcards.filter(c => c.status === 'review');
+
+        if (studyList.length === 0) { alert('Không có từ nào trong danh mục này!'); return; }
+
+        const badge = document.getElementById('modeBadge');
+        const modeMap = { unknown: ['Chưa biết', 'unknown'], known: ['Đã biết', 'known'], review: ['50/50', 'review'], all: ['Tất cả', 'all'] };
+        const [label, cls] = modeMap[mode];
+        badge.textContent = label;
+        badge.className = `mode-badge ${cls}`;
+
+        document.getElementById('homeScreen').classList.remove('active');
+        document.getElementById('studyScreen').classList.add('active');
+
+        currentIndex = 0;
+        showCard(0);
+        initSwipeSystem();
+      }
+
+      // ===== FIREBASE SAVE =====
+      async function saveFlashcardsToFirestore() {
+        if (!currentUser || !currentFolderId) return;
+        const ref = db.collection('users').doc(currentUser.uid).collection('flashcards').doc(currentFolderId);
+        try { await ref.update({ words: flashcards }); }
+        catch (e) { console.error("Lỗi khi lưu vào Firestore:", e); alert("Đã có lỗi xảy ra khi lưu thay đổi."); }
+      }
+
+      // ===== EDIT =====
+      async function saveEdit(event) {
+        event.preventDefault();
+        const word    = document.getElementById("editWord").value;
+        const ipa     = document.getElementById("editIPA").value;
+        const meaning = document.getElementById("editMeaning").value;
+        const image   = document.getElementById("editImage").value;
+
+        const card = studyList[currentIndex];
+        Object.assign(card, { word, ipa, meaning, image: image || card.image });
+        const masterIdx = flashcards.findIndex(c => c === card || (c.word === card.word && c.meaning === card.meaning));
+        if (masterIdx !== -1) flashcards[masterIdx] = card;
+        await saveFlashcardsToFirestore();
+        showCard(currentIndex);
+        closeAllModals();
+      }
+
+      // ===== SETTINGS =====
+      function loadUserSettings() {
+        const saved = JSON.parse(localStorage.getItem("userFlashcardSettings"));
+        userSettings = saved || { voiceURI: null, keybindings: { ...defaultKeybindings } };
+        keybindings = userSettings.keybindings || { ...defaultKeybindings };
+        updateShortcutsInfo();
+      }
+
+      function saveUserSettings() {
+        userSettings.keybindings = keybindings;
+        localStorage.setItem("userFlashcardSettings", JSON.stringify(userSettings));
+        updateShortcutsInfo();
+      }
+
+      function populateVoiceList() {
+        voices = speechSynthesis.getVoices();
+        voiceSelect.innerHTML = "";
+        const savedVoiceURI = userSettings.voiceURI;
+        voices.forEach(voice => {
+          if (voice.lang.startsWith("en")) {
+            const option = document.createElement("option");
+            option.textContent = `${voice.name} (${voice.lang})`;
+            option.setAttribute("data-voice-uri", voice.voiceURI);
+            voiceSelect.appendChild(option);
+            if (voice.voiceURI === savedVoiceURI) option.selected = true;
+          }
+        });
+      }
+
+      function displayKeybindings() {
+        const keyMap = { flip: "Lật thẻ", next: "Thẻ tiếp", prev: "Thẻ trước", audio: "Nghe" };
+        const list = document.getElementById("shortcutsList");
+        list.innerHTML = "";
+        for (const action in keybindings) {
+          const li = document.createElement("li");
+          li.innerHTML = `<span>${keyMap[action]}:</span><div><kbd>${keybindings[action] === " " ? "Space" : keybindings[action]}</kbd><button onclick="beginRebind(event)" data-action="${action}">Đổi</button></div>`;
+          list.appendChild(li);
+        }
+      }
+
+      function beginRebind(e) {
+        const action  = e.target.dataset.action;
+        const display = e.target.previousElementSibling;
+        display.textContent = "Chờ phím...";
+        display.classList.add("rebinding");
+        document.addEventListener("keydown", function handleNewKey(event) {
+          event.preventDefault();
+          keybindings[action] = event.key;
+          saveUserSettings();
+          display.textContent = event.key === " " ? "Space" : event.key;
+          display.classList.remove("rebinding");
+          document.removeEventListener("keydown", handleNewKey, true);
+        }, { capture: true, once: true });
+      }
+
+      function updateShortcutsInfo() {
+        const keyMap = { flip: "Lật thẻ", next: "Thẻ tiếp", prev: "Thẻ trước", audio: "Nghe" };
+        const list = document.getElementById('shortcutsInfoList');
+        if (!list) return;
+        list.innerHTML = "";
+        for (const action in keybindings) {
+          const li = document.createElement("li");
+          li.innerHTML = `<span>${keyMap[action]}</span><kbd>${keybindings[action] === " " ? "Space" : keybindings[action]}</kbd>`;
+          list.appendChild(li);
+        }
+      }
+
+      function handleVoiceChange(e) {
+        userSettings.voiceURI = e.target.options[e.target.selectedIndex].getAttribute("data-voice-uri");
+        saveUserSettings();
+      }
+
+      function handleGlobalKeyDown(event) {
+        if (document.querySelector(".modal.active") || document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA') return;
+        if (!document.getElementById('studyScreen').classList.contains('active')) return;
+        const action = Object.keys(keybindings).find(k => keybindings[k] === event.key);
+        if (action) {
+          event.preventDefault();
+          switch (action) {
+            case "flip":  flipCard(); break;
+            case "next":  nextCard(); break;
+            case "prev":  previousCard(); break;
+            case "audio": playAudioDirect(); break;
+          }
+        }
+      }
+
+      // ===== CARD RENDERING =====
+      function renderCardFront(card, index, totalCount) {
+        return `
+          <span class="card-counter">${index + 1}/${totalCount}</span>
+          <div class="action-buttons">
+            <button class="icon-btn" data-action="audio"><i class="fas fa-volume-up"></i></button>
+            <button class="icon-btn" data-action="menu"><i class="fas fa-ellipsis-h"></i></button>
+          </div>
+          ${card.image ? `<img src="${card.image}" class="card-image" alt="${card.word}">` : ""}
+          <div class="card-word">${card.word}</div>
+          <div class="card-phonetic">${card.ipa || ""}</div>`;
+      }
+
+      function renderCardBack(card) {
+        return `<div class="card-word">${card.meaning}</div>`;
+      }
+
+      function showCard(index) {
+        if (studyList.length === 0) return;
+        currentIndex = index;
+        isFlipped = false;
+
+        const fc = document.getElementById('flashcard');
+        const currentFront = document.getElementById('currentFront');
+        const currentBack  = document.getElementById('currentBack');
+
+        // Render current card
+        const card = studyList[index];
+        currentFront.innerHTML = renderCardFront(card, index, studyList.length);
+        currentBack.innerHTML  = renderCardBack(card);
+
+        // Attach button listeners (stopPropagation prevents flip)
+        currentFront.querySelector('[data-action="audio"]').addEventListener('click', function(e) {
+          e.stopPropagation();
+          e.preventDefault();
+          playAudioDirect();
+        });
+        currentFront.querySelector('[data-action="menu"]').addEventListener('click', function(e) {
+          e.stopPropagation();
+          e.preventDefault();
+          toggleOptionsMenu(e);
+        });
+
+        // Reset card state — but only when NOT mid-swipe-animation
+        // (onPointerUp handles transform/opacity during swipe)
+        fc.classList.remove('flipped');
+        fc.classList.add('can-flip');
+        fc.style.transition = 'none';
+        fc.style.transform  = '';
+        fc.style.opacity    = '1';
+
+        // Render next card underneath
+        renderNextCard();
+
+        updateProgress();
+        closeAllModals();
+      }
+
+      function renderNextCard() {
+        const nextEl = document.getElementById('flashcardNext');
+        const nextFront = document.getElementById('nextFront');
+        if (studyList.length <= 1) {
+          nextEl.style.display = 'none';
+          return;
+        }
+        nextEl.style.display = '';
+        const nextIndex = (currentIndex + 1) % studyList.length;
+        const nextCard = studyList[nextIndex];
+        nextFront.innerHTML = renderCardFront(nextCard, nextIndex, studyList.length);
+      }
+
+      function updateProgress() {
+        if (studyList.length === 0) return;
+        document.getElementById("progress").style.width = `${((currentIndex + 1) / studyList.length) * 100}%`;
+      }
+
+      // ===== FLIP (completely separate from swipe) =====
+      function flipCard() {
+        if (document.querySelector(".modal.active") || optionsMenu.classList.contains("active")) return;
+        if (studyList.length === 0) return;
+        const fc = document.getElementById("flashcard");
+        isFlipped = !isFlipped;
+        fc.classList.add('can-flip');
+        if (isFlipped) {
+          fc.classList.add('flipped');
+        } else {
+          fc.classList.remove('flipped');
+        }
+      }
+
+      // ===== NAVIGATION =====
+      function nextCard() {
+        if (studyList.length === 0) return;
+        showCard((currentIndex + 1) % studyList.length);
+      }
+      function previousCard() {
+        if (studyList.length === 0) return;
+        showCard((currentIndex - 1 + studyList.length) % studyList.length);
+      }
+      function randomCard() {
+        if (studyList.length > 1) showCard(Math.floor(Math.random() * studyList.length));
+      }
+
+      function toggleAutoPlay() {
+        const btn  = document.querySelector(".btn[onclick='toggleAutoPlay()']");
+        const icon = document.getElementById("autoPlayIcon");
+        if (autoPlayInterval) {
+          clearInterval(autoPlayInterval);
+          autoPlayInterval = null;
+          btn.classList.remove("active");
+          icon.className = "fas fa-play";
+        } else {
+          autoPlayInterval = setInterval(nextCard, 3000);
+          btn.classList.add("active");
+          icon.className = "fas fa-pause";
+        }
+      }
+
+      // ===== AUDIO =====
+      function playAudioDirect() {
+        if (studyList.length === 0) return;
+        const utterance = new SpeechSynthesisUtterance(studyList[currentIndex].word);
+        utterance.voice = voices.find(v => v.voiceURI === userSettings.voiceURI) || voices.find(v => v.lang.startsWith('en'));
+        speechSynthesis.speak(utterance);
+      }
+
+      // Legacy wrapper for inline onclick (kept for compatibility)
+      function playAudio(event) {
+        if (event) event.stopPropagation();
+        playAudioDirect();
+      }
+
+      // ===== OPTIONS MENU =====
+      function toggleOptionsMenu(event) {
+        if (event) event.stopPropagation();
+        optionsMenu.classList.toggle("active");
+      }
+
+      // ===== MODALS =====
+      function closeAllModals(event) {
+        if (event) event.stopPropagation();
+        modalOverlay.classList.remove("active");
+        allModals.forEach(m => m.classList.remove("active"));
+        optionsMenu.classList.remove("active");
+      }
+
+      async function openModal(event, modalId) {
+        event.stopPropagation();
+        closeAllModals();
+        if (studyList.length === 0) { alert("Không có thẻ nào để thực hiện hành động này."); return; }
+        const modal = document.getElementById(modalId);
+        if (!modal) return;
+        modalOverlay.classList.add("active");
+        modal.classList.add("active");
+        const card = studyList[currentIndex];
+        switch (modalId) {
+          case "dictionaryModal": searchDictionary(); break;
+          case "editModal":
+            document.getElementById("editWord").value    = card.word;
+            document.getElementById("editIPA").value     = card.ipa || "";
+            document.getElementById("editMeaning").value = card.meaning;
+            document.getElementById("editImage").value   = card.image || "";
+            break;
+          case "sentenceModal":
+            document.getElementById("sentenceContent").innerHTML     = "Nhấn nút bên dưới để tạo câu ví dụ.";
+            document.getElementById("sentenceTranslation").innerHTML = "";
+            break;
+          case "synAntModal": fetchSynonymsAntonyms(); break;
+          case "settingsModal": populateVoiceList(); displayKeybindings(); break;
+        }
+      }
+
+      // ===== DICTIONARY =====
+      async function searchDictionary() {
+        const word    = studyList[currentIndex].word;
+        const content = document.getElementById("dictionaryContent");
+        content.innerHTML = "Đang tìm...";
+        try {
+          const res  = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${word}`);
+          const data = await res.json();
+          if (res.ok) {
+            const entry = data[0];
+            let html = `<h2>${entry.word}</h2><p>${entry.phonetic || ''}</p>`;
+            entry.meanings.forEach(m => {
+              html += `<h3>${m.partOfSpeech}</h3><p>${m.definitions[0].definition}</p>`;
+            });
+            content.innerHTML = html;
+          } else {
+            content.innerHTML = "Không tìm thấy từ.";
+          }
+        } catch (e) { content.innerHTML = "Lỗi khi tra từ điển."; }
+      }
+
+      // ===== EXAMPLE SENTENCE =====
+      async function generateSentence(event) {
+        if (event) event.stopPropagation();
+        const word        = studyList[currentIndex].word;
+        const content     = document.getElementById("sentenceContent");
+        const translation = document.getElementById("sentenceTranslation");
+        content.innerHTML     = "Đang tìm...";
+        translation.innerHTML = "";
+        try {
+          const res  = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${word}`);
+          const data = await res.json();
+          if (res.ok) {
+            let example = null;
+            for (const meaning of data[0].meanings) {
+              for (const def of meaning.definitions) {
+                if (def.example) { example = def.example; break; }
+              }
+              if (example) break;
+            }
+            if (example) {
+              content.innerHTML = example.replace(new RegExp(word, 'gi'), `<strong>${word}</strong>`);
+              translation.innerHTML = "";
+            } else {
+              content.innerHTML = `Không tìm thấy câu ví dụ cho "<strong>${word}</strong>" trong từ điển.`;
+            }
+          } else {
+            content.innerHTML = `Không tìm thấy từ "<strong>${word}</strong>" trong từ điển.`;
+          }
+        } catch (e) { content.innerHTML = "Lỗi khi tìm câu ví dụ."; }
+      }
+
+      // ===== SYNONYMS & ANTONYMS =====
+      async function fetchSynonymsAntonyms() {
+        const word    = studyList[currentIndex].word;
+        const content = document.getElementById("synAntContent");
+        content.innerHTML = "Đang tìm...";
+        try {
+          const res = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${word}`);
+
+          if (!res.ok) {
+            const [synRes, antRes] = await Promise.all([
+              fetch(`https://api.datamuse.com/words?rel_syn=${word}&max=5`),
+              fetch(`https://api.datamuse.com/words?rel_ant=${word}&max=5`)
+            ]);
+            const synonyms = await synRes.json();
+            const antonyms = await antRes.json();
+            if (synonyms.length > 0 || antonyms.length > 0) {
+              let html = `<h3 style="margin-bottom:0.5rem">Đồng nghĩa</h3><ul>${synonyms.map(s => `<li>${s.word}</li>`).join('') || '<li>Không có</li>'}</ul>`;
+              html += `<h3 style="margin-top:1rem;margin-bottom:0.5rem">Trái nghĩa</h3><ul>${antonyms.map(a => `<li>${a.word}</li>`).join('') || '<li>Không có</li>'}</ul>`;
+              content.innerHTML = html;
+            } else {
+              content.innerHTML = "Không tìm thấy từ đồng nghĩa hoặc trái nghĩa cho từ này.";
+            }
+            return;
+          }
+
+          const data  = await res.json();
+          const entry = data[0];
+          let html = '';
+
+          if (entry && entry.meanings) {
+            entry.meanings.forEach(meaning => {
+              const synonyms = meaning.synonyms || [];
+              const antonyms = meaning.antonyms || [];
+              if (synonyms.length > 0 || antonyms.length > 0) {
+                html += `<div style="margin-bottom:1.5rem">`;
+                html += `<h3 style="font-size:1.1rem;color:var(--accent);border-bottom:1px solid var(--border);padding-bottom:0.5rem;margin-bottom:1rem">Loại từ: ${meaning.partOfSpeech}</h3>`;
+                if (synonyms.length > 0) {
+                  html += `<h4 style="font-weight:600;margin-bottom:0.5rem">Từ đồng nghĩa</h4><p style="display:flex;flex-wrap:wrap;gap:8px">`;
+                  synonyms.forEach(s => { html += `<span style="background:var(--bg-soft);padding:5px 10px;border-radius:8px;border:1px solid var(--border)">${s}</span>`; });
+                  html += `</p>`;
+                }
+                if (antonyms.length > 0) {
+                  html += `<h4 style="font-weight:600;margin-top:1rem;margin-bottom:0.5rem">Từ trái nghĩa</h4><p style="display:flex;flex-wrap:wrap;gap:8px">`;
+                  antonyms.forEach(a => { html += `<span style="background:var(--bg-soft);padding:5px 10px;border-radius:8px;border:1px solid var(--border)">${a}</span>`; });
+                  html += `</p>`;
+                }
+                html += `</div>`;
+              }
+            });
+          }
+
+          content.innerHTML = html.trim() || "Không tìm thấy từ đồng nghĩa hoặc trái nghĩa cho từ này.";
+        } catch (e) { console.error(e); content.innerHTML = "Đã có lỗi xảy ra khi tìm kiếm."; }
+      }
+
+      // ===== STATUS / SWIPE =====
+      // applyStatus is now fully synchronous for UI; Firebase save runs in background.
+      function applyStatus(status) {
+        const card   = studyList[currentIndex];
+        card.status  = status;
+        const master = flashcards.find(c => c === card || c.word === card.word);
+        if (master) master.status = status;
+
+        // 🔥 Background save — never blocks the render thread
+        saveFlashcardsToFirestore().catch(e => console.error("BG save error:", e));
+
+        if (studyMode !== 'all') {
+          if (studyMode !== status) {
+            studyList.splice(currentIndex, 1);
+            if (studyList.length === 0) { alert('Bạn đã hoàn thành tất cả thẻ trong danh mục này!'); goBackToHome(); return; }
+            currentIndex = Math.min(currentIndex, studyList.length - 1);
+            showCard(currentIndex);
+            return;
+          }
+        }
+        nextCard();
+      }
+
+      // ===========================================================
+      //  SWIPE GESTURE SYSTEM — Complete rewrite
+      //  Goals: 60 FPS drag, clean tap/drag separation, direction
+      //  locking, instant next-card reveal, no button interference.
+      // ===========================================================
+      let swipeSystemInitialized = false;
+
+      function initSwipeSystem() {
+        if (swipeSystemInitialized) return;
+        swipeSystemInitialized = true;
+
+        const fc   = document.getElementById('flashcard');
+        const container = document.getElementById('flashcardContainer');
+        const iK   = document.getElementById('indKnown');
+        const iU   = document.getElementById('indUnknown');
+        const iR   = document.getElementById('indReview');
+        const gR   = document.getElementById('glowRight');
+        const gL   = document.getElementById('glowLeft');
+        const gD   = document.getElementById('glowDown');
+
+        // ---- Tunables ----
+        const TAP_THRESHOLD    = 8;   // px — movement under this = tap (flip)
+        const DRAG_DEAD_ZONE   = 4;   // px — ignore micro-jitter before deciding drag
+        const SWIPE_COMMIT     = 80;  // px — distance to commit a swipe action
+        const DIRECTION_LOCK_RATIO = 1.4; // lock horizontal vs vertical
+
+        // ---- Pointer state ----
+        let pointerDown   = false;
+        let startX = 0, startY = 0;
+        let dx = 0, dy = 0;
+        let hasDragged    = false;  // moved past TAP_THRESHOLD
+        let isDragging    = false;  // actively in drag mode
+        let lockedDir     = null;   // 'h' | 'v' | null
+        let committed     = false;  // swipe animation playing
+        let pointerId     = null;
+        let rafId         = null;
+
+        // ---- Visual feedback (runs every rAF while dragging) ----
+        function renderDragFrame() {
+          if (!isDragging) return;
+
+          const absX = Math.abs(dx);
+          const absY = Math.abs(dy);
+          const rot  = dx * 0.05;
+
+          // Move card (translate3d for GPU compositing)
+          fc.style.transform = `translate3d(${dx}px, ${dy}px, 0) rotate(${rot}deg)`;
+
+          // Compute indicator opacity
+          let oK = 0, oU = 0, oR = 0;
+          let oGR = 0, oGL = 0, oGD = 0;
+
+          if (lockedDir === 'h' && absX > 20) {
+            const ratio = Math.min((absX - 20) / 60, 1);
+            if (dx > 0) { oK = ratio; oGR = ratio * 0.85; }
+            else        { oU = ratio; oGL = ratio * 0.85; }
+          } else if (lockedDir === 'v' && dy > 20) {
+            const ratio = Math.min((dy - 20) / 60, 1);
+            oR = ratio; oGD = ratio * 0.85;
+          }
+
+          iK.style.opacity = oK;
+          iU.style.opacity = oU;
+          iR.style.opacity = oR;
+          gR.style.opacity = oGR;
+          gL.style.opacity = oGL;
+          gD.style.opacity = oGD;
+
+          rafId = requestAnimationFrame(renderDragFrame);
+        }
+
+        function resetIndicators() {
+          iK.style.opacity = 0;
+          iU.style.opacity = 0;
+          iR.style.opacity = 0;
+          gR.style.opacity = 0;
+          gL.style.opacity = 0;
+          gD.style.opacity = 0;
+        }
+
+        // ---- Pointer handlers ----
+        function onPointerDown(e) {
+          // Ignore if a modal is open, or card is animating out
+          if (committed) return;
+          if (document.querySelector('.modal.active')) return;
+
+          // Ignore if the target is a button / interactive element
+          if (e.target.closest('.action-buttons') ||
+              e.target.closest('.options-menu') ||
+              e.target.closest('.icon-btn') ||
+              e.target.closest('button')) {
+            return;
+          }
+
+          pointerDown = true;
+          hasDragged  = false;
+          isDragging  = false;
+          lockedDir   = null;
+          pointerId   = e.pointerId;
+          startX = e.clientX;
+          startY = e.clientY;
+          dx = 0;
+          dy = 0;
+
+          // Remove flip transition while potentially dragging
+          fc.classList.remove('can-flip');
+          fc.style.transition = 'none';
+
+          // Capture pointer for smooth tracking even outside element
+          fc.setPointerCapture(e.pointerId);
+        }
+
+        function onPointerMove(e) {
+          if (!pointerDown || committed) return;
+          if (e.pointerId !== pointerId) return;
+
+          dx = e.clientX - startX;
+          dy = e.clientY - startY;
+          const absX = Math.abs(dx);
+          const absY = Math.abs(dy);
+          const dist = Math.sqrt(dx * dx + dy * dy);
+
+          // Still in dead zone?
+          if (dist < DRAG_DEAD_ZONE) return;
+
+          // Crossed tap threshold → this is a drag
+          if (!hasDragged && dist >= TAP_THRESHOLD) {
+            hasDragged = true;
+          }
+
+          if (!hasDragged) return;
+
+          // Lock direction on first significant movement
+          if (!lockedDir) {
+            if (absX > absY * DIRECTION_LOCK_RATIO) {
+              lockedDir = 'h';
+            } else if (absY > absX * DIRECTION_LOCK_RATIO && dy > 0) {
+              lockedDir = 'v';
+            } else if (absX > 15 || absY > 15) {
+              // Force a decision
+              lockedDir = absX >= absY ? 'h' : (dy > 0 ? 'v' : 'h');
+            }
+          }
+
+          // Constrain movement to locked direction
+          if (lockedDir === 'h') { dy = 0; }
+          else if (lockedDir === 'v') { dx = 0; if (dy < 0) dy = 0; }
+
+          // Start rendering if not already
+          if (!isDragging) {
+            isDragging = true;
+            if (rafId) cancelAnimationFrame(rafId);
+            rafId = requestAnimationFrame(renderDragFrame);
+          }
+        }
+
+        function onPointerUp(e) {
+          if (!pointerDown || committed) return;
+          if (e.pointerId !== pointerId) return;
+          pointerDown = false;
+
+          // Stop render loop
+          if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+          isDragging = false;
+
+          // Release pointer capture
+          try { fc.releasePointerCapture(e.pointerId); } catch (_) {}
+
+          // ---- TAP (flip) ----
+          if (!hasDragged) {
+            fc.classList.add('can-flip');
+            fc.style.transform = '';
+            fc.style.transition = '';
+            resetIndicators();
+            flipCard();
+            return;
+          }
+
+          // ---- Evaluate swipe commit ----
+          const absX = Math.abs(dx);
+
+          let direction = null;
+          if (lockedDir === 'h' && absX >= SWIPE_COMMIT) {
+            direction = dx > 0 ? 'right' : 'left';
+          } else if (lockedDir === 'v' && dy >= SWIPE_COMMIT) {
+            direction = 'down';
+          }
+
+          if (direction) {
+            // ---- COMMIT SWIPE ----
+            committed = true;
+            resetIndicators();
+
+            let flyX = 0, flyY = 0, status;
+            if (direction === 'right')     { flyX =  window.innerWidth * 1.3;  status = 'known'; }
+            else if (direction === 'left') { flyX = -window.innerWidth * 1.3;  status = 'unknown'; }
+            else                           { flyY =  window.innerHeight * 1.3; status = 'review'; }
+
+            const rot = dx * 0.06;
+
+            // 1. Fly active card off-screen
+            fc.style.transition = 'transform 0.22s cubic-bezier(0.4,0,0.8,0.5), opacity 0.18s ease';
+            fc.style.transform  = `translate3d(${flyX}px, ${flyY}px, 0) rotate(${rot}deg)`;
+            fc.style.opacity    = '0';
+
+            // 2. After fly-out completes: update data & render next card INTO fc while it's
+            //    invisible (opacity=0, still off-screen). Then animate it into view.
+            setTimeout(() => {
+              // Update status & advance index synchronously (no await)
+              applyStatus(status);
+
+              // applyStatus calls showCard() which resets fc transform/opacity to defaults.
+              // We want a smooth scale-in instead of a hard appear, so override right after.
+              requestAnimationFrame(() => {
+                fc.style.transition = 'none';
+                fc.style.transform  = 'scale(0.94)';
+                fc.style.opacity    = '0';
+
+                requestAnimationFrame(() => {
+                  fc.style.transition = 'transform 0.2s cubic-bezier(0.2,0.8,0.3,1), opacity 0.15s ease';
+                  fc.style.transform  = '';
+                  fc.style.opacity    = '1';
+                  committed = false;
+                });
+              });
+            }, 220);
+
+          } else {
+            // ---- SNAP BACK (didn't reach threshold) ----
+            fc.style.transition = 'transform 0.28s cubic-bezier(0.2,0.8,0.3,1)';
+            fc.style.transform  = '';
+            resetIndicators();
+
+            setTimeout(() => {
+              fc.classList.add('can-flip');
+              fc.style.transition = '';
+            }, 300);
+          }
+        }
+
+        function onPointerCancel(e) {
+          if (e.pointerId !== pointerId) return;
+          pointerDown = false;
+          isDragging  = false;
+          if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+          fc.classList.add('can-flip');
+          fc.style.transition = 'transform 0.28s cubic-bezier(0.2,0.8,0.3,1)';
+          fc.style.transform  = '';
+          resetIndicators();
+          setTimeout(() => { fc.style.transition = ''; }, 300);
+        }
+
+        // ---- Attach listeners to the card ----
+        fc.addEventListener('pointerdown', onPointerDown, { passive: true });
+        fc.addEventListener('pointermove', onPointerMove, { passive: true });
+        fc.addEventListener('pointerup',   onPointerUp,   { passive: true });
+        fc.addEventListener('pointercancel', onPointerCancel, { passive: true });
+
+        // Prevent native drag (images etc.)
+        fc.addEventListener('dragstart', e => e.preventDefault());
+
+        // Prevent context menu on long press (mobile)
+        fc.addEventListener('contextmenu', e => e.preventDefault());
+
+        // Touch-action: allow vertical scrolling of page but handle horizontal ourselves
+        fc.style.touchAction = 'none';
+      }
+    </script>
+  </body>
+</html>

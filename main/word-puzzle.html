@@ -1,0 +1,1089 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Luyện Tập Cột Từ Vựng | Vocabulary Master</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --text: #0f172a;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --radius: 16px;
+      --radius-sm: 12px;
+      --accent: #4f6ef7;
+      --accent-light: #eef1ff;
+      --success: #10b981;
+      --success-light: #ecfdf5;
+      --error: #ef4444;
+      --error-light: #fef2f2;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.05);
+      --shadow: 0 10px 30px rgba(79,110,247,0.12), 0 1px 8px rgba(0,0,0,0.04);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
+
+    body {
+      background: var(--bg); color: var(--text);
+      min-height: 100vh; padding-bottom: 7rem;
+    }
+
+    /* ── HEADER ── */
+    .header {
+      position: sticky; top: 0; z-index: 200;
+      background: rgba(255,255,255,0.85); backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px); border-bottom: 1px solid var(--border);
+      padding: 0.9rem 1.5rem; display: flex; align-items: center; justify-content: space-between;
+    }
+    .header-left { display: flex; align-items: center; gap: 1rem; }
+    .header h1 { font-size: 1.2rem; font-weight: 700; color: var(--text); letter-spacing: -0.4px; }
+    
+    .icon-btn {
+      width: 40px; height: 40px; border-radius: var(--radius-sm);
+      background: var(--surface); border: 1px solid var(--border);
+      color: var(--text-muted); display: inline-flex; align-items: center; justify-content: center;
+      cursor: pointer; font-size: 0.95rem; transition: all 0.2s ease; text-decoration: none;
+    }
+    .icon-btn:hover { background: var(--accent-light); color: var(--accent); border-color: var(--accent); }
+
+    .container { max-width: 900px; margin: 0 auto; padding: 2rem 1.2rem; }
+
+    /* ── DASHBOARD CONTROLS ── */
+    .dashboard {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.25rem; margin-bottom: 2rem;
+      box-shadow: var(--shadow-sm); display: flex; flex-wrap: wrap; gap: 1.5rem;
+      align-items: center; justify-content: space-between;
+    }
+    .dashboard-left { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+
+    .mode-selector {
+      display: flex; background: var(--bg); padding: 4px;
+      border-radius: 10px; border: 1px solid var(--border);
+    }
+    .mode-tab {
+      padding: 8px 16px; font-size: 0.88rem; font-weight: 600;
+      color: var(--text-muted); border: none; background: transparent;
+      cursor: pointer; border-radius: 8px; transition: all 0.2s;
+    }
+    .mode-tab.active { background: var(--surface); color: var(--accent); box-shadow: var(--shadow-sm); }
+
+    .action-btn {
+      padding: 8px 16px; font-size: 0.88rem; font-weight: 600; color: var(--text);
+      background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+      cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s;
+    }
+    .action-btn:hover { background: var(--accent-light); color: var(--accent); border-color: var(--accent); }
+
+    .phase-badges { display: flex; gap: 0.75rem; }
+    .phase-badge {
+      padding: 8px 14px; border-radius: var(--radius-sm); font-size: 0.85rem;
+      font-weight: 600; display: flex; align-items: center; gap: 8px;
+      border: 1px solid var(--border); cursor: pointer; transition: all 0.2s;
+    }
+    .phase-badge.p1 { background: #eff6ff; color: #1d4ed8; border-color: #bfdbfe; }
+    .phase-badge.p2 { background: #fff7ed; color: #c2410c; border-color: #ffedd5; }
+    .phase-badge.active { transform: scale(1.04); box-shadow: 0 4px 12px rgba(0,0,0,0.05); border-width: 1.5px; }
+    .phase-badge.p1.active { border-color: #2563eb; }
+    .phase-badge.p2.active { border-color: #ea580c; }
+
+    /* ── TWIN COLUMNS SYSTEM ── */
+    .column-header {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;
+      padding: 0 1rem 0.75rem 1rem; font-size: 0.78rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted);
+    }
+
+    .cards-list { display: flex; flex-direction: column; gap: 0.75rem; }
+
+    .word-row {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;
+      align-items: center; animation: slideUp 0.3s ease-out;
+      transition: opacity 0.35s ease, transform 0.35s ease;
+    }
+    @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    .col-pane {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius-sm); padding: 1.1rem 1.3rem; min-height: 60px;
+      display: flex; align-items: center; box-shadow: var(--shadow-sm);
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); position: relative;
+    }
+
+    /* Giao diện Từ vựng chứa Nút Star */
+    .col-pane.prompt { background: #f8fafc; }
+    .prompt-content { display: flex; align-items: center; gap: 12px; width: 100%; }
+    
+    .star-btn {
+      font-size: 1.25rem;
+      color: #cbd5e1;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+      padding: 5px;
+    }
+    .star-btn:hover { color: #f59e0b; transform: scale(1.15); }
+    .star-btn.active { color: #f59e0b; }
+
+    .word-info { display: flex; flex-direction: column; }
+    .word-text { font-weight: 600; font-size: 1.05rem; }
+    .word-info .ipa { font-size: 0.85rem; color: var(--text-muted); font-weight: 400; margin-top: 2px; }
+
+    .col-pane.input-pane { padding: 0; overflow: hidden; }
+    .col-pane input {
+      width: 100%; height: 100%; border: none; padding: 1.1rem 1.3rem;
+      font-size: 1.05rem; font-weight: 500; background: transparent;
+      outline: none; color: var(--text); transition: background 0.2s;
+    }
+    .col-pane input:disabled { color: var(--text); opacity: 1; -webkit-text-fill-color: var(--text); }
+    .col-pane.input-pane:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(79,110,247,0.15); }
+
+    .col-pane.success-state { background: var(--success-light); border-color: var(--success); color: #065f46; }
+    .col-pane.error-state { background: var(--error-light); border-color: var(--error); color: #991b1b; animation: shake 0.35s ease-in-out; }
+    @keyframes shake { 0%, 100% { transform: translateX(0); } 20%, 60% { transform: translateX(-6px); } 40%, 80% { transform: translateX(6px); } }
+
+    .feedback-icon {
+      position: absolute; right: 1.2rem; font-size: 1.1rem;
+      display: none; top: 50%; transform: translateY(-50%);
+    }
+    .success-state .feedback-icon.correct { display: block; color: var(--success); }
+    .error-state .feedback-icon.wrong { display: block; color: var(--error); }
+
+    .correct-answer-tip {
+      font-size: 0.8rem; font-weight: 600; color: var(--error);
+      position: absolute; bottom: 2px; left: 1.3rem; opacity: 0.9;
+    }
+
+    .floating-submit {
+      position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%);
+      background: linear-gradient(135deg, #4f6ef7, #3b5bdb); color: white;
+      padding: 14px 36px; border-radius: 99px; font-weight: 600; font-size: 1.05rem;
+      box-shadow: var(--shadow); border: none; cursor: pointer; display: flex;
+      align-items: center; gap: 12px; z-index: 1000; transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .floating-submit:hover { transform: translateX(-50%) translateY(-4px) scale(1.02); box-shadow: 0 16px 40px rgba(79,110,247,0.3); }
+    .floating-submit:active { transform: translateX(-50%) scale(0.98); }
+
+    .empty-state {
+      text-align: center; padding: 4rem 2rem; background: var(--surface); border: 1px dashed var(--border);
+      border-radius: var(--radius); display: none;
+    }
+    .empty-state i { font-size: 3rem; color: #cbd5e1; margin-bottom: 1rem; }
+    .empty-state h3 { font-size: 1.1rem; font-weight: 600; margin-bottom: 0.3rem; }
+    .empty-state p { color: var(--text-muted); font-size: 0.9rem; }
+
+    /* ── NOTIFICATION TOAST ── */
+    .notification {
+      position: fixed; bottom: 2rem; right: 2rem; padding: 16px 20px; border-radius: var(--radius);
+      color: #fff; background: #1e293b; box-shadow: 0 20px 40px rgba(0,0,0,0.2); 
+      z-index: 5000; opacity: 0; transform: translateY(20px);
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); display: flex; flex-direction: column; gap: 10px;
+      max-width: 350px; width: calc(100% - 4rem);
+    }
+    .notification.show { opacity: 1; transform: translateY(0); }
+    .notification-content { display: flex; align-items: start; gap: 12px; font-size: 0.92rem; font-weight: 500; line-height: 1.4; }
+    .notification-content i { font-size: 1.2rem; margin-top: 2px; }
+    .notification-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 4px; }
+    .toast-btn {
+      padding: 6px 12px; border-radius: 8px; font-size: 0.82rem; font-weight: 600; cursor: pointer; border: none; transition: all 0.2s;
+    }
+    .toast-btn.confirm { background: var(--accent); color: white; }
+    .toast-btn.confirm:hover { background: #3b5bdb; }
+    .toast-btn.cancel { background: #334155; color: #cbd5e1; }
+    .toast-btn.cancel:hover { background: #475569; color: white; }
+
+    .notification.success { background: var(--success); }
+    .notification.info { background: var(--accent); }
+    .notification.warning { background: #f59e0b; }
+
+    /* ── FLASHCARD SYSTEM ── */
+    .flashcard-view {
+      display: none; flex-direction: column; align-items: center; gap: 1.5rem;
+      width: 100%; animation: slideUp 0.35s ease-out; margin-bottom: 2rem;
+    }
+    .card-perspective {
+      perspective: 1000px; width: 100%; max-width: 500px; height: 300px; cursor: pointer;
+    }
+    .card-inner {
+      position: relative; width: 100%; height: 100%; text-align: center;
+      transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      transform-style: preserve-3d;
+    }
+    .card-inner.flipped { transform: rotateY(180deg); }
+    .card-face {
+      position: absolute; width: 100%; height: 100%; backface-visibility: hidden;
+      border-radius: var(--radius); border: 1px solid var(--border);
+      box-shadow: var(--shadow); display: flex; flex-direction: column;
+      align-items: center; justify-content: center; padding: 2rem; background: var(--surface);
+    }
+    .card-face.front { color: var(--text); }
+    .card-face.back {
+      color: var(--text); transform: rotateY(180deg);
+      background: linear-gradient(135deg, var(--accent-light), #f1f5ff);
+      border-color: var(--accent);
+    }
+    .fc-word { font-size: 2.2rem; font-weight: 700; color: var(--text); letter-spacing: -0.5px; word-break: break-word; }
+    .fc-ipa { font-size: 1.1rem; color: var(--text-muted); margin-top: 0.4rem; font-weight: 400; }
+    .fc-meaning { font-size: 1.85rem; font-weight: 600; color: var(--accent); word-break: break-word; }
+    
+    .fc-audio-btn {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 50%;
+      width: 48px; height: 48px; display: inline-flex; align-items: center; justify-content: center;
+      color: var(--accent); cursor: pointer; transition: all 0.2s ease; font-size: 1.1rem; margin-top: 1rem;
+      box-shadow: var(--shadow-sm);
+    }
+    .fc-audio-btn:hover { background: var(--accent); color: white; transform: scale(1.08); border-color: var(--accent); }
+    
+    .fc-controls { display: flex; align-items: center; gap: 1.5rem; width: 100%; max-width: 500px; justify-content: space-between; }
+    .fc-btn {
+      padding: 10px 22px; border-radius: var(--radius-sm); border: 1px solid var(--border);
+      background: var(--surface); font-weight: 600; cursor: pointer; transition: all 0.2s;
+      display: inline-flex; align-items: center; gap: 8px; font-size: 0.92rem; color: var(--text);
+      box-shadow: var(--shadow-sm);
+    }
+    .fc-btn:hover { background: var(--accent-light); color: var(--accent); border-color: var(--accent); }
+    .fc-progress { font-size: 1rem; font-weight: 700; color: var(--text-muted); letter-spacing: 0.5px; }
+
+    /* Gợi ý phím tắt tối giản bên dưới */
+    .fc-shortcuts-tip {
+      font-size: 0.78rem; color: var(--text-muted); margin-top: 0.5rem;
+      display: flex; gap: 1rem; justify-content: center; opacity: 0.8;
+    }
+    .fc-shortcuts-tip span kbd {
+      background: #e2e8f0; border-radius: 4px; padding: 2px 6px;
+      font-family: monospace; font-weight: 600; color: var(--text); box-shadow: 0 1px 0 rgba(0,0,0,0.2);
+    }
+
+    @media (max-width: 640px) {
+      .word-row { grid-template-columns: 1fr; gap: 0.4rem; margin-bottom: 0.5rem; }
+      .column-header { display: none; }
+      .dashboard { flex-direction: column; align-items: stretch; }
+      .floating-submit { bottom: 1.5rem; width: 90%; justify-content: center; }
+      .notification { right: 1rem; bottom: 1.5rem; width: calc(100% - 2rem); }
+      .fc-shortcuts-tip { display: none; } /* Ẩn gợi ý trên mobile */
+    }
+  </style>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-left">
+    <a href="javascript:history.back()" class="icon-btn" title="Quay lại">
+      <i class="fas fa-arrow-left"></i>
+    </a>
+    <h1 id="folderTitle">Đang tải bộ từ vựng...</h1>
+  </div>
+</header>
+
+<div class="container">
+  <section class="dashboard">
+    <div class="dashboard-left">
+      <div class="mode-selector">
+        <button class="mode-tab active" id="tab_en_vi" onclick="switchMode('en_vi')">EN → VI</button>
+        <button class="mode-tab" id="tab_vi_en" onclick="switchMode('vi_en')">VI → EN</button>
+      </div>
+      <button class="action-btn" id="btnToggleFlashcard" onclick="toggleFlashcardMode()" title="Chuyển sang chế độ thẻ Flashcard" style="background: var(--accent-light); color: var(--accent); border-color: var(--accent); font-weight: 600;">
+        <i class="fas fa-clone"></i> Học Flashcard
+      </button>
+      <button class="action-btn" onclick="shuffleWords()" title="Xáo trộn danh sách từ vựng">
+        <i class="fas fa-random"></i> Xáo từ
+      </button>
+      <button class="action-btn" onclick="resetProgress()" title="Xóa dữ liệu tiến trình và học lại từ đầu">
+        <i class="fas fa-rotate-left"></i> Làm mới
+      </button>
+    </div>
+
+    <div class="phase-badges">
+      <div class="phase-badge p1 active" id="badgeP1" onclick="switchPhase(1)">
+        <i class="fas fa-layer-group"></i> Giai đoạn 1: <span id="countP1">0</span>
+      </div>
+      <div class="phase-badge p2" id="badgeP2" onclick="switchPhase(2)">
+        <i class="fas fa-exclamation-circle"></i> Giai đoạn 2 (Sai): <span id="countP2">0</span>
+      </div>
+    </div>
+  </section>
+
+  <div id="flashcardView" class="flashcard-view">
+    <div class="mode-selector">
+      <button class="mode-tab active" id="fc_tab_starred" onclick="switchFlashcardSource('starred')">
+        <i class="fas fa-star" style="color: #f59e0b;"></i> Đánh dấu sao (<span id="fcCountStarred">0</span>)
+      </button>
+      <button class="mode-tab" id="fc_tab_phase2" onclick="switchFlashcardSource('phase2')">
+        <i class="fas fa-exclamation-circle"></i> Giai đoạn 2 (<span id="fcCountPhase2">0</span>)
+      </button>
+    </div>
+    
+    <div class="card-perspective" onclick="flipFlashcard()">
+      <div class="card-inner" id="flashcardInner">
+        <div class="card-face front">
+          <div class="fc-word" id="fcFrontWord">-</div>
+          <div class="fc-ipa" id="fcFrontIpa"></div>
+          <div id="fcFrontAudioContainer"></div>
+        </div>
+        <div class="card-face back">
+          <div class="fc-meaning" id="fcBackMeaning">-</div>
+          <div class="fc-ipa" id="fcBackIpa"></div>
+          <div id="fcBackAudioContainer"></div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="fc-controls" id="fcControls">
+      <button class="fc-btn" onclick="prevFlashcard()"><i class="fas fa-chevron-left"></i> Trước</button>
+      <span class="fc-progress" id="fcProgress">0 / 0</span>
+      <button class="fc-btn" onclick="nextFlashcard()">Sau <i class="fas fa-chevron-right"></i></button>
+    </div>
+
+    <div class="fc-shortcuts-tip" id="fcShortcutsTip">
+      <span><kbd>←</kbd> <kbd>→</kbd> Chuyển thẻ</span>
+      <span><kbd>Space</kbd> Lật thẻ</span>
+      <span><kbd>Ctrl</kbd> Phát Audio</span>
+    </div>
+    
+    <div class="empty-state" id="fcEmptyState" style="width: 100%; max-width: 500px;">
+      <i class="fas fa-cubes"></i>
+      <h3 id="fcEmptyTitle">Danh sách trống</h3>
+      <p id="fcEmptyDesc">Không có từ vựng nào khả dụng ở bộ lọc này.</p>
+    </div>
+  </div>
+
+  <div class="column-header">
+    <div id="colLabelLeft">Tiếng Anh</div>
+    <div id="colLabelRight">Nhập Tiếng Việt (Ấn Enter để xuống dòng)</div>
+  </div>
+
+  <main class="cards-list" id="cardsContainer"></main>
+
+  <div class="empty-state" id="emptyState">
+    <i class="fas fa-check-circle" id="emptyIcon"></i>
+    <h3 id="emptyTitle">Tuyệt vời!</h3>
+    <p id="emptyDesc">Không có từ nào ở giai đoạn này.</p>
+  </div>
+</div>
+
+<button class="floating-submit" id="btnSubmitAll" onclick="submitAllTest()" style="display: none;">
+  <i class="fas fa-paper-plane"></i> Nộp toàn bài
+</button>
+
+<div id="notification" class="notification"></div>
+
+<script>
+/* =========================================================
+   CONFIG & STATE MANAGEMENT
+   ========================================================= */
+let db, auth, currentUser;
+let currentFolderId = null;
+
+let dataset = [];     
+let phase1 = [];      
+let phase2 = [];      
+let currentPhase = 1; 
+let testMode = 'en_vi'; 
+let isSubmitting = false;
+
+let tempWrongWords = [];
+let starredWords = [];
+let saveTimeout;
+
+/* =========================================================
+   FLASHCARD STATE
+   ========================================================= */
+let isFlashcardMode = false;
+let flashcardSource = 'starred'; // 'starred' hoặc 'phase2'
+let flashcardIndex = 0;
+
+/* =========================================================
+   BOOTSTRAP FIREBASE
+   ========================================================= */
+const FB_SCRIPTS = [
+  "https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js",
+  "https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js",
+  "https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"
+];
+let fbLoaded = 0;
+FB_SCRIPTS.forEach(src => {
+  const s = document.createElement('script');
+  s.src = src; s.async = false;
+  s.onload = () => { if (++fbLoaded === FB_SCRIPTS.length) initApp(); };
+  document.head.appendChild(s);
+});
+
+function initApp() {
+  const cfg = {
+    apiKey: "AIzaSyAm-p5xIzMi7Rkt6y9TzODJLFjdpLKBIlg",
+    authDomain: "wordwhizzy.firebaseapp.com",
+    projectId: "wordwhizzy",
+    storageBucket: "wordwhizzy.appspot.com"
+  };
+  if (!firebase.apps.length) firebase.initializeApp(cfg);
+  db   = firebase.firestore();
+  auth = firebase.auth();
+  auth.onAuthStateChanged(user => {
+    if (user) { currentUser = user; main(); }
+    else window.location.href = 'login.html';
+  });
+}
+
+/* =========================================================
+   CORE LOGIC & LOAD DATA
+   ========================================================= */
+async function main() {
+  const params = new URLSearchParams(window.location.search);
+  currentFolderId = params.get("id");
+  if (!currentFolderId) {
+    showNotification("Không tìm thấy ID thư mục dữ liệu!", "error"); return;
+  }
+
+  try {
+    const userDoc = await db.collection('users').doc(currentUser.uid).get();
+    if (userDoc.exists && userDoc.data().folders) {
+      const folders = userDoc.data().folders;
+      for (const key in folders) {
+        const found = folders[key].find(f => f.id == currentFolderId);
+        if (found) { document.getElementById('folderTitle').textContent = `Luyện tập: ${found.name}`; break; }
+      }
+    }
+
+    const doc = await db.collection('users').doc(currentUser.uid).collection('flashcards').doc(currentFolderId).get();
+    if (doc.exists && doc.data().words) {
+      dataset = doc.data().words;
+      
+      const localData = localStorage.getItem(`vocab_study_${currentFolderId}`);
+      if (localData) {
+        try {
+          const parsed = JSON.parse(localData);
+          phase1 = parsed.phase1 || [];
+          phase2 = parsed.phase2 || [];
+          currentPhase = parsed.currentPhase || 1;
+          testMode = parsed.testMode || 'en_vi';
+        } catch(e) { phase1 = [...dataset]; }
+      } else {
+        phase1 = [...dataset];
+      }
+
+      await loadStarredWords();
+      
+      updateVisualTabs();
+      renderDashboard();
+    } else {
+      document.getElementById('folderTitle').textContent = "Thư mục trống";
+      updateEmptyState(true);
+    }
+  } catch (err) {
+    console.error(err); showNotification("Lỗi đồng bộ dữ liệu.", "error");
+  }
+}
+
+/* =========================================================
+   STARRED WORDS SYSTEM (Firebase Sync)
+   ========================================================= */
+async function loadStarredWords() {
+  try {
+    const doc = await db.collection('users').doc(currentUser.uid).collection('review').doc('saved').get();
+    if (doc.exists && doc.data().words) {
+      starredWords = doc.data().words;
+    } else {
+      starredWords = [];
+    }
+  } catch (e) {
+    console.error("Lỗi khi tải từ đã lưu:", e);
+  }
+}
+
+async function toggleStar(id) {
+  const wordObj = dataset.find(w => w.id === id);
+  if (!wordObj) return;
+
+  const idx = starredWords.findIndex(w => w.word.toLowerCase() === wordObj.word.toLowerCase());
+  const starIcon = document.getElementById(`star_${id}`);
+
+  if (idx !== -1) {
+    starredWords.splice(idx, 1);
+    if(starIcon) {
+      starIcon.classList.remove('active', 'fas');
+      starIcon.classList.add('far');
+    }
+    showNotification('Đã gỡ khỏi danh sách Flashcard.', 'warning');
+  } else {
+    starredWords.push(wordObj);
+    if(starIcon) {
+      starIcon.classList.remove('far');
+      starIcon.classList.add('fas', 'active');
+    }
+    showNotification('Đã lưu vào bộ thẻ Flashcard riêng!', 'success');
+  }
+
+  if (isFlashcardMode) {
+    document.getElementById('fcCountStarred').textContent = starredWords.length;
+    if (flashcardSource === 'starred') {
+      if (flashcardIndex >= starredWords.length && flashcardIndex > 0) {
+        flashcardIndex = starredWords.length - 1;
+      }
+      renderFlashcard();
+    }
+  }
+
+  try {
+    await db.collection('users').doc(currentUser.uid).collection('review').doc('saved').set({ words: starredWords });
+  } catch (e) {
+    console.error("Lỗi khi lưu sao:", e);
+    showNotification("Không thể lưu trạng thái sao.", "error");
+  }
+}
+
+/* =========================================================
+   LOCAL STORAGE ENGINE
+   ========================================================= */
+function saveLocalState() {
+  if (!currentFolderId) return;
+  const inputs = {};
+  document.querySelectorAll('.input-pane input').forEach(input => {
+    const id = input.id.replace('field_', '');
+    inputs[id] = input.value;
+  });
+
+  const state = {
+    phase1: phase1,
+    phase2: phase2,
+    currentPhase: currentPhase,
+    testMode: testMode,
+    inputs: inputs
+  };
+  localStorage.setItem(`vocab_study_${currentFolderId}`, JSON.stringify(state));
+}
+
+function debouncedSave() {
+  clearTimeout(saveTimeout);
+  saveTimeout = setTimeout(saveLocalState, 500); 
+}
+
+function resetProgress() {
+  if (!confirm("Bạn có chắc chắn muốn làm mới toàn bộ tiến trình học của thư mục này?")) return;
+  localStorage.removeItem(`vocab_study_${currentFolderId}`);
+  phase1 = [...dataset];
+  phase2 = [];
+  currentPhase = 1;
+  isSubmitting = false;
+  document.querySelectorAll('.input-pane input').forEach(input => input.value = '');
+  if (isFlashcardMode) toggleFlashcardMode(); 
+  updateVisualTabs();
+  renderDashboard();
+  showNotification("Đã xóa dữ liệu, làm lại từ đầu!", "success");
+}
+
+/* =========================================================
+   UI RENDERING
+   ========================================================= */
+function updateVisualTabs() {
+  document.querySelectorAll('.mode-tab').forEach(t => t.classList.remove('active'));
+  const currentTab = document.getElementById(`tab_${testMode}`);
+  if(currentTab) currentTab.classList.add('active');
+  
+  document.getElementById('badgeP1').classList.toggle('active', currentPhase === 1);
+  document.getElementById('badgeP2').classList.toggle('active', currentPhase === 2);
+}
+
+function renderDashboard() {
+  document.getElementById('countP1').textContent = phase1.length;
+  document.getElementById('countP2').textContent = phase2.length;
+  
+  if (testMode === 'en_vi') {
+    document.getElementById('colLabelLeft').textContent = "Tiếng Anh (EN)";
+    document.getElementById('colLabelRight').textContent = "Nhập Tiếng Việt (VI) + Ấn Enter để xuống dòng";
+  } else {
+    document.getElementById('colLabelLeft').textContent = "Tiếng Việt (VI)";
+    document.getElementById('colLabelRight').textContent = "Nhập Tiếng Anh (EN) + Ấn Enter để xuống dòng";
+  }
+
+  const container = document.getElementById('cardsContainer');
+  container.innerHTML = '';
+
+  const activeList = currentPhase === 1 ? phase1 : phase2;
+
+  if (activeList.length === 0) {
+    updateEmptyState(true);
+    document.getElementById('btnSubmitAll').style.display = 'none';
+    return;
+  }
+  
+  updateEmptyState(false);
+  if (!isFlashcardMode) document.getElementById('btnSubmitAll').style.display = 'flex';
+
+  let savedInputs = {};
+  try {
+    const localData = localStorage.getItem(`vocab_study_${currentFolderId}`);
+    if (localData) savedInputs = JSON.parse(localData).inputs || {};
+  } catch(e) {}
+
+  activeList.forEach((item) => {
+    const row = document.createElement('div');
+    row.className = 'word-row';
+    row.id = `row_${item.id}`;
+
+    const isStarred = starredWords.some(w => w.word.toLowerCase() === item.word.toLowerCase());
+    const starClass = isStarred ? 'fas active' : 'far';
+
+    let leftContent = `
+      <div class="prompt-content">
+        <i class="${starClass} fa-star star-btn" id="star_${item.id}" onclick="toggleStar('${item.id}')" title="Lưu vào Sổ tay Flashcard"></i>
+        <div class="word-info">
+          <div class="word-text">${testMode === 'en_vi' ? escapeHtml(item.word) : escapeHtml(item.meaning)}</div>
+          ${testMode === 'en_vi' && item.ipa ? `<div class="ipa">${escapeHtml(item.ipa)}</div>` : ''}
+        </div>
+      </div>
+    `;
+
+    const inputValue = savedInputs[item.id] || '';
+
+    row.innerHTML = `
+      <div class="col-pane prompt">${leftContent}</div>
+      <div class="col-pane input-pane" id="inputWrapper_${item.id}">
+        <input type="text" placeholder="Nhập đáp án..." id="field_${item.id}" 
+               value="${escapeHtml(inputValue)}"
+               onkeydown="handleKeyDown(event, '${item.id}')" 
+               oninput="debouncedSave()" autocomplete="off" />
+        <i class="fas fa-check-circle feedback-icon correct"></i>
+        <i class="fas fa-times-circle feedback-icon wrong"></i>
+        <span class="correct-answer-tip" id="tip_${item.id}" style="display:none;"></span>
+      </div>
+    `;
+    container.appendChild(row);
+  });
+}
+
+function updateEmptyState(isEmpty) {
+  const view = document.getElementById('emptyState');
+  if (isEmpty) {
+    view.style.display = 'block';
+    if (currentPhase === 1) {
+      document.getElementById('emptyTitle').textContent = "Chúc mừng bạn đã hoàn tất!";
+      document.getElementById('emptyDesc').textContent = "Hãy kiểm tra Giai đoạn 2 nếu có từ lỗi.";
+    } else {
+      document.getElementById('emptyTitle').textContent = "Sạch bóng lỗi sai!";
+      document.getElementById('emptyDesc').textContent = "Tuyệt đỉnh, không còn từ vựng nào nằm trong vùng nguy hiểm.";
+    }
+  } else {
+    view.style.display = 'none';
+  }
+}
+
+/* =========================================================
+   CONTROLLER INTERACTIONS
+   ========================================================= */
+function switchMode(mode) {
+  if (testMode === mode || isSubmitting) return;
+  saveLocalState(); 
+  testMode = mode;
+  updateVisualTabs();
+  if (isFlashcardMode) {
+    resetFlashcardFlip();
+    renderFlashcard();
+  } else {
+    renderDashboard();
+  }
+  saveLocalState();
+}
+
+function switchPhase(phaseNum) {
+  if (currentPhase === phaseNum || isSubmitting) return;
+  saveLocalState();
+  currentPhase = phaseNum;
+  updateVisualTabs();
+  renderDashboard();
+  saveLocalState();
+}
+
+function shuffleWords() {
+  if (isSubmitting) return;
+  saveLocalState();
+  let activeList = currentPhase === 1 ? phase1 : phase2;
+  if (activeList.length <= 1) return showNotification("Danh sách quá ít từ để xáo trộn!", "info");
+  
+  for (let i = activeList.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [activeList[i], activeList[j]] = [activeList[j], activeList[i]];
+  }
+  
+  if (currentPhase === 1) phase1 = activeList; else phase2 = activeList;
+  renderDashboard();
+  saveLocalState();
+  showNotification("Đã trộn ngẫu nhiên thứ tự từ vựng!", "success");
+}
+
+function handleKeyDown(event, currentId) {
+  if (event.key === 'Enter') {
+    event.preventDefault(); 
+    const inputs = Array.from(document.querySelectorAll('.input-pane input:not([disabled])'));
+    const currentInput = document.getElementById(`field_${currentId}`);
+    const currentIndex = inputs.indexOf(currentInput);
+    
+    if (currentIndex !== -1 && currentIndex < inputs.length - 1) {
+      inputs[currentIndex + 1].focus();
+    } else if (currentIndex === inputs.length - 1) {
+      currentInput.blur();
+      const btnSubmit = document.getElementById('btnSubmitAll');
+      btnSubmit.style.transform = 'translateX(-50%) translateY(-6px) scale(1.05)';
+      setTimeout(() => btnSubmit.style.transform = '', 200);
+      showNotification("Đã nhập xong từ cuối cùng. Hãy bấm Nộp Bài!", "info");
+    }
+  }
+}
+
+/* =========================================================
+   SUBMIT ALL & TOAST DIALOG LOGIC
+   ========================================================= */
+function submitAllTest() {
+  if (isSubmitting) return;
+  isSubmitting = true;
+  
+  const inputs = document.querySelectorAll('.input-pane input');
+  let hasCheckedAny = false;
+  let correctCount = 0;
+  let wrongCount = 0;
+  tempWrongWords = []; 
+
+  const btnSubmit = document.getElementById('btnSubmitAll');
+  btnSubmit.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Đang chấm...`;
+  btnSubmit.style.opacity = '0.8';
+
+  inputs.forEach(inputField => {
+    if (inputField.disabled) return;
+    hasCheckedAny = true;
+    
+    const id = inputField.id.replace('field_', '');
+    const userAns = inputField.value.trim().toLowerCase();
+    const wrapper = document.getElementById(`inputWrapper_${id}`);
+    const tipEl = document.getElementById(`tip_${id}`);
+    
+    const wordObj = dataset.find(w => w.id === id);
+    if (!wordObj) return;
+
+    const targetAns = (testMode === 'en_vi' ? wordObj.meaning : wordObj.word).trim().toLowerCase();
+    inputField.disabled = true; 
+
+    if (userAns !== "" && (userAns === targetAns || cleanString(userAns) === cleanString(targetAns))) {
+      wrapper.className = "col-pane input-pane success-state";
+      correctCount++;
+      
+      if (currentPhase === 2) {
+        phase2 = phase2.filter(w => w.id !== id);
+        if (!phase1.some(w => w.id === id)) phase1.push(wordObj);
+      }
+    } else {
+      wrapper.className = "col-pane input-pane error-state";
+      tipEl.style.display = 'block';
+      tipEl.textContent = `Đáp án đúng: ${testMode === 'en_vi' ? wordObj.meaning : wordObj.word}`;
+      wrongCount++;
+
+      tempWrongWords.push(wordObj);
+    }
+  });
+
+  if (!hasCheckedAny) {
+    isSubmitting = false;
+    btnSubmit.innerHTML = `<i class="fas fa-paper-plane"></i> Nộp toàn bài`;
+    btnSubmit.style.opacity = '1';
+    return;
+  }
+
+  btnSubmit.style.display = 'none'; 
+  saveLocalState();
+  
+  showResultToast(correctCount, wrongCount);
+}
+
+function showResultToast(correct, wrong) {
+  const el = document.getElementById('notification');
+  el.className = 'notification show'; 
+  el.style.pointerEvents = 'auto'; 
+
+  let actionHtml = '';
+  if (currentPhase === 1 && wrong > 0) {
+    actionHtml = `
+      <div class="notification-actions">
+        <button class="toast-btn cancel" onclick="handleToastChoice(false)">Ở lại Gđ 1</button>
+        <button class="toast-btn confirm" onclick="handleToastChoice(true)">Chuyển sang Gđ 2</button>
+      </div>
+    `;
+  } else {
+    actionHtml = `
+      <div class="notification-actions">
+        <button class="toast-btn confirm" onclick="handleToastChoice(false)">Xác nhận</button>
+      </div>
+    `;
+  }
+
+  el.innerHTML = `
+    <div class="notification-content">
+      <i class="fas fa-poll-h" style="color: #4f6ef7;"></i>
+      <div>
+        <strong>Kết quả chấm bài:</strong><br/>
+        <span style="color: #10b981;">● Đúng: ${correct} từ</span> | 
+        <span style="color: #ef4444;">● Sai: ${wrong} từ</span>
+        ${currentPhase === 1 && wrong > 0 ? `<br/><span style="font-size:0.82rem; color:#cbd5e1; display:block; margin-top:4px;">Bạn có muốn chuyển các từ sai sang Giai đoạn 2 để ôn luyện riêng không?</span>` : ''}
+      </div>
+    </div>
+    ${actionHtml}
+  `;
+}
+
+function handleToastChoice(shouldMoveToPhase2) {
+  const el = document.getElementById('notification');
+  el.classList.remove('show');
+  el.style.pointerEvents = 'none';
+
+  if (currentPhase === 1 && tempWrongWords.length > 0) {
+    if (shouldMoveToPhase2) {
+      const wrongIds = tempWrongWords.map(w => w.id);
+      phase1 = phase1.filter(w => !wrongIds.includes(w.id));
+      
+      tempWrongWords.forEach(wordObj => {
+        if (!phase2.some(w => w.id === wordObj.id)) {
+          phase2.push(wordObj);
+        }
+      });
+
+      showNotification("Đã chuyển toàn bộ từ viết sai sang Giai đoạn 2!", "success");
+      currentPhase = 2; 
+    } else {
+      showNotification("Đã giữ lại toàn bộ từ vựng tại Giai đoạn 1.", "info");
+    }
+  }
+
+  isSubmitting = false;
+  tempWrongWords = [];
+  
+  document.querySelectorAll('.input-pane input').forEach(i => {
+    i.value = '';
+    i.disabled = false;
+  });
+
+  saveLocalState();
+  updateVisualTabs();
+  renderDashboard();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+/* =========================================================
+   FLASHCARD SYSTEM LOGIC
+   ========================================================= */
+function toggleFlashcardMode() {
+  isFlashcardMode = !isFlashcardMode;
+  const btn = document.getElementById('btnToggleFlashcard');
+  const normalWorkspace = [
+    document.querySelector('.column-header'),
+    document.getElementById('cardsContainer'),
+    document.getElementById('btnSubmitAll'),
+    document.getElementById('emptyState')
+  ];
+  const flashcardView = document.getElementById('flashcardView');
+  const normalDashboardActions = document.querySelectorAll('.dashboard-left .action-btn:not(#btnToggleFlashcard), .phase-badges');
+  
+  if (isFlashcardMode) {
+    btn.innerHTML = `<i class="fas fa-th-list"></i> Ghép Cột`;
+    btn.style.background = 'var(--surface)';
+    btn.style.color = 'var(--text)';
+    btn.style.borderColor = 'var(--border)';
+    
+    normalWorkspace.forEach(el => { if(el) el.style.display = 'none'; });
+    normalDashboardActions.forEach(el => { if(el) el.style.display = 'none'; });
+    
+    flashcardView.style.display = 'flex';
+    switchFlashcardSource(flashcardSource);
+  } else {
+    btn.innerHTML = `<i class="fas fa-clone"></i> Học Flashcard`;
+    btn.style.background = 'var(--accent-light)';
+    btn.style.color = 'var(--accent)';
+    btn.style.borderColor = 'var(--accent)';
+    
+    normalDashboardActions.forEach(el => { if(el) el.style.display = ''; });
+    flashcardView.style.display = 'none';
+    
+    renderDashboard();
+  }
+}
+
+function switchFlashcardSource(source) {
+  flashcardSource = source;
+  document.getElementById('fc_tab_starred').classList.toggle('active', source === 'starred');
+  document.getElementById('fc_tab_phase2').classList.toggle('active', source === 'phase2');
+  flashcardIndex = 0;
+  resetFlashcardFlip();
+  renderFlashcard();
+}
+
+function getFlashcardList() {
+  return flashcardSource === 'starred' ? starredWords : phase2;
+}
+
+function renderFlashcard() {
+  document.getElementById('fcCountStarred').textContent = starredWords.length;
+  document.getElementById('fcCountPhase2').textContent = phase2.length;
+  
+  const activeList = getFlashcardList();
+  const cardPerspective = document.querySelector('.card-perspective');
+  const controls = document.getElementById('fcControls');
+  const shortcutsTip = document.getElementById('fcShortcutsTip');
+  const emptyState = document.getElementById('fcEmptyState');
+  
+  if (!activeList || activeList.length === 0) {
+    cardPerspective.style.display = 'none';
+    controls.style.display = 'none';
+    if(shortcutsTip) shortcutsTip.style.display = 'none';
+    emptyState.style.display = 'block';
+    
+    if (flashcardSource === 'starred') {
+      document.getElementById('fcEmptyTitle').textContent = "Chưa có từ đánh dấu sao";
+      document.getElementById('fcEmptyDesc').textContent = "Hãy đánh dấu sao ở chế độ ghép cột để quản lý thẻ Flashcard tại đây.";
+    } else {
+      document.getElementById('fcEmptyTitle').textContent = "Giai đoạn 2 trống";
+      document.getElementById('fcEmptyDesc').textContent = "Tuyệt vời, không có từ vựng nào bị viết sai cần ôn luyện!";
+    }
+    return;
+  }
+  
+  cardPerspective.style.display = 'block';
+  controls.style.display = 'flex';
+  if(shortcutsTip && window.innerWidth > 640) shortcutsTip.style.display = 'flex';
+  emptyState.style.display = 'none';
+  
+  const item = activeList[flashcardIndex];
+  document.getElementById('fcProgress').textContent = `${flashcardIndex + 1} / ${activeList.length}`;
+  
+  const isEnFront = (testMode === 'en_vi');
+  
+  document.getElementById('fcFrontWord').textContent = isEnFront ? item.word : item.meaning;
+  document.getElementById('fcFrontIpa').textContent = (isEnFront && item.ipa) ? item.ipa : '';
+  
+  document.getElementById('fcBackMeaning').textContent = isEnFront ? item.meaning : item.word;
+  document.getElementById('fcBackIpa').textContent = (!isEnFront && item.ipa) ? item.ipa : '';
+  
+  const frontAudioContainer = document.getElementById('fcFrontAudioContainer');
+  const backAudioContainer = document.getElementById('fcBackAudioContainer');
+  frontAudioContainer.innerHTML = '';
+  backAudioContainer.innerHTML = '';
+  
+  const btnHtml = `<button class="fc-audio-btn" onclick="playFlashcardAudio(event)" title="Phát âm tiếng Anh"><i class="fas fa-volume-up"></i></button>`;
+  if (isEnFront) {
+    frontAudioContainer.innerHTML = btnHtml;
+  } else {
+    backAudioContainer.innerHTML = btnHtml;
+  }
+}
+
+function flipFlashcard() {
+  document.getElementById('flashcardInner').classList.toggle('flipped');
+}
+
+function resetFlashcardFlip() {
+  document.getElementById('flashcardInner').classList.remove('flipped');
+}
+
+function nextFlashcard() {
+  const activeList = getFlashcardList();
+  if (!activeList || activeList.length <= 1) return;
+  const inner = document.getElementById('flashcardInner');
+  const wasFlipped = inner.classList.contains('flipped');
+  
+  if (wasFlipped) {
+    inner.classList.remove('flipped');
+    setTimeout(() => {
+      flashcardIndex = (flashcardIndex + 1) % activeList.length;
+      renderFlashcard();
+    }, 250);
+  } else {
+    flashcardIndex = (flashcardIndex + 1) % activeList.length;
+    renderFlashcard();
+  }
+}
+
+function prevFlashcard() {
+  const activeList = getFlashcardList();
+  if (!activeList || activeList.length <= 1) return;
+  const inner = document.getElementById('flashcardInner');
+  const wasFlipped = inner.classList.contains('flipped');
+  
+  if (wasFlipped) {
+    inner.classList.remove('flipped');
+    setTimeout(() => {
+      flashcardIndex = (flashcardIndex - 1 + activeList.length) % activeList.length;
+      renderFlashcard();
+    }, 250);
+  } else {
+    flashcardIndex = (flashcardIndex - 1 + activeList.length) % activeList.length;
+    renderFlashcard();
+  }
+}
+
+function playFlashcardAudio(event) {
+  if (event) event.stopPropagation(); 
+  const activeList = getFlashcardList();
+  if (!activeList || activeList.length === 0) return;
+  const item = activeList[flashcardIndex];
+  
+  if ('speechSynthesis' in window) {
+    window.speechSynthesis.cancel(); 
+    const utterance = new SpeechSynthesisUtterance(item.word);
+    utterance.lang = 'en-US';
+    window.speechSynthesis.speak(utterance);
+  } else {
+    showNotification("Trình duyệt không hỗ trợ phát âm thanh.", "warning");
+  }
+}
+
+/* ── HỆ THỐNG PHÍM TẮT TOÀN CỤC CHO FLASHCARD ── */
+window.addEventListener('keydown', function(event) {
+  // Chỉ kích hoạt phím tắt khi đang bật chế độ Flashcard
+  if (!isFlashcardMode) return;
+
+  switch(event.key) {
+    case 'ArrowRight':
+      event.preventDefault(); // Ngăn cuộn trang
+      nextFlashcard();
+      break;
+    case 'ArrowLeft':
+      event.preventDefault(); // Ngăn cuộn trang
+      prevFlashcard();
+      break;
+    case ' ': // Phím Spacebar
+      event.preventDefault(); // Ngăn trình duyệt cuộn trang xuống dưới khi ấn Space
+      flipFlashcard();
+      break;
+    case 'Control':
+      event.preventDefault(); // Ngăn một số lệnh mặc định nếu có
+      playFlashcardAudio();
+      break;
+  }
+});
+
+/* =========================================================
+   UTILITIES
+   ========================================================= */
+function cleanString(str) {
+  return str.replace(/[^a-zA-Z0-9\sàáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễđìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹ]/g, '').trim();
+}
+
+function escapeHtml(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+let toastTimer;
+function showNotification(msg, type = 'success') {
+  const el = document.getElementById('notification');
+  el.className = `notification ${type} show`;
+  el.style.pointerEvents = 'none';
+  
+  let icon = 'info-circle';
+  if(type === 'success') icon = 'check-circle';
+  if(type === 'warning') icon = 'star-half-alt';
+  
+  el.innerHTML = `<div class="notification-content"><i class="fas fa-${icon}"></i> <div>${msg}</div></div>`;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 3000);
+}
+</script>
+</body>
+</html>
