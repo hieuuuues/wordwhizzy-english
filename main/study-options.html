@@ -403,21 +403,16 @@
       });
 
       function loadFolderInfo() {
-        const folders =
-          JSON.parse(localStorage.getItem("vocabularyFolders")) || {};
+        const folders = JSON.parse(localStorage.getItem("vocabularyFolders"));
         let folder = null;
 
-        // Duyệt qua các key thực sự có trong object thay vì giả định cứng
-        // day1..day7, tránh lỗi khi thiếu key khiến cả hàm bị dừng giữa chừng.
-        for (const dayKey in folders) {
-          if (Array.isArray(folders[dayKey])) {
-            const foundFolder = folders[dayKey].find(
-              (f) => f.id === parseInt(currentFolderId)
-            );
-            if (foundFolder) {
-              folder = foundFolder;
-              break;
-            }
+        for (let i = 1; i <= 7; i++) {
+          const foundFolder = folders[`day${i}`].find(
+            (f) => f.id === parseInt(currentFolderId)
+          );
+          if (foundFolder) {
+            folder = foundFolder;
+            break;
           }
         }
 
@@ -431,26 +426,6 @@
           ).textContent = `Lần ôn tập cuối: ${
             folder.lastReviewed || "Chưa ôn tập"
           }`;
-        } else {
-          // Không tìm thấy thông tin folder (dữ liệu bị lệch), nhưng vẫn có
-          // flashcards đã lưu -> hiển thị dựa trực tiếp trên dữ liệu đó để
-          // người dùng thấy đúng số từ vừa nhập thay vì để trống.
-          let flashcards = [];
-          try {
-            flashcards =
-              JSON.parse(
-                localStorage.getItem(`flashcards_${currentFolderId}`)
-              ) || [];
-          } catch (e) {
-            flashcards = [];
-          }
-          document.getElementById("folderName").textContent = "Bộ từ vựng";
-          document.getElementById(
-            "wordCount"
-          ).textContent = `Số từ: ${flashcards.length}`;
-          document.getElementById(
-            "lastReviewed"
-          ).textContent = "Lần ôn tập cuối: Chưa ôn tập";
         }
       }
 
