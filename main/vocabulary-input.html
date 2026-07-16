@@ -726,11 +726,7 @@
     <div id="notification" class="notification"></div>
 
     <script>
-      // === API miễn phí (không cần key, không giới hạn chi phí) ===
-      const DICTIONARY_API_URL = "https://api.dictionaryapi.dev/api/v2/entries/en/";
-      const GOOGLE_TRANSLATE_URL = "https://translate.googleapis.com/translate_a/single";
-      const MYMEMORY_TRANSLATE_URL = "https://api.mymemory.translated.net/get";
-
+      const WORKER_URL = "https://api-alpha-six-99.vercel.app/api/chat";
       let currentFolderId = null;
       let isAutoTranslateEnabled = true;
       const processingQueue = [];
@@ -865,80 +861,6 @@
         }
       }
 
-      // Chuẩn hóa IPA: luôn đảm bảo có dấu gạch chéo /.../ 
-      function normalizeIpa(raw) {
-        if (!raw) return "";
-        const trimmed = raw.trim();
-        if (!trimmed) return "";
-        const stripped = trimmed.replace(/^\/+|\/+$/g, "");
-        return stripped ? `/${stripped}/` : "";
-      }
-
-      // API #1: Free Dictionary API - lấy phiên âm IPA + từ loại (miễn phí, không cần key)
-      async function fetchDictionaryInfo(word) {
-        const response = await fetch(
-          `${DICTIONARY_API_URL}${encodeURIComponent(word.toLowerCase())}`
-        );
-        if (!response.ok) {
-          throw new Error(`Dictionary API status ${response.status}`);
-        }
-        const data = await response.json();
-        const entry = Array.isArray(data) ? data[0] : null;
-        if (!entry) throw new Error("Không có dữ liệu từ điển");
-
-        let ipa = "";
-        if (Array.isArray(entry.phonetics)) {
-          const withText = entry.phonetics.find((p) => p.text && p.text.trim());
-          if (withText) ipa = withText.text;
-        }
-        if (!ipa && entry.phonetic) ipa = entry.phonetic;
-
-        let type = "";
-        if (Array.isArray(entry.meanings) && entry.meanings.length) {
-          type = (entry.meanings[0].partOfSpeech || "").toLowerCase();
-        }
-
-        return { ipa: normalizeIpa(ipa), type };
-      }
-
-      // API #2 (chính): Google Translate (endpoint công khai, không cần key) - nhanh & chính xác nhất
-      async function fetchGoogleTranslate(word) {
-        const url = `${GOOGLE_TRANSLATE_URL}?client=gtx&sl=en&tl=vi&dt=t&dt=bd&q=${encodeURIComponent(
-          word
-        )}`;
-        const response = await fetch(url);
-        if (!response.ok) throw new Error(`Translate API status ${response.status}`);
-        const data = await response.json();
-
-        const meaning = Array.isArray(data[0])
-          ? data[0]
-              .map((chunk) => chunk[0])
-              .join("")
-              .trim()
-          : "";
-        if (!meaning) throw new Error("Không dịch được từ này");
-
-        let type = "";
-        if (data[1] && data[1][0] && data[1][0][0]) {
-          type = String(data[1][0][0]).toLowerCase();
-        }
-
-        return { meaning, type };
-      }
-
-      // API #3 (dự phòng): MyMemory - dùng khi Google Translate lỗi/chặn
-      async function fetchMyMemoryTranslate(word) {
-        const url = `${MYMEMORY_TRANSLATE_URL}?q=${encodeURIComponent(
-          word
-        )}&langpair=en|vi`;
-        const response = await fetch(url);
-        if (!response.ok) throw new Error(`MyMemory status ${response.status}`);
-        const data = await response.json();
-        const meaning = data?.responseData?.translatedText?.trim();
-        if (!meaning) throw new Error("Không dịch được từ này");
-        return { meaning, type: "" };
-      }
-
       async function fetchFullTranslation(inputElement) {
         const card = inputElement.closest(".vocabulary-card");
         const word = inputElement.value.trim();
@@ -964,28 +886,34 @@
         // typeInput.value = "";
         // ipaInput.value = "";
 
+        const systemPrompt = `You are an expert English-Vietnamese dictionary. For a given English word, return a structured JSON object. The JSON must include these keys: "meaning" (the most common Vietnamese translation), "type" (the word type in lowercase, e.g., 'noun', 'verb'), and "ipa" (the IPA transcription, including slashes). Word: "${word}"`;
+
         try {
-          // Gọi song song 2 nguồn miễn phí để tối ưu tốc độ (không chờ tuần tự)
-          const [dictResult, translateResult] = await Promise.allSettled([
-            fetchDictionaryInfo(word),
-            fetchGoogleTranslate(word).catch(() => fetchMyMemoryTranslate(word)),
-          ]);
+          const response = await fetch(WORKER_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              model: "gpt-4-turbo",
+              messages: [
+                { role: "system", content: systemPrompt },
+                { role: "user", content: `Word: ${word}` },
+              ],
+              temperature: 0.3,
+              response_format: { type: "json_object" },
+            }),
+          });
+          if (!response.ok)
+            throw new Error(`API error! status: ${response.status}`);
 
-          const dict = dictResult.status === "fulfilled" ? dictResult.value : null;
-          const translate =
-            translateResult.status === "fulfilled" ? translateResult.value : null;
+          const result = await response.json();
+          const content = JSON.parse(result.choices[0].message.content);
 
-          if (!dict && !translate) {
-            throw new Error("Không tìm thấy dữ liệu cho từ này");
-          }
-
-          meaningInput.value = translate?.meaning || "";
-          ipaInput.value = dict?.ipa || "";
-          // Ưu tiên từ loại từ Dictionary API (chuẩn hơn), fallback sang Google Translate
-          typeInput.value = dict?.type || translate?.type || "";
+          meaningInput.value = content.meaning || "";
+          typeInput.value = content.type || "";
+          ipaInput.value = content.ipa || "";
         } catch (error) {
           console.error("Error fetching translation:", error);
-          showNotification(`Không tìm thấy dữ liệu cho từ "${word}"`, "error");
+          showNotification(`Lỗi khi tra cứu từ "${word}"`, "error");
           meaningInput.value = "";
           typeInput.value = "";
           ipaInput.value = "";
@@ -1166,7 +1094,7 @@
         });
         updateCardNumbers();
 
-        const concurrencyLimit = 6; // API miễn phí nhẹ & nhanh nên có thể tăng số luồng đồng thời
+        const concurrencyLimit = 3; // Giảm giới hạn đồng thời để tránh quá tải API
         let activePromises = 0;
         let index = 0;
 
