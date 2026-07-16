@@ -1,1057 +1,1232 @@
 <!DOCTYPE html>
 <html lang="vi">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Tạo Bộ Thẻ | Vocabulary Master</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
-  <script src="https://cdn.jsdelivr.net/npm/browser-image-compression@2.0.1/dist/browser-image-compression.js"></script>
-  <style>
-    :root {
-      --bg: #f7f8fc;
-      --surface: #ffffff;
-      --text: #1a1d23;
-      --text-muted: #7c8398;
-      --border: #e4e7ef;
-      --radius: 16px;
-      --radius-sm: 10px;
-      --accent: #4f6ef7;
-      --accent-light: #eef1ff;
-      --success: #22c55e;
-      --error: #ef4444;
-      --warning: #f59e0b;
-      --shadow-sm: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
-      --shadow: 0 4px 16px rgba(79,110,247,0.10), 0 1px 4px rgba(0,0,0,0.06);
-    }
-
-    @keyframes fadeSlideIn {
-      from { opacity: 0; transform: translateY(12px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-    @keyframes pulseBar {
-      0%,100% { opacity: 1; }
-      50% { opacity: 0.6; }
-    }
-
-    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
-
-    body {
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      padding: 0 0 3rem 0;
-    }
-
-    /* ── HEADER ── */
-    .header {
-      position: sticky;
-      top: 0;
-      z-index: 200;
-      background: rgba(255,255,255,0.88);
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
-      border-bottom: 1px solid var(--border);
-      padding: 0.9rem 1.5rem;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 1rem;
-    }
-    .header-left { display: flex; align-items: center; gap: 0.85rem; }
-    .header h1 { font-size: 1.15rem; font-weight: 700; color: var(--text); letter-spacing: -0.3px; }
-    .icon-btn {
-      width: 40px; height: 40px;
-      border-radius: var(--radius-sm);
-      background: var(--surface);
-      border: 1px solid var(--border);
-      color: var(--text-muted);
-      display: inline-flex; align-items: center; justify-content: center;
-      cursor: pointer; font-size: 0.95rem;
-      transition: all 0.18s ease;
-      text-decoration: none;
-    }
-    .icon-btn:hover { background: var(--accent-light); color: var(--accent); border-color: var(--accent); }
-
-    /* ── CONTAINER ── */
-    .container { max-width: 860px; margin: 0 auto; padding: 1.5rem 1.2rem; }
-
-    /* ── CARDS ── */
-    .vocabulary-cards { display: flex; flex-direction: column; gap: 0.85rem; }
-
-    .vocabulary-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 1rem 1.1rem;
-      display: flex;
-      align-items: flex-start;
-      gap: 0.85rem;
-      box-shadow: var(--shadow-sm);
-      animation: fadeSlideIn 0.28s ease-out;
-      transition: box-shadow 0.2s, border-color 0.2s;
-    }
-    .vocabulary-card:hover { box-shadow: var(--shadow); border-color: #d0d6f0; }
-    .vocabulary-card.translating { border-color: var(--accent); }
-
-    .card-number {
-      font-size: 0.75rem;
-      font-weight: 700;
-      color: var(--text-muted);
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 2px 7px;
-      min-width: 34px;
-      text-align: center;
-      margin-top: 8px;
-      flex-shrink: 0;
-    }
-
-    .form-group-grid {
-      flex: 1;
-      display: grid;
-      grid-template-columns: 2fr 3fr 1.4fr;
-      gap: 0.75rem;
-    }
-    .form-group { display: flex; flex-direction: column; gap: 0.35rem; }
-    .form-group label {
-      font-size: 0.72rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: var(--text-muted);
-    }
-    .form-group input {
-      width: 100%;
-      padding: 9px 12px;
-      border: 1.5px solid var(--border);
-      border-radius: var(--radius-sm);
-      font-size: 14px;
-      background: var(--bg);
-      color: var(--text);
-      transition: border-color 0.18s, box-shadow 0.18s, background 0.18s;
-    }
-    .form-group input:focus {
-      outline: none;
-      border-color: var(--accent);
-      background: var(--surface);
-      box-shadow: 0 0 0 3px rgba(79,110,247,0.12);
-    }
-    .form-group input.translating-field {
-      border-color: var(--accent);
-      background: var(--accent-light);
-    }
-
-    .card-controls {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 0.5rem;
-      flex-shrink: 0;
-    }
-
-    /* Image upload */
-    .image-upload-wrap { position: relative; width: 44px; height: 44px; }
-    .image-preview {
-      width: 44px; height: 44px;
-      border-radius: var(--radius-sm);
-      border: 1.5px dashed var(--border);
-      display: flex; align-items: center; justify-content: center;
-      cursor: pointer; overflow: hidden;
-      background: var(--bg);
-      transition: border-color 0.2s, background 0.2s;
-    }
-    .image-preview:hover { border-color: var(--accent); background: var(--accent-light); }
-    .image-preview img { width: 100%; height: 100%; object-fit: cover; }
-    .image-preview .upload-icon { font-size: 1.1rem; color: #c0c6d9; }
-    .image-preview input[type="file"] { display: none; }
-    .image-remove-btn {
-      position: absolute; top: -6px; right: -6px;
-      background: var(--error); color: #fff; border: none;
-      border-radius: 50%; width: 18px; height: 18px;
-      font-size: 0.6rem; cursor: pointer;
-      display: flex; align-items: center; justify-content: center;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.18);
-      transition: transform 0.15s;
-      z-index: 5;
-    }
-    .image-remove-btn:hover { transform: scale(1.15); }
-
-    .delete-btn {
-      width: 34px; height: 34px;
-      border-radius: 8px;
-      background: transparent;
-      border: none;
-      color: var(--text-muted);
-      cursor: pointer;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 0.85rem;
-      transition: background 0.18s, color 0.18s;
-    }
-    .delete-btn:hover { background: #fef2f2; color: var(--error); }
-
-    /* translate status indicator on card */
-    .translate-status {
-      font-size: 0.65rem;
-      font-weight: 600;
-      color: var(--accent);
-      display: none;
-      align-items: center;
-      gap: 3px;
-    }
-    .translate-status.visible { display: flex; }
-    .mini-spin {
-      width: 10px; height: 10px;
-      border: 2px solid rgba(79,110,247,0.25);
-      border-top-color: var(--accent);
-      border-radius: 50%;
-      animation: spin 0.7s linear infinite;
-    }
-
-    /* ── BOTTOM TOOLBAR ── */
-    .toolbar {
-      position: sticky;
-      bottom: 0;
-      background: rgba(255,255,255,0.92);
-      backdrop-filter: blur(14px);
-      border-top: 1px solid var(--border);
-      padding: 0.85rem 1.5rem;
-      display: flex;
-      gap: 0.75rem;
-      justify-content: flex-end;
-      flex-wrap: wrap;
-      z-index: 100;
-      margin-top: 1.5rem;
-    }
-
-    .btn {
-      display: inline-flex; align-items: center; justify-content: center; gap: 7px;
-      padding: 9px 18px;
-      border-radius: var(--radius-sm);
-      font-weight: 600; font-size: 14px;
-      border: 1.5px solid var(--border);
-      cursor: pointer;
-      transition: all 0.18s ease;
-      white-space: nowrap;
-    }
-    .btn i { font-size: 13px; }
-    .btn-ghost { background: var(--surface); color: var(--text); }
-    .btn-ghost:hover { background: var(--bg); border-color: #c0c6d9; }
-    .btn-primary {
-      background: var(--accent); color: #fff;
-      border-color: var(--accent);
-      box-shadow: 0 2px 8px rgba(79,110,247,0.25);
-    }
-    .btn-primary:hover { background: #3b57e8; border-color: #3b57e8; transform: translateY(-1px); box-shadow: 0 4px 14px rgba(79,110,247,0.3); }
-    .btn:disabled { opacity: 0.55; pointer-events: none; }
-
-    /* ── MODALS ── */
-    .modal-overlay {
-      position: fixed; inset: 0;
-      background: rgba(10,12,20,0.45);
-      backdrop-filter: blur(6px);
-      display: flex; align-items: center; justify-content: center;
-      z-index: 1000;
-      animation: fadeSlideIn 0.22s ease-out;
-      padding: 1rem;
-    }
-    .modal-box {
-      background: var(--surface);
-      border-radius: var(--radius);
-      border: 1px solid var(--border);
-      box-shadow: 0 20px 60px rgba(0,0,0,0.15);
-      width: 100%; max-width: 560px;
-      padding: 1.6rem 1.8rem;
-      animation: fadeSlideIn 0.25s ease-out;
-    }
-    .modal-box h2 { font-size: 1.15rem; font-weight: 700; margin-bottom: 0.4rem; }
-    .modal-box .modal-desc { color: var(--text-muted); font-size: 0.88rem; line-height: 1.55; margin-bottom: 1.2rem; }
-    .modal-field { display: flex; flex-direction: column; gap: 0.4rem; margin-bottom: 1rem; }
-    .modal-field label { font-size: 0.78rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); }
-    .modal-field input, .modal-field select, .modal-field textarea {
-      padding: 10px 12px;
-      border: 1.5px solid var(--border);
-      border-radius: var(--radius-sm);
-      font-size: 14px;
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'Inter', sans-serif;
-      transition: border-color 0.18s, box-shadow 0.18s;
-      width: 100%;
-    }
-    .modal-field input:focus, .modal-field select:focus, .modal-field textarea:focus {
-      outline: none; border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(79,110,247,0.12);
-      background: var(--surface);
-    }
-    .modal-field textarea { resize: vertical; min-height: 140px; line-height: 1.5; }
-    .modal-actions { display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.3rem; }
-
-    /* Progress bar for bulk */
-    .bulk-progress { margin-top: 0.9rem; display: none; }
-    .bulk-progress.visible { display: block; }
-    .progress-label {
-      font-size: 0.8rem; color: var(--text-muted); font-weight: 500;
-      margin-bottom: 0.4rem; display: flex; justify-content: space-between;
-    }
-    .progress-track {
-      height: 6px; border-radius: 99px;
-      background: var(--border);
-      overflow: hidden;
-    }
-    .progress-fill {
-      height: 100%; border-radius: 99px;
-      background: linear-gradient(90deg, var(--accent), #7b96fa);
-      transition: width 0.4s ease;
-      animation: pulseBar 1.5s ease-in-out infinite;
-    }
-    .progress-fill.done { animation: none; background: var(--success); }
-
-    /* ── SETTINGS ── */
-    .setting-row {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 0.85rem 0;
-      border-bottom: 1px solid var(--border);
-    }
-    .setting-row:last-child { border-bottom: none; }
-    .setting-label { font-weight: 500; font-size: 0.95rem; }
-    .setting-desc { font-size: 0.78rem; color: var(--text-muted); margin-top: 2px; }
-
-    /* Toggle */
-    .toggle { position: relative; display: inline-block; width: 48px; height: 27px; flex-shrink: 0; }
-    .toggle input { opacity: 0; width: 0; height: 0; }
-    .toggle-slider {
-      position: absolute; inset: 0;
-      background: #d1d5e0; border-radius: 99px;
-      cursor: pointer; transition: background 0.25s;
-    }
-    .toggle-slider::before {
-      content: ''; position: absolute;
-      width: 21px; height: 21px;
-      background: #fff; border-radius: 50%;
-      top: 3px; left: 3px;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.18);
-      transition: transform 0.25s;
-    }
-    .toggle input:checked + .toggle-slider { background: var(--accent); }
-    .toggle input:checked + .toggle-slider::before { transform: translateX(21px); }
-
-    /* ── NOTIFICATION ── */
-    .notification {
-      position: fixed; bottom: 1.2rem; right: 1.2rem;
-      padding: 11px 18px;
-      border-radius: var(--radius-sm);
-      color: #fff; font-weight: 500; font-size: 14px;
-      display: flex; align-items: center; gap: 9px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.18);
-      z-index: 3000;
-      opacity: 0; transform: translateY(16px) scale(0.97);
-      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-      pointer-events: none;
-      max-width: 340px;
-    }
-    .notification.show { opacity: 1; transform: translateY(0) scale(1); }
-    .notification.success { background: #15803d; }
-    .notification.error   { background: #b91c1c; }
-    .notification.warning { background: #b45309; }
-
-    /* ── RESPONSIVE ── */
-    @media (max-width: 640px) {
-      .form-group-grid { grid-template-columns: 1fr 1fr; }
-      .form-group-grid .form-group:nth-child(1) { grid-column: 1 / -1; }
-      .toolbar { padding: 0.75rem 1rem; }
-      .btn { font-size: 13px; padding: 8px 13px; }
-      .header { padding: 0.75rem 1rem; }
-    }
-  </style>
-</head>
-<body>
-
-<!-- HEADER -->
-<header class="header">
-  <div class="header-left">
-    <a href="vocabulary.html" class="icon-btn" title="Quay lại">
-      <i class="fas fa-arrow-left"></i>
-    </a>
-    <h1>Tạo bộ thẻ mới</h1>
-  </div>
-  <button class="icon-btn" onclick="showModal('settingsModal')" title="Cài đặt">
-    <i class="fas fa-cog"></i>
-  </button>
-</header>
-
-<!-- MAIN -->
-<div class="container">
-  <main class="vocabulary-cards" id="vocabularyCards"></main>
-</div>
-
-<!-- TOOLBAR -->
-<div class="toolbar">
-  <button class="btn btn-ghost" onclick="addCard()">
-    <i class="fas fa-plus"></i> Thêm thẻ
-  </button>
-  <button class="btn btn-ghost" onclick="showModal('topicModal')">
-    <i class="fas fa-robot"></i> Tạo theo chủ đề
-  </button>
-  <button class="btn btn-ghost" onclick="showModal('bulkModal')">
-    <i class="fas fa-file-import"></i> Nhập hàng loạt
-  </button>
-  <button class="btn btn-primary" onclick="createFlashcards()">
-    <i class="fas fa-check"></i> Lưu & Học
-  </button>
-</div>
-
-<!-- SETTINGS MODAL -->
-<div id="settingsModal" class="modal-overlay" style="display:none" onclick="overlayClose(event,'settingsModal')">
-  <div class="modal-box">
-    <h2>Cài đặt</h2>
-    <div class="setting-row">
-      <div>
-        <div class="setting-label">AI tự động dịch</div>
-        <div class="setting-desc">Dịch từ khi bạn rời ô nhập (mất ~2 giây)</div>
-      </div>
-      <label class="toggle">
-        <input type="checkbox" id="autoTranslateToggle">
-        <span class="toggle-slider"></span>
-      </label>
-    </div>
-    <div class="modal-actions">
-      <button class="btn btn-primary" onclick="hideModal('settingsModal')">Xong</button>
-    </div>
-  </div>
-</div>
-
-<!-- TOPIC MODAL -->
-<div id="topicModal" class="modal-overlay" style="display:none" onclick="overlayClose(event,'topicModal')">
-  <div class="modal-box">
-    <h2>Tạo từ vựng theo chủ đề</h2>
-    <p class="modal-desc">AI sẽ tạo danh sách từ vựng tiếng Anh kèm nghĩa và IPA theo yêu cầu.</p>
-    <div class="modal-field">
-      <label>Chủ đề</label>
-      <select id="topicSelect"></select>
-    </div>
-    <div class="modal-field">
-      <label>Số lượng từ (1–50)</label>
-      <input type="number" id="quantityInput" value="10" min="1" max="50">
-    </div>
-    <div class="modal-field">
-      <label>Trình độ</label>
-      <select id="difficultySelect">
-        <option value="A1">A1 – Beginner</option>
-        <option value="A2">A2 – Elementary</option>
-        <option value="B1" selected>B1 – Intermediate</option>
-        <option value="B2">B2 – Upper-Intermediate</option>
-        <option value="C1">C1 – Advanced</option>
-        <option value="C2">C2 – Proficiency</option>
-      </select>
-    </div>
-    <div class="modal-actions">
-      <button class="btn btn-ghost" onclick="hideModal('topicModal')">Hủy</button>
-      <button class="btn btn-primary" id="generateBtn" onclick="generateByTopic()">
-        <i class="fas fa-wand-magic-sparkles"></i> Tạo ngay
-      </button>
-    </div>
-  </div>
-</div>
-
-<!-- BULK MODAL -->
-<div id="bulkModal" class="modal-overlay" style="display:none" onclick="overlayClose(event,'bulkModal')">
-  <div class="modal-box">
-    <h2>Nhập hàng loạt</h2>
-    <p class="modal-desc">Mỗi dòng một từ tiếng Anh. AI sẽ tự động dịch và điền IPA cho từng từ. Tối đa 30 từ mỗi lần.</p>
-    <div class="modal-field">
-      <label>Danh sách từ</label>
-      <textarea id="bulkText" placeholder="serendipity&#10;ephemeral&#10;ubiquitous&#10;resilience"></textarea>
-    </div>
-    <div class="bulk-progress" id="bulkProgress">
-      <div class="progress-label">
-        <span id="bulkProgressLabel">Đang xử lý...</span>
-        <span id="bulkProgressPct">0%</span>
-      </div>
-      <div class="progress-track">
-        <div class="progress-fill" id="bulkProgressFill" style="width:0%"></div>
-      </div>
-    </div>
-    <div class="modal-actions">
-      <button class="btn btn-ghost" id="bulkCancelBtn" onclick="hideModal('bulkModal')">Hủy</button>
-      <button class="btn btn-primary" id="bulkProcessBtn" onclick="processBulkInput()">
-        <i class="fas fa-bolt"></i> Xử lý & Thêm
-      </button>
-    </div>
-  </div>
-</div>
-
-<!-- NOTIFICATION -->
-<div id="notification" class="notification"></div>
-
-<script>
-/* =========================================================
-   CONFIG
-   ========================================================= */
-const WORKER_URL = "https://api-alpha-six-99.vercel.app/api/chat";
-const GPT_MODEL  = "gpt-4-turbo";
-
-/* =========================================================
-   STATE
-   ========================================================= */
-let db, auth, currentUser;
-let currentFolderId = null;
-let isAutoTranslate = true;
-let translateTimers  = {};   // debounce per card
-let activeBulk = false;      // prevent double submit
-
-/* =========================================================
-   FIREBASE BOOTSTRAP
-   ========================================================= */
-const FB_SCRIPTS = [
-  "https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js",
-  "https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js",
-  "https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"
-];
-let fbLoaded = 0;
-FB_SCRIPTS.forEach(src => {
-  const s = document.createElement('script');
-  s.src = src; s.async = false;
-  s.onload = () => { if (++fbLoaded === FB_SCRIPTS.length) initApp(); };
-  document.head.appendChild(s);
-});
-
-function initApp() {
-  const cfg = {
-    apiKey: "AIzaSyAm-p5xIzMi7Rkt6y9TzODJLFjdpLKBIlg",
-    authDomain: "wordwhizzy.firebaseapp.com",
-    projectId: "wordwhizzy",
-    storageBucket: "wordwhizzy.appspot.com",
-    messagingSenderId: "179575783469",
-    appId: "1:179575783469:web:30d0ae652af3cfda4bb8a4"
-  };
-  if (!firebase.apps.length) firebase.initializeApp(cfg);
-  db   = firebase.firestore();
-  auth = firebase.auth();
-  auth.onAuthStateChanged(user => {
-    if (user) { currentUser = user; main(); }
-    else window.location.href = 'login.html';
-  });
-}
-
-/* =========================================================
-   MAIN
-   ========================================================= */
-async function main() {
-  initAutoTranslateToggle();
-  initTopics();
-
-  const params = new URLSearchParams(window.location.search);
-  currentFolderId = params.get("id");
-  if (!currentFolderId) {
-    notify("Không tìm thấy ID thư mục!", "error");
-    setTimeout(() => window.location.href = "vocabulary.html", 2000);
-    return;
-  }
-
-  const ref = db.collection('users').doc(currentUser.uid).collection('flashcards').doc(currentFolderId);
-  const doc = await ref.get();
-  if (doc.exists) { window.location.href = `study-options.html?id=${currentFolderId}`; return; }
-
-  const loaded = await loadDraft();
-  if (!loaded && document.getElementById('vocabularyCards').childElementCount === 0) addCard();
-}
-
-/* =========================================================
-   CARD MANAGEMENT
-   ========================================================= */
-function addCard(data = {}, save = true) {
-  const id  = `card_${Date.now()}_${Math.random().toString(36).slice(2,8)}`;
-  const div = document.createElement('div');
-  div.className = 'vocabulary-card';
-  div.id = id;
-
-  const wordVal    = escHtml(data.word    || '');
-  const meaningVal = escHtml(data.meaning || '');
-  const ipaVal     = escHtml(data.ipa     || '');
-  const hasImg     = !!data.image;
-
-  div.innerHTML = `
-    <span class="card-number"></span>
-    <div class="form-group-grid">
-      <div class="form-group">
-        <label>Từ (EN)</label>
-        <input type="text" class="word-input" placeholder="apple"
-               value="${wordVal}"
-               oninput="onWordInput('${id}',this)"
-               onblur="onWordBlur('${id}',this)">
-      </div>
-      <div class="form-group">
-        <label>Nghĩa (VI)</label>
-        <input type="text" class="meaning-input" placeholder="táo"
-               value="${meaningVal}"
-               oninput="saveDraftDebounced()">
-      </div>
-      <div class="form-group">
-        <label>IPA</label>
-        <input type="text" class="ipa-input" placeholder="/ˈæpəl/"
-               value="${ipaVal}"
-               oninput="saveDraftDebounced()">
-      </div>
-    </div>
-    <div class="card-controls">
-      <div class="image-upload-wrap">
-        <div class="image-preview" id="img_${id}"
-             onclick="document.getElementById('file_${id}').click()"
-             ${hasImg ? `data-image-data="${data.image}"` : ''}>
-          ${hasImg
-            ? `<img src="${data.image}" alt="">`
-            : '<span class="upload-icon"><i class="fas fa-image"></i></span>'}
-          <input type="file" id="file_${id}" accept="image/*"
-                 onchange="handleImage(event,'${id}')">
-        </div>
-        ${hasImg ? `<button class="image-remove-btn" onclick="removeImage(event,'${id}')"><i class="fas fa-times"></i></button>` : ''}
-      </div>
-      <button class="delete-btn" onclick="deleteCard('${id}')" title="Xóa thẻ">
-        <i class="fas fa-trash-alt"></i>
-      </button>
-    </div>`;
-
-  document.getElementById('vocabularyCards').appendChild(div);
-  updateNumbers();
-  if (save) saveDraftDebounced();
-}
-
-function deleteCard(id) {
-  const el = document.getElementById(id);
-  if (el) el.remove();
-  if (!document.querySelectorAll('.vocabulary-card').length) addCard();
-  updateNumbers();
-  saveDraftDebounced();
-}
-
-function updateNumbers() {
-  document.querySelectorAll('.vocabulary-card').forEach((c, i) => {
-    c.querySelector('.card-number').textContent = `#${i+1}`;
-  });
-}
-
-/* =========================================================
-   AUTO TRANSLATE (debounced, per card)
-   ========================================================= */
-function onWordInput(cardId, input) {
-  saveDraftDebounced();
-  if (!isAutoTranslate) return;
-  clearTimeout(translateTimers[cardId]);
-  // Show pending indicator after 500ms inactivity
-  translateTimers[cardId] = setTimeout(() => {
-    if (input.value.trim()) scheduleTranslate(cardId, input);
-  }, 600);
-}
-
-function onWordBlur(cardId, input) {
-  if (!isAutoTranslate) return;
-  clearTimeout(translateTimers[cardId]);
-  const word = input.value.trim();
-  if (!word) return;
-  const card = document.getElementById(cardId);
-  if (!card) return;
-  const meaning = card.querySelector('.meaning-input').value.trim();
-  if (!meaning) scheduleTranslate(cardId, input);
-}
-
-function scheduleTranslate(cardId, input) {
-  clearTimeout(translateTimers[cardId]);
-  translateTranslate(cardId, input);
-}
-
-async function translateTranslate(cardId, input) {
-  const card = document.getElementById(cardId);
-  if (!card) return;
-  const word = input.value.trim();
-  if (!word) return;
-
-  const meaningInput = card.querySelector('.meaning-input');
-  const ipaInput     = card.querySelector('.ipa-input');
-
-  // Already has both → skip
-  if (meaningInput.value.trim() && ipaInput.value.trim()) return;
-
-  // Visual feedback
-  card.classList.add('translating');
-  meaningInput.classList.add('translating-field');
-  ipaInput.classList.add('translating-field');
-  meaningInput.placeholder = 'Đang dịch...';
-  ipaInput.placeholder     = '...';
-
-  try {
-    const result = await callGPT(
-      `You are an English-Vietnamese dictionary. Given a word, return ONLY a JSON object with keys "meaning" (Vietnamese translation, concise) and "ipa" (IPA string). No extra text.`,
-      `Word: "${word}"`
-    );
-    const { meaning, ipa } = result;
-    if (!meaningInput.value.trim()) meaningInput.value = meaning || '';
-    if (!ipaInput.value.trim())     ipaInput.value     = ipa     || '';
-    saveDraftDebounced();
-  } catch (e) {
-    // Silently fail – user can type manually
-    console.warn('Translate error:', e.message);
-  } finally {
-    card.classList.remove('translating');
-    meaningInput.classList.remove('translating-field');
-    ipaInput.classList.remove('translating-field');
-    meaningInput.placeholder = 'táo';
-    ipaInput.placeholder     = '/ˈæpəl/';
-  }
-}
-
-/* =========================================================
-   GPT HELPER (với retry)
-   ========================================================= */
-async function callGPT(systemPrompt, userContent, retries = 2) {
-  for (let attempt = 0; attempt <= retries; attempt++) {
-    try {
-      const res = await fetch(WORKER_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          model: GPT_MODEL,
-          messages: [
-            { role: 'system', content: systemPrompt },
-            { role: 'user',   content: userContent  }
-          ],
-          temperature: 0.2,
-          response_format: { type: 'json_object' },
-          max_tokens: 300
-        })
-      });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const data = await res.json();
-      const raw  = data.choices?.[0]?.message?.content || '{}';
-      return JSON.parse(raw.replace(/```json|```/g, '').trim());
-    } catch (e) {
-      if (attempt === retries) throw e;
-      await sleep(800 * (attempt + 1)); // back-off
-    }
-  }
-}
-
-/* =========================================================
-   BULK INPUT – batch 3 từ song song, stable & tracked
-   ========================================================= */
-async function processBulkInput() {
-  if (activeBulk) return;
-
-  const raw   = document.getElementById('bulkText').value.trim();
-  const words = [...new Set(
-    raw.split('\n').map(w => w.trim()).filter(w => w.length > 0)
-  )].slice(0, 30);
-
-  if (!words.length) { notify("Chưa nhập từ nào.", "warning"); return; }
-
-  activeBulk = true;
-  const btn    = document.getElementById('bulkProcessBtn');
-  const cancel = document.getElementById('bulkCancelBtn');
-  btn.disabled   = true;
-  cancel.disabled = true;
-  btn.innerHTML  = '<div class="mini-spin" style="width:14px;height:14px;border-width:2px;display:inline-block;"></div> Đang xử lý...';
-
-  const progress = document.getElementById('bulkProgress');
-  const fill     = document.getElementById('bulkProgressFill');
-  const label    = document.getElementById('bulkProgressLabel');
-  const pct      = document.getElementById('bulkProgressPct');
-  progress.classList.add('visible');
-
-  let done = 0;
-  const results = new Array(words.length).fill(null);
-
-  const updateProgress = () => {
-    const p = Math.round((done / words.length) * 100);
-    fill.style.width = p + '%';
-    pct.textContent  = p + '%';
-    label.textContent = `Đã dịch ${done}/${words.length} từ...`;
-  };
-  updateProgress();
-
-  // Process in batches of 3 concurrently
-  const BATCH = 3;
-  for (let i = 0; i < words.length; i += BATCH) {
-    const slice = words.slice(i, i + BATCH);
-    await Promise.all(slice.map(async (word, offset) => {
-      const idx = i + offset;
-      try {
-        const data = await callGPT(
-          `You are an English-Vietnamese dictionary. Return ONLY a JSON object with "meaning" (Vietnamese) and "ipa" (IPA string).`,
-          `Word: "${word}"`
-        );
-        results[idx] = { word, meaning: data.meaning || '', ipa: data.ipa || '' };
-      } catch {
-        results[idx] = { word, meaning: '', ipa: '' }; // still add card, user can fill
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tạo Bộ Thẻ Tinh Gọn | Vocabulary Master</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/browser-image-compression@2.0.1/dist/browser-image-compression.js"></script>
+    <style>
+      :root {
+        --primary-color: #5a67d8; /* Một sắc xanh tím mới, hiện đại hơn */
+        --primary-hover: #434eac;
+        --background: #fdfefe; /* Nền trắng sáng */
+        --card-bg: #ffffff;
+        --text-primary: #2d3748; /* Xám đậm cho tiêu đề */
+        --text-secondary: #718096; /* Xám nhạt cho text phụ */
+        --border-color: #edf2f7; /* Đường viền rất nhạt */
+        --border-darker: #e2e8f0;
+        --shadow: 0 4px 10px rgba(0, 0, 0, 0.05); /* Bóng nhẹ nhàng */
+        --glow: 0 0 25px rgba(90, 103, 216, 0.3);
+        --success: #48bb78;
+        --error: #f56565;
+        --warning: #f6ad55;
+        --input-bg: #f7fafc; /* Nền input hơi ngả xám */
       }
-      done++;
-      updateProgress();
-    }));
-  }
 
-  fill.classList.add('done');
-  label.textContent = `Hoàn tất! Đang thêm ${results.length} thẻ...`;
-
-  // Clear empty placeholder card if exists
-  const existing = document.querySelectorAll('.vocabulary-card');
-  if (existing.length === 1 && !existing[0].querySelector('.word-input').value.trim()) {
-    existing[0].remove();
-  }
-
-  results.forEach(r => { if (r) addCard(r, false); });
-  updateNumbers();
-  await saveDraft();
-
-  notify(`Đã thêm ${results.length} từ thành công!`, 'success');
-  hideModal('bulkModal');
-
-  // Reset modal state
-  activeBulk = false;
-  btn.disabled    = false;
-  cancel.disabled = false;
-  btn.innerHTML   = '<i class="fas fa-bolt"></i> Xử lý & Thêm';
-  fill.classList.remove('done');
-  fill.style.width = '0%';
-  progress.classList.remove('visible');
-  document.getElementById('bulkText').value = '';
-}
-
-/* =========================================================
-   GENERATE BY TOPIC
-   ========================================================= */
-async function generateByTopic() {
-  const topic      = document.getElementById('topicSelect').value;
-  const qty        = parseInt(document.getElementById('quantityInput').value);
-  const difficulty = document.getElementById('difficultySelect').value;
-
-  if (!topic || !qty || qty < 1 || qty > 50) {
-    notify("Vui lòng điền thông tin hợp lệ.", "warning"); return;
-  }
-
-  const btn = document.getElementById('generateBtn');
-  btn.disabled  = true;
-  btn.innerHTML = '<div class="mini-spin" style="width:14px;height:14px;border-width:2px;display:inline-block;"></div> Đang tạo...';
-
-  try {
-    const data = await callGPT(
-      `You are a vocabulary expert. Return ONLY a JSON object with a single key "words" whose value is an array of exactly ${qty} objects. Each object: { "word": string, "meaning": string (Vietnamese), "ipa": string }. Topic: ${topic}, Level: ${difficulty}. No duplicates.`,
-      `Generate ${qty} words`
-    );
-
-    let arr = data.words || data[Object.keys(data)[0]];
-    if (!Array.isArray(arr)) throw new Error("Invalid response format");
-
-    const existing = document.querySelectorAll('.vocabulary-card');
-    if (existing.length === 1 && !existing[0].querySelector('.word-input').value.trim()) {
-      existing[0].remove();
-    }
-
-    arr.forEach(item => {
-      if (item.word) addCard({ word: item.word, meaning: item.meaning || '', ipa: item.ipa || '' }, false);
-    });
-    updateNumbers();
-    await saveDraft();
-
-    notify(`Đã tạo ${arr.length} từ chủ đề "${topic}"!`, 'success');
-    hideModal('topicModal');
-  } catch (e) {
-    console.error(e);
-    notify("Lỗi khi tạo từ vựng. Vui lòng thử lại.", "error");
-  } finally {
-    btn.disabled  = false;
-    btn.innerHTML = '<i class="fas fa-wand-magic-sparkles"></i> Tạo ngay';
-  }
-}
-
-/* =========================================================
-   IMAGE HANDLING
-   ========================================================= */
-async function handleImage(event, cardId) {
-  const card    = document.getElementById(cardId);
-  const preview = card.querySelector('.image-preview');
-  const file    = event.target.files[0];
-  if (!file) return;
-
-  preview.innerHTML = `<div style="width:22px;height:22px;border:3px solid #e0e0e0;border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite;"></div>`;
-
-  try {
-    const compressed = await imageCompression(file, { maxSizeMB: 0.4, maxWidthOrHeight: 400 });
-    const reader     = new FileReader();
-    reader.onload    = e => {
-      const src = e.target.result;
-      preview.innerHTML = `<img src="${src}" alt=""><input type="file" id="file_${cardId}" accept="image/*" onchange="handleImage(event,'${cardId}')" style="display:none">`;
-      preview.dataset.imageData = src;
-
-      // Add remove button outside preview
-      const wrap = card.querySelector('.image-upload-wrap');
-      const oldBtn = wrap.querySelector('.image-remove-btn');
-      if (oldBtn) oldBtn.remove();
-      const rmBtn = document.createElement('button');
-      rmBtn.className = 'image-remove-btn';
-      rmBtn.innerHTML = '<i class="fas fa-times"></i>';
-      rmBtn.onclick = ev => removeImage(ev, cardId);
-      wrap.appendChild(rmBtn);
-
-      saveDraftDebounced();
-    };
-    reader.readAsDataURL(compressed);
-  } catch { notify("Lỗi xử lý ảnh.", "error"); }
-}
-
-function removeImage(event, cardId) {
-  event.stopPropagation();
-  const card  = document.getElementById(cardId);
-  const wrap  = card.querySelector('.image-upload-wrap');
-  const preview = card.querySelector('.image-preview');
-  delete preview.dataset.imageData;
-  preview.innerHTML = `<span class="upload-icon"><i class="fas fa-image"></i></span><input type="file" id="file_${cardId}" accept="image/*" onchange="handleImage(event,'${cardId}')" style="display:none">`;
-  preview.onclick = () => document.getElementById(`file_${cardId}`).click();
-  const rmBtn = wrap.querySelector('.image-remove-btn');
-  if (rmBtn) rmBtn.remove();
-  saveDraftDebounced();
-}
-
-/* =========================================================
-   SAVE FLASHCARDS
-   ========================================================= */
-async function createFlashcards() {
-  const cards = [];
-  let hasError = false;
-
-  document.querySelectorAll('.vocabulary-card').forEach((card, i) => {
-    const word    = card.querySelector('.word-input').value.trim();
-    const meaning = card.querySelector('.meaning-input').value.trim();
-    const ipa     = card.querySelector('.ipa-input').value.trim();
-    const image   = card.querySelector('.image-preview').dataset.imageData || null;
-
-    if (word && meaning) {
-      if (cards.some(c => c.word.toLowerCase() === word.toLowerCase())) {
-        notify(`Từ "${word}" bị trùng lặp!`, 'warning'); hasError = true; return;
-      }
-      cards.push({ id: `card_${Date.now()}_${i}`, word, meaning, ipa, image });
-    } else if (word || meaning) {
-      notify(`Thẻ #${i+1} thiếu Từ hoặc Nghĩa.`, 'error'); hasError = true;
-    }
-  });
-
-  if (hasError) return;
-  if (!cards.length) { notify("Nhập ít nhất một từ vựng.", "warning"); return; }
-
-  try {
-    await db.collection('users').doc(currentUser.uid).collection('flashcards').doc(currentFolderId)
-            .set({ words: cards });
-
-    // Update wordCount in folder metadata
-    const userRef = db.collection('users').doc(currentUser.uid);
-    const uDoc    = await userRef.get();
-    if (uDoc.exists) {
-      let folders = uDoc.data().folders || {}; let found = false;
-      for (const day in folders) {
-        if (Array.isArray(folders[day])) {
-          const idx = folders[day].findIndex(f => f.id === parseInt(currentFolderId));
-          if (idx !== -1) { folders[day][idx].wordCount = cards.length; found = true; break; }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(-10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
         }
       }
-      if (found) await userRef.update({ folders });
-    }
+      @keyframes slideInUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      @keyframes pulse {
+        0% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.01);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
 
-    await db.collection('users').doc(currentUser.uid).collection('drafts').doc(currentFolderId).delete();
-    notify("Lưu bộ thẻ thành công!", 'success');
-    setTimeout(() => window.location.href = `study-options.html?id=${currentFolderId}`, 1400);
-  } catch (e) {
-    console.error(e);
-    notify("Lỗi khi lưu. Dữ liệu có thể quá lớn.", "error");
-  }
-}
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Inter", sans-serif;
+        -webkit-tap-highlight-color: transparent;
+      }
 
-/* =========================================================
-   DRAFT
-   ========================================================= */
-let draftTimer;
-function saveDraftDebounced() {
-  clearTimeout(draftTimer);
-  draftTimer = setTimeout(saveDraft, 1200);
-}
+      body {
+        background: var(--background);
+        color: var(--text-primary);
+        padding: 2.5rem; /* Tăng padding tổng thể */
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+      }
 
-async function saveDraft() {
-  if (!currentFolderId || !currentUser) return;
-  const cards = [];
-  document.querySelectorAll('.vocabulary-card').forEach(card => {
-    cards.push({
-      word:    card.querySelector('.word-input').value,
-      meaning: card.querySelector('.meaning-input').value,
-      ipa:     card.querySelector('.ipa-input').value,
-      image:   card.querySelector('.image-preview').dataset.imageData || null
-    });
-  });
-  const ref = db.collection('users').doc(currentUser.uid).collection('drafts').doc(currentFolderId);
-  if (cards.length) await ref.set({ cards, lastUpdated: new Date() });
-  else await ref.delete().catch(() => {});
-}
+      .container {
+        max-width: 900px;
+        width: 100%;
+        margin: auto;
+      }
 
-async function loadDraft() {
-  if (!currentFolderId || !currentUser) return false;
-  const doc = await db.collection('users').doc(currentUser.uid).collection('drafts').doc(currentFolderId).get();
-  if (doc.exists && doc.data().cards?.length) {
-    document.getElementById('vocabularyCards').innerHTML = '';
-    doc.data().cards.forEach(c => addCard(c, false));
-    updateNumbers();
-    return true;
-  }
-  return false;
-}
+      .header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 2.5rem;
+        animation: fadeIn 0.5s ease;
+        gap: 1.5rem;
+      }
+      .header h1 {
+        font-size: 2.25rem;
+        font-weight: 700;
+        color: var(--text-primary);
+      }
+      .header .back-button {
+        background: var(--card-bg);
+        color: var(--text-secondary);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        padding: 0.85rem;
+        cursor: pointer;
+        width: 50px;
+        height: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: var(--shadow);
+        transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+        text-decoration: none;
+        font-size: 1.3rem;
+      }
+      .header .back-button:hover {
+        background: var(--primary-color);
+        color: white;
+        border-color: var(--primary-color);
+        transform: translateY(-3px);
+        box-shadow: var(--glow);
+      }
 
-/* =========================================================
-   UI HELPERS
-   ========================================================= */
-function showModal(id) { document.getElementById(id).style.display = 'flex'; }
-function hideModal(id) { document.getElementById(id).style.display = 'none'; }
-function overlayClose(e, id) { if (e.target.classList.contains('modal-overlay')) hideModal(id); }
+      .config-section {
+        background: var(--card-bg);
+        padding: 2rem;
+        border-radius: 18px;
+        box-shadow: var(--shadow);
+        margin-bottom: 2.5rem;
+        animation: fadeIn 0.6s ease;
+        border: 1px solid var(--border-color);
+      }
+      .config-header {
+        font-size: 1.35rem;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid var(--border-color);
+        color: var(--text-primary);
+      }
+      .setting {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.75rem 0;
+      }
+      .setting-label {
+        font-weight: 500;
+        color: var(--text-primary);
+        font-size: 1.05rem;
+      }
+      .toggle-switch {
+        position: relative;
+        display: inline-block;
+        width: 60px;
+        height: 34px;
+      }
+      .toggle-switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+      }
+      .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #cbd5e1;
+        transition: 0.4s;
+        border-radius: 34px;
+      }
+      .slider:before {
+        position: absolute;
+        content: "";
+        height: 26px;
+        width: 26px;
+        left: 4px;
+        bottom: 4px;
+        background-color: white;
+        transition: 0.4s;
+        border-radius: 50%;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+      }
+      input:checked + .slider {
+        background-color: var(--primary-color);
+      }
+      input:checked + .slider:before {
+        transform: translateX(26px);
+      }
 
-let notifyTimer;
-function notify(msg, type = 'success') {
-  const el = document.getElementById('notification');
-  el.className = `notification ${type} show`;
-  el.innerHTML = `<i class="fas fa-${type==='success'?'check-circle':type==='error'?'times-circle':'exclamation-triangle'}"></i> ${msg}`;
-  clearTimeout(notifyTimer);
-  notifyTimer = setTimeout(() => el.classList.remove('show'), 3500);
-}
+      .vocabulary-cards {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        margin-bottom: 2.5rem;
+      } /* Giảm gap */
 
-function escHtml(str) {
-  return String(str).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-}
+      /* Thay đổi chính cho mỗi thẻ */
+      .vocabulary-card {
+        background: var(--card-bg);
+        padding: 0.75rem 1.25rem; /* Giảm padding */
+        border-radius: 12px; /* Nhỏ hơn */
+        border: 1px solid var(--border-color);
+        box-shadow: var(--shadow);
+        position: relative;
+        animation: fadeIn 0.7s ease-out;
+        display: flex;
+        align-items: center; /* Căn giữa theo chiều dọc */
+        gap: 0.75rem; /* Khoảng cách giữa các thành phần */
+        flex-wrap: nowrap; /* Đảm bảo các thành phần không xuống dòng */
+        overflow-x: auto; /* Cho phép cuộn ngang nếu nội dung quá dài */
+        -webkit-overflow-scrolling: touch; /* Cuộn mượt trên iOS */
+        scrollbar-width: none; /* Ẩn scrollbar Firefox */
+        -ms-overflow-style: none; /* Ẩn scrollbar IE/Edge */
+      }
+      .vocabulary-card::-webkit-scrollbar {
+        display: none;
+      } /* Ẩn scrollbar Webkit */
 
-function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+      .card-number {
+        font-size: 0.9rem; /* Nhỏ hơn */
+        font-weight: 600;
+        color: var(--primary-color);
+        flex-shrink: 0; /* Không co lại */
+        width: 35px; /* Chiều rộng cố định cho số thứ tự */
+        text-align: right;
+        margin-right: 0.5rem;
+      }
 
-/* =========================================================
-   SETTINGS
-   ========================================================= */
-function initAutoTranslateToggle() {
-  const toggle = document.getElementById('autoTranslateToggle');
-  isAutoTranslate = localStorage.getItem('autoTranslate') !== 'false';
-  toggle.checked  = isAutoTranslate;
-  toggle.onchange = e => {
-    isAutoTranslate = e.target.checked;
-    localStorage.setItem('autoTranslate', isAutoTranslate);
-    notify(`AI dịch tự động: ${isAutoTranslate ? 'Bật' : 'Tắt'}`, 'success');
-  };
-}
+      .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem; /* Giảm gap */
+        flex-grow: 1; /* Cho phép các input giãn nở */
+        min-width: 100px; /* Đảm bảo có chiều rộng tối thiểu */
+      }
+      .form-group label {
+        font-weight: 500;
+        font-size: 0.8rem; /* Nhỏ hơn */
+        color: var(--text-secondary);
+        white-space: nowrap; /* Không xuống dòng label */
+      }
+      .form-group .main-label {
+        color: var(--text-primary);
+        font-weight: 600;
+        font-size: 0.85rem;
+      } /* Nhỏ hơn */
 
-/* =========================================================
-   TOPICS
-   ========================================================= */
-function initTopics() {
-  const topics = ["Animals","Art & Culture","Business","City & Transportation","Clothes","Communication",
-    "Crime & Law","Education","Emotions & Feelings","Family","Food & Drink","Health & Fitness",
-    "History","Hobbies & Interests","Holidays","Home","Money & Finance","Movies & Music","Nature & Environment",
-    "Personality","Politics & Society","Relationships","Science","Shopping","Space","Sports",
-    "Technology","Travel","Weather","Work & Career"];
-  const sel = document.getElementById('topicSelect');
-  topics.forEach(t => { const o = document.createElement('option'); o.value = t; o.textContent = t; sel.appendChild(o); });
-}
-</script>
-</body>
+      .form-group input {
+        width: 100%;
+        padding: 0.6rem 0.75rem; /* Giảm padding */
+        border: 1px solid var(--border-darker);
+        border-radius: 8px; /* Nhỏ hơn */
+        font-size: 0.9rem; /* Nhỏ hơn */
+        background: var(--input-bg);
+        transition: border-color 0.2s, box-shadow 0.2s;
+        color: var(--text-primary);
+      }
+      .form-group input:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(90, 103, 216, 0.2);
+        outline: none;
+        background: white;
+      }
+      .form-group input::placeholder {
+        color: #a0aec0;
+        font-size: 0.85rem;
+      } /* Placeholder nhỏ hơn */
+
+      /* Khu vực ảnh siêu nhỏ hoặc icon */
+      .image-upload-container {
+        flex-shrink: 0; /* Không co lại */
+        width: 48px; /* Kích thước ảnh cố định */
+        height: 48px;
+        position: relative;
+        margin-left: 0.5rem;
+      }
+      .image-preview {
+        width: 100%;
+        height: 100%;
+        border-radius: 8px; /* Bo tròn nhỏ hơn */
+        border: 1px solid var(--border-darker); /* Viền mỏng hơn */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+        background-color: var(--input-bg);
+        transition: all 0.2s ease;
+      }
+      .image-preview:hover {
+        border-color: var(--primary-color);
+        transform: scale(1.05);
+      }
+      .image-preview img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 7px;
+      }
+      .image-preview .upload-icon {
+        font-size: 1.2rem;
+        color: #cbd5e1;
+      } /* Icon nhỏ hơn */
+      .image-preview input[type="file"] {
+        display: none;
+      }
+      .image-remove-btn {
+        position: absolute;
+        top: -5px;
+        right: -5px;
+        background-color: var(--error);
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 20px;
+        height: 20px;
+        font-size: 0.7rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        z-index: 10;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        transition: transform 0.2s ease;
+      }
+      .image-remove-btn:hover {
+        transform: scale(1.2);
+      }
+
+      .delete-button {
+        background: transparent;
+        color: var(--text-secondary);
+        border: none;
+        border-radius: 50%;
+        width: 38px;
+        height: 38px; /* Nhỏ hơn một chút */
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+        font-size: 1rem; /* Nhỏ hơn */
+        flex-shrink: 0;
+        margin-left: 0.5rem;
+      }
+      .delete-button:hover {
+        background: #ffebee;
+        color: var(--error);
+        transform: scale(1.1);
+      }
+
+      .actions-container {
+        display: flex;
+        gap: 1.5rem;
+        justify-content: flex-end;
+        margin-top: 3rem;
+        flex-wrap: wrap;
+      }
+      .btn {
+        padding: 0.9rem 1.8rem;
+        border: 1px solid transparent;
+        border-radius: 35px;
+        font-weight: 600;
+        font-size: 1.05rem;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.7rem;
+        transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+        box-shadow: var(--shadow);
+      }
+      .btn-primary {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+        color: white;
+      }
+      .btn-primary:hover {
+        background-color: var(--primary-hover);
+        border-color: var(--primary-hover);
+        box-shadow: var(--glow);
+        transform: translateY(-3px);
+      }
+      .btn-secondary {
+        background-color: var(--card-bg);
+        color: var(--text-primary);
+        border: 1px solid var(--border-color);
+      }
+      .btn-secondary:hover {
+        border-color: var(--primary-color);
+        color: var(--primary-color);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(90, 103, 216, 0.08);
+      }
+
+      .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(8px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+        animation: fadeIn 0.3s ease-out;
+      }
+      .modal-content {
+        background: var(--card-bg);
+        padding: 2.5rem;
+        border-radius: 18px;
+        box-shadow: var(--shadow);
+        width: 90%;
+        max-width: 600px;
+        animation: slideInUp 0.4s ease-out;
+        border: 1px solid var(--border-color);
+      }
+      .modal-content h2 {
+        font-size: 2rem;
+        margin-bottom: 0.85rem;
+        color: var(--text-primary);
+        font-weight: 700;
+      }
+      .modal-content p {
+        color: var(--text-secondary);
+        margin-bottom: 2rem;
+        line-height: 1.7;
+        font-size: 1.1rem;
+      }
+      .modal-textarea {
+        width: 100%;
+        padding: 1.1rem;
+        border: 1px solid var(--border-darker);
+        border-radius: 12px;
+        font-size: 1.1rem;
+        background: var(--input-bg);
+        resize: vertical;
+        min-height: 200px;
+        font-family: "Inter", sans-serif;
+        transition: border-color 0.2s, box-shadow 0.2s;
+        color: var(--text-primary);
+      }
+      .modal-textarea:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 4px rgba(90, 103, 216, 0.2);
+        outline: none;
+        background: white;
+      }
+      .modal-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 1.25rem;
+        margin-top: 2rem;
+      }
+
+      .notification {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        padding: 1.1rem 2rem;
+        border-radius: 12px;
+        color: white;
+        z-index: 2000;
+        opacity: 0;
+        transition: opacity 0.3s ease, transform 0.4s ease;
+        transform: translateY(30px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+        min-width: 280px;
+      }
+      .notification.show {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      .notification.success {
+        background-color: var(--success);
+      }
+      .notification.error {
+        background-color: var(--error);
+      }
+      .notification.warning {
+        background-color: var(--warning);
+      }
+      .notification .icon {
+        font-size: 1.35rem;
+      }
+
+      .loading-spinner {
+        border: 4px solid rgba(255, 255, 255, 0.3);
+        border-top: 4px solid #fff;
+        border-radius: 50%;
+        width: 28px;
+        height: 28px;
+        animation: spin 1s linear infinite;
+      }
+
+      @media (max-width: 768px) {
+        body {
+          padding: 1rem;
+        }
+        .header {
+          margin-bottom: 1.5rem;
+        }
+        .header h1 {
+          font-size: 1.6rem;
+        }
+        .header .back-button {
+          width: 40px;
+          height: 40px;
+          font-size: 1.1rem;
+        }
+
+        .config-section {
+          padding: 1.5rem;
+          margin-bottom: 1.5rem;
+          border-radius: 15px;
+        }
+        .config-header {
+          font-size: 1.15rem;
+          margin-bottom: 1rem;
+          padding-bottom: 0.75rem;
+        }
+        .setting-label {
+          font-size: 0.95rem;
+        }
+        .toggle-switch {
+          width: 50px;
+          height: 28px;
+        }
+        .slider:before {
+          height: 20px;
+          width: 20px;
+          left: 4px;
+          bottom: 4px;
+        }
+        input:checked + .slider:before {
+          transform: translateX(20px);
+        }
+
+        .vocabulary-cards {
+          gap: 0.75rem;
+          margin-bottom: 1.5rem;
+        }
+
+        .vocabulary-card {
+          padding: 0.6rem 0.8rem; /* Giảm padding nhiều hơn */
+          border-radius: 10px;
+          gap: 0.6rem; /* Giảm gap */
+        }
+        .card-number {
+          font-size: 0.8rem;
+          width: 30px;
+          margin-right: 0.25rem;
+        }
+        .form-group label {
+          font-size: 0.75rem;
+        }
+        .form-group .main-label {
+          font-size: 0.8rem;
+        }
+        .form-group input {
+          padding: 0.5rem 0.6rem;
+          font-size: 0.85rem;
+          border-radius: 7px;
+        }
+        .form-group input::placeholder {
+          font-size: 0.75rem;
+        }
+
+        .image-upload-container {
+          width: 40px;
+          height: 40px;
+          margin-left: 0.25rem;
+        }
+        .image-preview {
+          border-radius: 7px;
+        }
+        .image-preview .upload-icon {
+          font-size: 1rem;
+        }
+        .image-remove-btn {
+          width: 18px;
+          height: 18px;
+          font-size: 0.65rem;
+          top: -3px;
+          right: -3px;
+        }
+
+        .delete-button {
+          width: 32px;
+          height: 32px;
+          font-size: 0.9rem;
+          margin-left: 0.25rem;
+        }
+
+        .actions-container {
+          flex-direction: column;
+          align-items: stretch;
+          gap: 0.8rem;
+          margin-top: 1.5rem;
+        }
+        .btn {
+          width: 100%;
+          padding: 0.7rem 1.2rem;
+          font-size: 0.9rem;
+        }
+
+        .modal-content {
+          padding: 1.5rem;
+          border-radius: 15px;
+        }
+        .modal-content h2 {
+          font-size: 1.4rem;
+          margin-bottom: 0.75rem;
+        }
+        .modal-content p {
+          font-size: 0.95rem;
+          margin-bottom: 1rem;
+        }
+        .modal-textarea {
+          min-height: 120px;
+          font-size: 0.9rem;
+          padding: 0.8rem;
+          border-radius: 10px;
+        }
+        .modal-actions {
+          margin-top: 1.2rem;
+          gap: 1rem;
+        }
+        .notification {
+          bottom: 10px;
+          right: 10px;
+          padding: 0.8rem 1rem;
+          font-size: 0.8rem;
+          min-width: unset;
+        }
+        .notification .icon {
+          font-size: 0.9rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <header class="header">
+        <a href="vocabulary.html" class="back-button">
+          <i class="fas fa-arrow-left"></i>
+        </a>
+        <h1>Tạo bộ thẻ mới</h1>
+      </header>
+
+      <section class="config-section">
+        <h2 class="config-header">Cài đặt</h2>
+        <div class="setting">
+          <span class="setting-label">Dịch và điền tự động bằng AI</span>
+          <label class="toggle-switch">
+            <input type="checkbox" id="autoTranslateToggle" />
+            <span class="slider"></span>
+          </label>
+        </div>
+      </section>
+
+      <main class="vocabulary-cards" id="vocabularyCards"></main>
+
+      <footer class="actions-container">
+        <button class="btn btn-secondary" onclick="addCard()">
+          <i class="fas fa-plus"></i> Thêm thẻ
+        </button>
+        <button class="btn btn-secondary" onclick="showBulkInputModal()">
+          <i class="fas fa-file-import"></i> Nhập hàng loạt
+        </button>
+        <button class="btn btn-primary" onclick="createFlashcards()">
+          <i class="fas fa-save"></i> Lưu & Bắt đầu học
+        </button>
+      </footer>
+    </div>
+
+    <div id="bulkInputModal" class="modal-overlay" style="display: none">
+      <div class="modal-content">
+        <h2>Nhập Hàng Loạt</h2>
+        <p>
+          Nhập mỗi từ trên một dòng. Hệ thống sẽ dùng AI để tự động dịch và điền
+          các thông tin còn lại.
+        </p>
+        <textarea
+          id="bulkText"
+          rows="8"
+          placeholder="serendipity&#10;ephemeral&#10;ubiquitous"
+          class="modal-textarea"
+        ></textarea>
+        <div class="modal-actions">
+          <button class="btn btn-secondary" onclick="hideBulkInputModal()">
+            Hủy
+          </button>
+          <button
+            class="btn btn-primary"
+            id="processBulkBtn"
+            onclick="processBulkInput()"
+          >
+            <i class="fas fa-check"></i> Xử lý & Thêm
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div id="notification" class="notification"></div>
+
+    <script>
+      // === API miễn phí (không cần key, không giới hạn chi phí) ===
+      const DICTIONARY_API_URL = "https://api.dictionaryapi.dev/api/v2/entries/en/";
+      const GOOGLE_TRANSLATE_URL = "https://translate.googleapis.com/translate_a/single";
+      const MYMEMORY_TRANSLATE_URL = "https://api.mymemory.translated.net/get";
+
+      let currentFolderId = null;
+      let isAutoTranslateEnabled = true;
+      const processingQueue = [];
+      let isProcessingQueue = false;
+
+      document.addEventListener("DOMContentLoaded", () => {
+        initializeAutoTranslateToggle();
+
+        const urlParams = new URLSearchParams(window.location.search);
+        currentFolderId = urlParams.get("id");
+
+        if (!currentFolderId) {
+          showNotification("Lỗi: Không tìm thấy ID thư mục!", "error");
+          setTimeout(() => (window.location.href = "vocabulary.html"), 2000);
+          return;
+        }
+
+        const existingFlashcards = localStorage.getItem(
+          `flashcards_${currentFolderId}`
+        );
+        if (existingFlashcards) {
+          window.location.href = `study-options.html?id=${currentFolderId}`;
+          return;
+        }
+
+        if (
+          document.getElementById("vocabularyCards").childElementCount === 0
+        ) {
+          addCard();
+        }
+      });
+
+      function initializeAutoTranslateToggle() {
+        const toggle = document.getElementById("autoTranslateToggle");
+        const savedState = localStorage.getItem("autoTranslateEnabled");
+        isAutoTranslateEnabled = savedState !== "false";
+        toggle.checked = isAutoTranslateEnabled;
+        toggle.addEventListener("change", (e) => {
+          isAutoTranslateEnabled = e.target.checked;
+          localStorage.setItem("autoTranslateEnabled", isAutoTranslateEnabled);
+          showNotification(
+            `AI đã ${isAutoTranslateEnabled ? "Bật" : "Tắt"}.`,
+            "success"
+          );
+        });
+      }
+
+      function updateCardNumbers() {
+        const cards = document.querySelectorAll(".vocabulary-card");
+        cards.forEach((card, index) => {
+          card.querySelector(".card-number").textContent = `#${index + 1}`;
+        });
+      }
+
+      function addCard(data = {}) {
+        const cardId = `card_${Date.now()}_${Math.random()
+          .toString(36)
+          .substr(2, 9)}`;
+        const card = document.createElement("div");
+        card.className = "vocabulary-card";
+        card.id = cardId;
+
+        card.innerHTML = `
+                <span class="card-number"></span>
+                <div class="form-group" style="flex: 2;">
+                    <label class="main-label" for="word-${cardId}">Từ</label>
+                    <input type="text" id="word-${cardId}" class="word-input" onchange="handleWordInput(this)" placeholder="English word" value="${
+          data.word || ""
+        }">
+                </div>
+                <div class="form-group" style="flex: 3;">
+                    <label class="main-label" for="meaning-${cardId}">Nghĩa</label>
+                    <input type="text" id="meaning-${cardId}" class="meaning-input" placeholder="Vietnamese meaning" value="${
+          data.meaning || ""
+        }">
+                </div>
+                <div class="form-group" style="min-width: 80px;">
+                    <label for="type-${cardId}">Loại</label>
+                    <input type="text" id="type-${cardId}" class="type-input" placeholder="noun" value="${
+          data.type || ""
+        }">
+                </div>
+                <div class="form-group" style="min-width: 90px;">
+                    <label for="ipa-${cardId}">IPA</label>
+                    <input type="text" id="ipa-${cardId}" class="ipa-input" placeholder="/ɪnˈkredəbəl/" value="${
+          data.ipa || ""
+        }">
+                </div>
+                <div class="image-upload-container">
+                    <div class="image-preview" onclick="this.querySelector('input').click()">
+                        ${
+                          data.image
+                            ? `<img src="${data.image}" alt="Preview">`
+                            : '<div class="upload-icon"><i class="fas fa-image"></i></div>'
+                        }
+                        <input type="file" accept="image/*" onchange="handleImageUpload(event, '${cardId}')">
+                        ${
+                          data.image
+                            ? `<button class="image-remove-btn" onclick="removeImage(event, '${cardId}')"><i class="fas fa-times"></i></button>`
+                            : ""
+                        }
+                    </div>
+                </div>
+                <button class="delete-button" onclick="deleteCard('${cardId}')"><i class="fas fa-times"></i></button>
+            `;
+        document.getElementById("vocabularyCards").appendChild(card);
+        updateCardNumbers();
+      }
+
+      function deleteCard(cardId) {
+        document.getElementById(cardId)?.remove();
+        if (document.querySelectorAll(".vocabulary-card").length === 0) {
+          addCard();
+        }
+        updateCardNumbers();
+      }
+
+      function removeImage(event, cardId) {
+        event.stopPropagation(); // Ngăn sự kiện click lan ra image-preview
+        const card = document.getElementById(cardId);
+        const previewContainer = card.querySelector(".image-preview");
+        previewContainer.innerHTML =
+          '<div class="upload-icon"><i class="fas fa-image"></i></div><input type="file" accept="image/*" onchange="handleImageUpload(event, \'' +
+          cardId +
+          "')\">";
+        delete previewContainer.dataset.imageData;
+      }
+
+      function handleWordInput(inputElement) {
+        if (isAutoTranslateEnabled) {
+          fetchFullTranslation(inputElement);
+        }
+      }
+
+      // Chuẩn hóa IPA: luôn đảm bảo có dấu gạch chéo /.../ 
+      function normalizeIpa(raw) {
+        if (!raw) return "";
+        const trimmed = raw.trim();
+        if (!trimmed) return "";
+        const stripped = trimmed.replace(/^\/+|\/+$/g, "");
+        return stripped ? `/${stripped}/` : "";
+      }
+
+      // API #1: Free Dictionary API - lấy phiên âm IPA + từ loại (miễn phí, không cần key)
+      async function fetchDictionaryInfo(word) {
+        const response = await fetch(
+          `${DICTIONARY_API_URL}${encodeURIComponent(word.toLowerCase())}`
+        );
+        if (!response.ok) {
+          throw new Error(`Dictionary API status ${response.status}`);
+        }
+        const data = await response.json();
+        const entry = Array.isArray(data) ? data[0] : null;
+        if (!entry) throw new Error("Không có dữ liệu từ điển");
+
+        let ipa = "";
+        if (Array.isArray(entry.phonetics)) {
+          const withText = entry.phonetics.find((p) => p.text && p.text.trim());
+          if (withText) ipa = withText.text;
+        }
+        if (!ipa && entry.phonetic) ipa = entry.phonetic;
+
+        let type = "";
+        if (Array.isArray(entry.meanings) && entry.meanings.length) {
+          type = (entry.meanings[0].partOfSpeech || "").toLowerCase();
+        }
+
+        return { ipa: normalizeIpa(ipa), type };
+      }
+
+      // API #2 (chính): Google Translate (endpoint công khai, không cần key) - nhanh & chính xác nhất
+      async function fetchGoogleTranslate(word) {
+        const url = `${GOOGLE_TRANSLATE_URL}?client=gtx&sl=en&tl=vi&dt=t&dt=bd&q=${encodeURIComponent(
+          word
+        )}`;
+        const response = await fetch(url);
+        if (!response.ok) throw new Error(`Translate API status ${response.status}`);
+        const data = await response.json();
+
+        const meaning = Array.isArray(data[0])
+          ? data[0]
+              .map((chunk) => chunk[0])
+              .join("")
+              .trim()
+          : "";
+        if (!meaning) throw new Error("Không dịch được từ này");
+
+        let type = "";
+        if (data[1] && data[1][0] && data[1][0][0]) {
+          type = String(data[1][0][0]).toLowerCase();
+        }
+
+        return { meaning, type };
+      }
+
+      // API #3 (dự phòng): MyMemory - dùng khi Google Translate lỗi/chặn
+      async function fetchMyMemoryTranslate(word) {
+        const url = `${MYMEMORY_TRANSLATE_URL}?q=${encodeURIComponent(
+          word
+        )}&langpair=en|vi`;
+        const response = await fetch(url);
+        if (!response.ok) throw new Error(`MyMemory status ${response.status}`);
+        const data = await response.json();
+        const meaning = data?.responseData?.translatedText?.trim();
+        if (!meaning) throw new Error("Không dịch được từ này");
+        return { meaning, type: "" };
+      }
+
+      async function fetchFullTranslation(inputElement) {
+        const card = inputElement.closest(".vocabulary-card");
+        const word = inputElement.value.trim();
+        if (!word) {
+          resetPlaceholders(card);
+          return;
+        }
+
+        const meaningInput = card.querySelector(".meaning-input");
+        const typeInput = card.querySelector(".type-input");
+        const ipaInput = card.querySelector(".ipa-input");
+
+        // Lưu trạng thái ban đầu của placeholder để khôi phục
+        const originalMeaningPlaceholder = meaningInput.placeholder;
+        const originalTypePlaceholder = typeInput.placeholder;
+        const originalIpaPlaceholder = ipaInput.placeholder;
+
+        meaningInput.placeholder = "Đang tra cứu...";
+        typeInput.placeholder = "...";
+        ipaInput.placeholder = "...";
+        // Không xóa value cũ để người dùng vẫn nhìn thấy nếu có
+        // meaningInput.value = "";
+        // typeInput.value = "";
+        // ipaInput.value = "";
+
+        try {
+          // Gọi song song 2 nguồn miễn phí để tối ưu tốc độ (không chờ tuần tự)
+          const [dictResult, translateResult] = await Promise.allSettled([
+            fetchDictionaryInfo(word),
+            fetchGoogleTranslate(word).catch(() => fetchMyMemoryTranslate(word)),
+          ]);
+
+          const dict = dictResult.status === "fulfilled" ? dictResult.value : null;
+          const translate =
+            translateResult.status === "fulfilled" ? translateResult.value : null;
+
+          if (!dict && !translate) {
+            throw new Error("Không tìm thấy dữ liệu cho từ này");
+          }
+
+          meaningInput.value = translate?.meaning || "";
+          ipaInput.value = dict?.ipa || "";
+          // Ưu tiên từ loại từ Dictionary API (chuẩn hơn), fallback sang Google Translate
+          typeInput.value = dict?.type || translate?.type || "";
+        } catch (error) {
+          console.error("Error fetching translation:", error);
+          showNotification(`Không tìm thấy dữ liệu cho từ "${word}"`, "error");
+          meaningInput.value = "";
+          typeInput.value = "";
+          ipaInput.value = "";
+        } finally {
+          // Khôi phục placeholder
+          meaningInput.placeholder = originalMeaningPlaceholder;
+          typeInput.placeholder = originalTypePlaceholder;
+          ipaInput.placeholder = originalIpaPlaceholder;
+        }
+      }
+
+      function resetPlaceholders(card) {
+        card.querySelector(".meaning-input").placeholder = "Vietnamese meaning";
+        card.querySelector(".type-input").placeholder = "noun";
+        card.querySelector(".ipa-input").placeholder = "/ɪnˈkredəbəl/";
+      }
+
+      async function handleImageUpload(event, cardId) {
+        const card = document.getElementById(cardId);
+        const previewContainer = card.querySelector(".image-preview");
+        const fileInput = event.target;
+        const file = fileInput.files[0];
+        if (!file) {
+          previewContainer.innerHTML =
+            '<div class="upload-icon"><i class="fas fa-image"></i></div>';
+          delete previewContainer.dataset.imageData;
+          return;
+        }
+
+        if (file.size > 2 * 1024 * 1024) {
+          // 2MB limit
+          showNotification("Ảnh không được lớn hơn 2MB!", "error");
+          fileInput.value = "";
+          previewContainer.innerHTML =
+            '<div class="upload-icon"><i class="fas fa-exclamation-circle" style="color: var(--error);"></i></div>';
+          return;
+        }
+
+        previewContainer.innerHTML = `<div class="loading-spinner"></div>`; // Spinner nhỏ
+        try {
+          // Compress image to a smaller size and quality
+          const compressedFile = await imageCompression(file, {
+            maxSizeMB: 0.5, // Max 500KB
+            maxWidthOrHeight: 400, // Max 400px on either side
+            useWebWorker: true,
+            // Keep original image ratio
+            initialQuality: 0.8,
+          });
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            previewContainer.innerHTML = `<img src="${e.target.result}" alt="Preview">
+                        <input type="file" accept="image/*" onchange="handleImageUpload(event, '${cardId}')" style="display:none;">
+                        <button class="image-remove-btn" onclick="removeImage(event, '${cardId}')"><i class="fas fa-times"></i></button>`;
+            previewContainer.dataset.imageData = e.target.result;
+          };
+          reader.readAsDataURL(compressedFile);
+        } catch (error) {
+          console.error("Image processing error:", error);
+          showNotification("Lỗi khi xử lý ảnh.", "error");
+          previewContainer.innerHTML = `<div class="upload-icon"><i class="fas fa-exclamation-circle" style="color: var(--error);"></i></div><input type="file" accept="image/*" onchange="handleImageUpload(event, '${cardId}')">`;
+        }
+      }
+
+      function createFlashcards() {
+        const cards = [];
+        let hasError = false;
+
+        document.querySelectorAll(".vocabulary-card").forEach((card, index) => {
+          const word = card.querySelector(".word-input").value.trim();
+          const meaning = card.querySelector(".meaning-input").value.trim();
+          const type = card.querySelector(".type-input").value.trim();
+          const ipa = card.querySelector(".ipa-input").value.trim();
+          const image =
+            card.querySelector(".image-preview").dataset.imageData || null;
+
+          if (word && meaning) {
+            if (
+              cards.some((c) => c.word.toLowerCase() === word.toLowerCase())
+            ) {
+              showNotification(`Từ "${word}" bị trùng lặp!`, "warning");
+              hasError = true;
+              return;
+            }
+            cards.push({
+              id: `card_${Date.now()}_${index}`,
+              word,
+              meaning,
+              type,
+              ipa,
+              image,
+            });
+          } else if (word || meaning) {
+            showNotification(
+              `Thẻ #${index + 1} chưa điền đủ Từ và Nghĩa.`,
+              "error"
+            );
+            hasError = true;
+          }
+        });
+
+        if (hasError) return;
+        if (!cards.length) {
+          showNotification("Vui lòng nhập ít nhất một từ vựng!", "warning");
+          return;
+        }
+
+        try {
+          localStorage.setItem(
+            `flashcards_${currentFolderId}`,
+            JSON.stringify(cards)
+          );
+          const folders =
+            JSON.parse(localStorage.getItem("vocabularyFolders")) || {};
+
+          let folderFound = false;
+          for (let dayKey in folders) {
+            if (Array.isArray(folders[dayKey])) {
+              const folderIndex = folders[dayKey].findIndex(
+                (f) => f.id === parseInt(currentFolderId)
+              );
+              if (folderIndex !== -1) {
+                folders[dayKey][folderIndex].wordCount = cards.length;
+                folderFound = true;
+                break;
+              }
+            }
+          }
+
+          if (folderFound) {
+            localStorage.setItem("vocabularyFolders", JSON.stringify(folders));
+          } else {
+            console.warn(
+              "Folder not found in localStorage, word count not updated."
+            );
+          }
+
+          showNotification("Đã lưu bộ thẻ thành công!", "success");
+          setTimeout(
+            () =>
+              (window.location.href = `study-options.html?id=${currentFolderId}`),
+            1500
+          );
+        } catch (e) {
+          console.error("Lỗi khi lưu vào localStorage:", e);
+          showNotification("Lỗi khi lưu! Dữ liệu có thể quá lớn.", "error");
+        }
+      }
+
+      function showBulkInputModal() {
+        document.getElementById("bulkInputModal").style.display = "flex";
+      }
+      function hideBulkInputModal() {
+        document.getElementById("bulkInputModal").style.display = "none";
+      }
+
+      async function processBulkInput() {
+        const bulkText = document.getElementById("bulkText").value.trim();
+        if (!bulkText) {
+          showNotification("Vui lòng nhập dữ liệu!", "warning");
+          return;
+        }
+        hideBulkInputModal();
+        showNotification("Bắt đầu xử lý hàng loạt...", "success");
+
+        const existingCards = document.querySelectorAll(".vocabulary-card");
+        if (
+          existingCards.length === 1 &&
+          !existingCards[0].querySelector(".word-input").value.trim()
+        ) {
+          existingCards[0].remove();
+        }
+
+        const lines = bulkText.split("\n").filter((line) => line.trim() !== "");
+        const wordsToProcess = lines.map((line) => line.trim());
+
+        wordsToProcess.forEach((word) => {
+          addCard({ word });
+        });
+        updateCardNumbers();
+
+        const concurrencyLimit = 6; // API miễn phí nhẹ & nhanh nên có thể tăng số luồng đồng thời
+        let activePromises = 0;
+        let index = 0;
+
+        const processNext = async () => {
+          if (index >= wordsToProcess.length && activePromises === 0) {
+            document.getElementById("bulkText").value = "";
+            showNotification(
+              `Đã thêm và dịch ${wordsToProcess.length} từ vựng!`,
+              "success"
+            );
+            return;
+          }
+
+          while (
+            index < wordsToProcess.length &&
+            activePromises < concurrencyLimit
+          ) {
+            const word = wordsToProcess[index];
+            const newCardElement = document.querySelector(
+              `.vocabulary-card:nth-child(${
+                document.querySelectorAll(".vocabulary-card").length -
+                (wordsToProcess.length - index) +
+                1
+              })`
+            );
+
+            if (newCardElement) {
+              const wordInput = newCardElement.querySelector(".word-input");
+              activePromises++;
+              await fetchFullTranslation(wordInput) // Dùng await để đảm bảo thứ tự
+                .catch((e) => {
+                  console.error(`Error processing word "${word}":`, e);
+                })
+                .finally(() => {
+                  activePromises--;
+                  processNext();
+                });
+            }
+            index++;
+          }
+        };
+        processNext();
+      }
+
+      function showNotification(message, type) {
+        const notification = document.getElementById("notification");
+        notification.textContent = message;
+        notification.className = `notification show ${type}`;
+        const iconHtml =
+          {
+            success: '<i class="fas fa-check-circle icon"></i>',
+            error: '<i class="fas fa-times-circle icon"></i>',
+            warning: '<i class="fas fa-exclamation-triangle icon"></i>',
+          }[type] || "";
+        notification.innerHTML = iconHtml + message;
+
+        setTimeout(() => {
+          notification.classList.remove("show");
+        }, 3000);
+      }
+    </script>
+  </body>
 </html>
